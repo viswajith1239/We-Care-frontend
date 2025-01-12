@@ -87,10 +87,10 @@ const Otp: React.FC = () => {
      dispatch(verifyOtp({ userData, otp: otpString })).then((res) => {
     
         if (res.meta.requestStatus === "fulfilled") {
-        
+          toast.success("OTP verified successfully!");
           setOtpVerified(true);
         } else {
-          // Handle invalid OTP
+          toast.error(res.payload?.message || "Invalid OTP. Please try again.");
         }
       });
     }
@@ -102,16 +102,19 @@ const Otp: React.FC = () => {
       const response = await axios.post(`${API_URL}/user/resend-otp`, {
         email: userData?.email,
       });
-
+  
       if (response.status === 200) {
+        toast.success("OTP resent successfully!");
         startCountdown();
       } else {
-        toast.error("Failed to resend OTP. Please try again.");
+        toast.error(response.data?.message || "An error occurred. Please try again.");
       }
-    } catch (error) {
+    } catch (error: any) { // Add error parameter here
       console.error("Error resending OTP:", error);
+      toast.error(error.response?.data?.message || "An error occurred. Please try again.");
     }
   };
+  
 
   useEffect(() => {
     if (otpVerified) {
@@ -120,6 +123,7 @@ const Otp: React.FC = () => {
   }, [otpVerified, navigate]);
 
   return (
+    <div className="min-h-screen flex items-center justify-center">
     <div className="w-full max-w-md px-8 py-10 bg-white rounded-lg shadow-md dark:bg-gray-950 dark:text-gray-200">
          <Toaster />
       <h1 className="text-2xl font-semibold text-center mb-6">Enter OTP</h1>
@@ -163,6 +167,7 @@ const Otp: React.FC = () => {
         >
           {isDisabled ? `Resend OTP in ${seconds}s` : "Resend OTP"}
         </button>
+    </div>
     </div>
   );
 };

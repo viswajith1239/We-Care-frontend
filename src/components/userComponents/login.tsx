@@ -7,31 +7,60 @@ import {AppDispatch} from "../../app/store"
 import {loginUser,GoogleLogins} from "../../action/userActions"
 import {GoogleLogin,CredentialResponse} from "@react-oauth/google"
 
-
+interface Errors {
+  email?: string;
+  password?: string;
+}
 function login(){
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
    const [showPassword, ] = useState<boolean>(false); 
+   const [errors, setErrors] = useState<Errors>({});
 
 
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
   // const { userInfo, error } = useSelector((state: RootState) => state.user);
+  const validate = (): Errors => {
+    const newErrors: Errors = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!email.trim()) {
+      newErrors.email = "Please fill the email field";
+    } else if (!emailRegex.test(email)) {
+      newErrors.email = "Valid email is required";
+    }
+
+    if (!password.trim()) {
+      newErrors.password = "Please fill the password field";
+    } else if (password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+
+    return newErrors;
+  };
+
+  const clearErrors = () => {
+    setTimeout(() => {
+      setErrors({});
+    }, 3000);
+  };
+
 
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
   
-    // const formErrors = validate();
-    // setErrors(formErrors);
+    const formErrors = validate();
+    setErrors(formErrors);
   
-    // if (Object.keys(formErrors).length > 0) {
-    //   clearErrors();
-    //   return;
-    // }
+    if (Object.keys(formErrors).length > 0) {
+      clearErrors();
+      return;
+    }
   
-    // setErrors({});
+    setErrors({});
   
     const userData = {
       email,
@@ -76,7 +105,8 @@ function login(){
       
     return(
 <div className="relative bg-center  mt-0 min-h-screen">
-           <Toaster />
+  <Toaster/>
+            
         <div className='absolute -z-10 h-full overflow-hidden '>
           <div className='absolute bg-[#c8ebc51f] w-full h-full' ></div>
         
@@ -109,7 +139,9 @@ function login(){
                     className="h-[37px] bg-transparent border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5  dark:border-gray-600 dark:placeholder-gray-500 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   
                   />
-                   
+                     {errors.email && (
+                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              )}
                
                 
                 </div>
@@ -129,6 +161,9 @@ function login(){
                     
                     className="h-[37px] bg-transparent border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5  dark:border-gray-600 dark:placeholder-gray-500 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   />
+                   {errors.password && (
+                <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+              )}
                   
              
                 </div>

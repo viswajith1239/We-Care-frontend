@@ -7,6 +7,7 @@ import {useNavigate} from "react-router-dom"
 import {Link} from "react-router-dom"
 import {registerForm} from "../../action/userActions"
 import {User} from "../../features/userTyepes"
+import image from "../../assets/health-still-life-with-copy-space.jpg"
 // import { FiEye, FiEyeOff } from "react-icons/fi"; 
 
 interface Errors {
@@ -56,7 +57,11 @@ const Signup: React.FC=()=>{
       const formErrors = validate();
       setErrors(formErrors);
       if (Object.keys(formErrors).length > 0) {
+        setTimeout(() => {
+          setErrors({});
+        }, 3000);
         return;
+        
       }
       const userData: User = { name, email, phone, password };
       const action = await dispatch(registerForm(userData));
@@ -64,7 +69,8 @@ const Signup: React.FC=()=>{
         toast.error(action.payload?.message || "Something went wrong");
         return;
       }
-      navigate("/verifyotp", { state: userData, replace:true});
+      toast.success("OTP sent to your email");
+      navigate("/verifyotp", { state: userData, });
     };
 
       
@@ -72,13 +78,14 @@ const Signup: React.FC=()=>{
     return(
         
         
-        <div className="relative bg-center  mt-0 min-h-screen">
-           <Toaster />
-        <div className='absolute -z-10 h-full overflow-hidden '>
-          <div className='absolute bg-[#c8ebc51f] w-full h-full' ></div>
-        
-        </div>
-        <section className="flex flex-col items-center py-10  justify-center" >
+      <div className="relative bg-center  mt-0 min-h-screen">
+        <Toaster/>
+      <div className='absolute -z-10 h-full overflow-hidden '>
+        <div className='absolute bg-[#c8ebc51f] w-full h-full' ></div>
+        <img src={image} alt="" className='w-screen object-contain' />
+      </div>
+     <section className="flex flex-col items-center py-10  justify-center" >
+       
           <div
            className="w-[400px] md:w-[500px] bg-[#ffffff24] rounded-lg shadow  md:mt-0 sm:max-w-md xl:p-0  ">
             <div className="p-6 space-y-4 md:space-y-6 sm:p-8 ">
@@ -179,7 +186,9 @@ const Signup: React.FC=()=>{
             </div>
           </div>
         </section>
-      </div>
+      
+        </div>
+    
 
     )
 
