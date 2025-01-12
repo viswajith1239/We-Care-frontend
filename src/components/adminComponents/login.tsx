@@ -26,7 +26,7 @@ function Login() {
 
       console.log("actionnnnnnnnnn", action);
       if (adminLogin.fulfilled.match(action)) {
-       
+        console.log("action keri");
         
         toast.success("Successfully logged in!");
         setTimeout(() => {

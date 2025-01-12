@@ -69,14 +69,14 @@ function AdminSideBar() {
           >
             <FaUsers size={22} />
             <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Users</span>
-          </Link>
+          </Link> */}
           <Link
             to="/admin/login"
             className="flex items-center px-4 py-2 text-gray-100 hover:bg-gray-400 hover:bg-opacity-25 rounded-2xl"
           >
             <FaSignOutAlt size={22} />
             <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Logout</span>
-          </Link> */}
+          </Link>
         </nav>
         
       </div>

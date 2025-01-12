@@ -39,6 +39,7 @@ const addSpecialization=async(formData: { name: string; description: string })=>
   console.log("///  ")
   console.log("add specialization");
   
+  
 //  console.log("////////",Array.from(formData.entries()))
 try {
   console.log('thi is try');
