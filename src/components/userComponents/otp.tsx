@@ -118,7 +118,7 @@ const Otp: React.FC = () => {
 
   useEffect(() => {
     if (otpVerified) {
-      navigate("/login");
+      navigate("/login",{replace:true});
     }
   }, [otpVerified, navigate]);
 

@@ -7,7 +7,7 @@ import {useNavigate} from "react-router-dom"
 import {Link} from "react-router-dom"
 import {registerForm} from "../../action/userActions"
 import {User} from "../../features/userTyepes"
-import image from "../../assets/health-still-life-with-copy-space.jpg"
+// import image from "../../assets/health-still-life-with-copy-space.jpg"
 // import { FiEye, FiEyeOff } from "react-icons/fi"; 
 
 interface Errors {
@@ -70,7 +70,7 @@ const Signup: React.FC=()=>{
         return;
       }
       toast.success("OTP sent to your email");
-      navigate("/verifyotp", { state: userData, });
+      navigate("/verifyotp", { state: userData,replace:true });
     };
 
       
@@ -82,7 +82,7 @@ const Signup: React.FC=()=>{
         <Toaster/>
       <div className='absolute -z-10 h-full overflow-hidden '>
         <div className='absolute bg-[#c8ebc51f] w-full h-full' ></div>
-        <img src={image} alt="" className='w-screen object-contain' />
+        {/* <img src={image} alt="" className='w-screen object-contain' /> */}
       </div>
      <section className="flex flex-col items-center py-10  justify-center" >
        

@@ -30,7 +30,7 @@ function Login() {
         
         toast.success("Successfully logged in!");
         setTimeout(() => {
-          navigate("/admin");
+          navigate("/admin",{replace:true});
         }, 1000);
       }else{
         toast.error("Invalid Credentials")

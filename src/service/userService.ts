@@ -32,7 +32,7 @@ const verifyOtp = async ({
   if (response.data) {
     console.log("verifyotpsssss",response.data);
     
-    // Store the user data in localStorage after successful OTP verification
+    
     localStorage.setItem("user", JSON.stringify(response.data));
   }
 
@@ -40,9 +40,19 @@ const verifyOtp = async ({
 };
 
 const login = async (userData: { email: string; password: string }) => {
-  const response = await userAxiosInstance.post(`${API_URL}/user/login`, userData);
-  return response;
+  try {
+    const response = await userAxiosInstance.post(`${API_URL}/user/login`, userData);
+    return response; 
+  } catch (error: any) {
+    if (error.response && error.response.status === 403) {
+      
+      throw new Error('userblocked');
+    }
+   
+    throw error.response ? error.response.data : new Error('An unknown error occurred');
+  }
 };
+
 
 
 const googleAuth=async(token:string)=>{

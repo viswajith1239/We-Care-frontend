@@ -27,7 +27,7 @@ const loginAdmin=async({email,password}:{email:string,password:string})=>{
 
 const getSpecializations = async () => {
   try {
-    const response = await adminAxiosInstance.get(`${API_URL}/admin/specialization`); // Adjust URL based on your backend
+    const response = await adminAxiosInstance.get(`${API_URL}/admin/specialization`); 
     return response;
   } catch (error) {
     console.error("Error fetching specializations:", error);

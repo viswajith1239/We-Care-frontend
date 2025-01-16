@@ -19,7 +19,7 @@ interface LoginAdmin {
         console.log("response status",response.status);
         
   
-        // Check for a valid response and return the data
+        
         console.log("evide ethi");
         
         if (response.status === 200) {

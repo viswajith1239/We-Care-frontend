@@ -68,6 +68,12 @@ export const loginUser = createAsyncThunk(
       console.log('user login response data', response.data);  
       return response.data; 
     } catch (error: any) {
+      console.log("enterd to aerror");
+      
+      if (error.response && error.response.status === 403) {
+        console.log("Email user blocked", error.response);
+        return thunkAPI.rejectWithValue({ status: 403, message: 'Your account is blocked.' });
+      }
       return thunkAPI.rejectWithValue(error.response.data);
     }
   }

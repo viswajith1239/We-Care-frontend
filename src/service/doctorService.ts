@@ -43,7 +43,7 @@ const registerDoctor = async (doctorData: IDoctor) => {
     if (response.data) {
       console.log("verifyotpsssss",response.data);
       
-      // Store the user data in localStorage after successful OTP verification
+    
       localStorage.setItem("doctor", JSON.stringify(response.data));
     }
   

@@ -119,7 +119,7 @@ function DoctorOtp(){
   
     useEffect(() => {
       if (otpVerified) {
-        navigate("/doctor/login");
+        navigate("/doctor/login",{replace:true});
       }
     }, [otpVerified, navigate]);
   

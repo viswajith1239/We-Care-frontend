@@ -72,11 +72,11 @@ function login(){
       .then(() => {
         toast.success("Login successful!");
         setTimeout(() => {
-          navigate("/");
+          navigate("/",{replace:true});
         }, 1000);
       })
       .catch((error: any) => {
-        if (error?.message === "User is blocked") {
+        if (error?.message === "Your account is blocked.") {
           toast.error("Your account is blocked.");
         } else if (error?.message === "Invalid email or password") {
           toast.error("Invalid email or password.");

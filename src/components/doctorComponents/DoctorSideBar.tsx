@@ -1,9 +1,14 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { FaBars, FaChartPie, FaListAlt, FaCheckCircle, FaUsers, FaSignOutAlt } from "react-icons/fa";
-// import LOGO from "./path/to/logo";
+import {
+  FaBars,
+  FaChartPie,
+  // FaListAlt,
+  // FaUsers,
+  FaSignOutAlt,
+} from "react-icons/fa";
 
-function AdminSideBar() {
+function DoctorSideBar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const toggleSidebar = () => {
@@ -11,16 +16,13 @@ function AdminSideBar() {
   };
 
   return (
-    
     <div className="flex h-screen bg-gray-100">
-      
       {/* Sidebar */}
       <div
-  className={`${
-    isSidebarOpen ? "w-64" : "w-20"
-  } bg-[#00897B] text-white flex flex-col p-5 transition-all duration-300 rounded-2xl`}
->
-        
+        className={`${
+          isSidebarOpen ? "w-64" : "w-20"
+        } bg-[#00897B] text-white flex flex-col p-5 transition-all duration-300 rounded-2xl`}
+      >
         {/* Sidebar Header */}
         <div className="flex justify-between items-center mb-6">
           <button onClick={toggleSidebar} className="text-white">
@@ -28,7 +30,8 @@ function AdminSideBar() {
           </button>
           {isSidebarOpen && (
             <div className="flex items-center justify-center">
-              {/* <img className="w-12 h-12 rounded-full" src={LOGO} alt="Logo" /> */}
+              {/* Logo placeholder */}
+              {/* Add logo here if needed */}
             </div>
           )}
         </div>
@@ -36,56 +39,44 @@ function AdminSideBar() {
         {/* Navigation Links */}
         <nav className="flex flex-col space-y-6">
           <Link
-            to=""
+            to="/doctor"
             className="flex items-center px-4 py-2 text-gray-100 hover:bg-gray-400 hover:bg-opacity-25 rounded-2xl"
           >
             <FaChartPie size={22} />
             <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Dashboard</span>
           </Link>
-          <Link
-            to="/admin/specialisations"
+          {/* <Link
+            to=""
             className="flex items-center px-4 py-2 text-gray-100 hover:bg-gray-400 hover:bg-opacity-25 rounded-2xl"
           >
             <FaListAlt size={22} />
-            <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Specializations</span>
-          </Link>
+            <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Sessions</span>
+          </Link> */}
           {/* <Link
-            to="/admin/verification"
-            className="flex items-center px-4 py-2 text-gray-100 hover:bg-gray-400 hover:bg-opacity-25 rounded-2xl"
-          >
-            <FaCheckCircle size={22} />
-            <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Verification</span>
-          </Link>
-          <Link
             to=""
             className="flex items-center px-4 py-2 text-gray-100 hover:bg-gray-400 hover:bg-opacity-25 rounded-2xl"
           >
             <FaUsers size={22} />
-            <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Trainers</span>
+            <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Messages</span>
           </Link> */}
-          <Link
+          {/* <Link
             to="/admin/user-listing"
             className="flex items-center px-4 py-2 text-gray-100 hover:bg-gray-400 hover:bg-opacity-25 rounded-2xl"
           >
             <FaUsers size={22} />
-            <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Users</span>
-          </Link>
+            <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Profile</span>
+          </Link> */}
           <Link
-            to="/admin/login"
+            to="/doctor/login"
             className="flex items-center px-4 py-2 text-gray-100 hover:bg-gray-400 hover:bg-opacity-25 rounded-2xl"
           >
             <FaSignOutAlt size={22} />
             <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Logout</span>
           </Link>
         </nav>
-        
       </div>
-      {/* <div className="p-4">
-            <h1 className="text-2xl font-bold">Welcome to Admin dashboard!</h1>
-
-        </div> */}
     </div>
   );
 }
 
-export default AdminSideBar;
+export default DoctorSideBar;
