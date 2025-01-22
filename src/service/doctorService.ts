@@ -72,11 +72,35 @@ const registerDoctor = async (doctorData: IDoctor) => {
   
   }
 
+  const kycSubmission = async (formData: FormData) => {
+      console.log("in subbbbb");
+      
+    try {
+      console.log("in try");
+      
+      const response = await doctorAxiosInstance.post(`${API_URL}/doctors/kyc`, formData, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      console.log("yes............response data is",response.data)
+      return response.data;
+    } catch (error: any) {
+      console.error(
+        "Error kyc submission doctor:",
+        error.response ? error.response.data : error.message
+      );
+      throw error;
+    }
+  };
+
 
   const doctorService={
     registerDoctor,
     verifyOtp,
     loginDoctor,
+    kycSubmission
     
   }
   export default doctorService;

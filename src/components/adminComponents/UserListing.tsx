@@ -1,10 +1,12 @@
-import React from 'react'
+// import React from 'react'
 import adminAxiosInstance from '../../axios/adminAxiosInstance'
 import { useEffect,useState } from 'react'
 import {User} from "../../types/user"
 
 function UserListing(){
     const [users, setUsers] = useState<User[]>([]);
+    const [currentPage,setcurrentPage]=useState<number>(1)
+    const [itemsPerPage]=useState<number>(5)
 
     useEffect(()=>{
         const fetchData=async()=>{
@@ -40,6 +42,21 @@ function UserListing(){
         }
    }
 
+   const handlePageChange:any=(pageNumber:number)=>{
+    if(pageNumber<1){
+       setcurrentPage(1)
+    }else if(pageNumber>Math.ceil(users.length/itemsPerPage)){
+       setcurrentPage(Math.ceil(users.length/itemsPerPage))
+
+    }else{
+       setcurrentPage(pageNumber)
+    }
+   }
+
+   const indexOfLastItem = currentPage * itemsPerPage;
+   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+   const currentSessions = users.slice(indexOfFirstItem, indexOfLastItem);
+
     return(
         <div className=" rounded-lg overflow-hidden mx-4 md:mx-10">
        <table className="border border-gray-200 divide-y divide-gray-200 rounded-lg overflow-hidden">
@@ -63,8 +80,8 @@ function UserListing(){
     </tr>
   </thead>
   <tbody className="bg-white divide-y divide-gray-200">
-  {users.length > 0 ? (
-    users.map((user, index) => (
+  {currentSessions.length > 0 ? (
+    currentSessions.map((user, index) => (
       <tr key={user.id}>
         <td className="px-6 py-4 whitespace-nowrap">{index + 1}</td>
         <td className="px-6 py-4 whitespace-nowrap">{user.name}</td>
@@ -99,6 +116,23 @@ function UserListing(){
 </tbody>
 
 </table>
+<div className="flex justify-center mt-4 relative left-[-100px]">
+
+<button onClick={()=>handlePageChange(currentPage-1)}
+          disabled={currentPage === 1}
+          className="px-4 py-2 bg-[#00897B] text-white rounded mr-2 bg-[#00897B]"
+
+>previous</button>
+
+
+<button onClick={()=>handlePageChange(currentPage+1)}
+      disabled={indexOfLastItem >= users.length}
+      className="px-4 py-2 bg-[#00897B] text-white rounded bg-[#00897B]"
+
+>next
+</button>
+
+</div>
 
       </div>
     );

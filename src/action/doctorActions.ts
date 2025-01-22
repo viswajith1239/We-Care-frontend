@@ -63,3 +63,19 @@ export const registerDoctor = createAsyncThunk(
         }
     }
   )
+
+  export const submitKyc = createAsyncThunk(
+    'doctor/kyc', 
+    async ({ formData }: { formData: FormData }, thunkAPI) => {  // Accept FormData here
+      console.log("FormData check:", Array.from(formData.entries()));
+      try {
+        console.log("kycccccccccccccc");
+        
+        const response = await doctorservice.kycSubmission(formData); // Pass FormData
+        console.log('response in submitkyc in action ', response);
+        return response;
+      } catch (error: any) {
+        return thunkAPI.rejectWithValue(error.response?.data || error.message);
+      }
+    }
+  );

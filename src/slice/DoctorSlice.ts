@@ -67,8 +67,8 @@ const doctorSlice=createSlice({
             
             state.loading=false
 
-            state.doctorInfo = action.payload.trainer
-            console.log("_______trainerinfo", state.doctorInfo)
+            state.doctorInfo = action.payload.doctor
+            console.log("_______doctorinfo", state.doctorInfo)
            // state.trainerToken = action.payload.token;
             localStorage.setItem("trainer", JSON.stringify(action.payload.trainer));
             localStorage.setItem("trainer_access_token", action.payload.token);

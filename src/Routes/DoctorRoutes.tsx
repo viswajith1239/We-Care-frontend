@@ -3,6 +3,7 @@ import DoctorSignUpPage from "../pages/doctorPages/DoctorSignup"
 import DoctorOtpPage from "../pages/doctorPages/DoctorOtp"
 import DoctorLoginPage from "../pages/doctorPages/DoctorLogin"
 import DoctorLayout from "../components/doctorComponents/DoctorLayout"
+import DoctorKyc from "../components/doctorComponents/DoctorKyc"
 // import DoctorDashboard from "../components/doctorComponents/DoctorDashboard"
 
 
@@ -14,6 +15,8 @@ function DoctorRoutes(){
             <Route path="/otp" element={<DoctorOtpPage/>}/>
             <Route path="/login" element={<DoctorLoginPage/>}/>
             {/* <Route index element={<DoctorDashboard/>}/> */}
+            <Route path="/doctorkyc" element={<DoctorKyc/>}/>
+
         </Routes>
     )
 }

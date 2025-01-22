@@ -53,7 +53,7 @@ doctorAxiosInstance.interceptors.response.use(
       }
     }
 
-    console.error("Trainer response error:", error.response?.data);
+    console.error("doctor response error:", error.response?.data);
     return Promise.reject(error);
   }
 );
