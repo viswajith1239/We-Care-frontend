@@ -26,7 +26,7 @@ function DoctorDashboard() {
               <a href="/trainer-profile" className="text-gray-700 hover:text-[#572c52]">My Profile</a>
             </li>
             <li>
-              <a href="/trainer-kyc" className="text-gray-700 hover:text-[#572c52]">KYC Verification</a>
+              <a href="/doctor-kyc" className="text-gray-700 hover:text-[#572c52]">KYC Verification</a>
             </li>
             <li>
               <a href="/trainer-courses" className="text-gray-700 hover:text-[#572c52]">Courses</a>

@@ -78,7 +78,8 @@ const registerDoctor = async (doctorData: IDoctor) => {
     try {
       console.log("in try");
       
-      const response = await doctorAxiosInstance.post(`${API_URL}/doctors/kyc`, formData, {
+      const response = await doctorAxiosInstance.post(`${API_URL}/doctor/kyc`, formData, {
+        
         withCredentials: true,
         headers: {
           "Content-Type": "multipart/form-data",
@@ -95,12 +96,28 @@ const registerDoctor = async (doctorData: IDoctor) => {
     }
   };
 
+  const kycStatus = async (doctor_id: string) => {
+    console.log("request gone from servicefront")
+    try {
+      const response = await doctorAxiosInstance.get(`${API_URL}/doctor/kycStatus/${doctor_id}`);
+      console.log("******service submickyc*******",response.data)
+      return response.data;
+    } catch (error: any) {
+      console.error(
+        "Error during KYC status fetching:",
+        error.response ? error.response.data : error.message
+      );
+      throw error;
+    }
+  };
+
 
   const doctorService={
     registerDoctor,
     verifyOtp,
     loginDoctor,
-    kycSubmission
+    kycSubmission,
+    kycStatus
     
   }
   export default doctorService;

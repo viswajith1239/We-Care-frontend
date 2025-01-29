@@ -37,7 +37,7 @@ doctorAxiosInstance.interceptors.response.use(
       try {
         console.log("Attempting to refresh token...");
         const response = await doctorAxiosInstance.post<{ accessToken: string }>(
-          "/api/user/refresh-token",
+          "/api/doctor/refresh-token",
           {},
           { withCredentials: true }
         );

@@ -5,6 +5,8 @@ import Login from "../pages/adminPages/Login"
 import AdminLayout from "../components/adminComponents/AdminLayout"
 import SpecializationsPage from "../pages/adminPages/SpecializationPage"
 import UserListingPage from "../pages/adminPages/UserListingPage"
+import VerificatonPage from "../pages/adminPages/VerificatonPage"
+import DoctorVerifyPage from "../pages/adminPages/DoctorVerifyPage"
 
 function AdminRoutes(){
     return(
@@ -13,6 +15,8 @@ function AdminRoutes(){
             <Route path="/" element={<AdminLayout />}>
             <Route path="/specialisations" element={<SpecializationsPage />} />
             <Route path="/user-listing" element={<UserListingPage />} />
+            <Route path="/verification" element={<VerificatonPage />} />
+            <Route path="/doctor-view/:doctorId" element={<DoctorVerifyPage />} />
             
 
             </Route>

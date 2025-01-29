@@ -1,16 +1,14 @@
 import {createSlice,PayloadAction} from "@reduxjs/toolkit"
-import { registerDoctor,loginDoctor } from "../action/doctorActions"
+import { registerDoctor,loginDoctor,submitKyc,getKycStatus} from "../action/doctorActions"
 
 
 interface DoctorState{
     doctorInfo:null|any,
     loading:null|any
-    // kycStatus: string;
+    kycStatus: string;
 
 
-    // trainerToken:null |any,
-   // specializations:null|any
-    error:null|any
+    error:null|any  
 }
 
 const doctor = localStorage.getItem("doctor");
@@ -20,7 +18,7 @@ const initialState:DoctorState={
     doctorInfo:parsedDoctor,
     loading:false,
     error:null,
-    // kycStatus: "pending",
+    kycStatus: "pending",
 
     // doctorToken:localStorage.getItem("trainer_access_token") || null,
     // specializations: [],
@@ -33,9 +31,7 @@ const doctorSlice=createSlice({
     reducers:{
         clearDoctor(state) {
             state.doctorInfo = null;
-            //state.doctorToken = null;
-            //state.specializations = [];
-            
+           
           },
           
     },
@@ -68,16 +64,54 @@ const doctorSlice=createSlice({
             state.loading=false
 
             state.doctorInfo = action.payload.doctor
-            console.log("_______doctorinfo", state.doctorInfo)
-           // state.trainerToken = action.payload.token;
-            localStorage.setItem("trainer", JSON.stringify(action.payload.trainer));
-            localStorage.setItem("trainer_access_token", action.payload.token);
+            console.log("doctorinfo", state.doctorInfo)
+         
+            localStorage.setItem("doctor", JSON.stringify(action.payload.doctor));
+            localStorage.setItem("doctor_access_token", action.payload.token);
           })
           .addCase(loginDoctor.rejected, (state) => {
             state.loading=false
 
             
           }) 
+          .addCase(submitKyc.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+          })
+          //////////////////////////
+          .addCase(submitKyc.fulfilled, (state, action: PayloadAction<any>) => {
+            state.loading = false;
+          
+            console.log('submitt kyc',action.payload);
+            
+            state.error = null;
+          })
+          .addCase(submitKyc.rejected, (state, _action: PayloadAction<any>) => {
+            state.loading = false;
+        
+          })
+
+          .addCase(getKycStatus.pending, (state) => {
+            console.log("pending case slice")
+            state.loading = true;
+            state.error = null;
+          })
+          .addCase(getKycStatus.fulfilled, (state, action: PayloadAction<any>) => {
+            console.log("fulfilled case slice")
+
+            console.log("yes ethii")
+            state.loading = false;
+            state.kycStatus = action.payload.kycStatus;
+            console.log('get kyc',action.payload.kycStatus);
+            
+            state.error = null;
+          })
+          .addCase(getKycStatus.rejected, (state, action: PayloadAction<any>) => {
+            console.log("rejected case slice")
+
+            state.loading = false;
+            state.error = action.payload?.message || "OTP verification failed";
+          })
         }
 
 })

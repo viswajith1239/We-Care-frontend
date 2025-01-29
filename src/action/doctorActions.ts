@@ -79,3 +79,23 @@ export const registerDoctor = createAsyncThunk(
       }
     }
   );
+
+  export const getKycStatus = createAsyncThunk(
+    'doctor/kycStatus',
+    async (doctor_id: string, thunkAPI) => {
+     try {
+      console.log("yes request gone.......")
+  
+      const response = await doctorservice.kycStatus(doctor_id)
+      
+       console.log("kyc status response action",response);
+      
+      return response
+      
+     } catch (error : any) {
+      return thunkAPI.rejectWithValue(error.response)
+      
+     }
+    }
+  
+  )

@@ -2,6 +2,7 @@ import React, { ChangeEvent, FormEvent, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { AppDispatch, RootState } from "../../app/store";
 import { submitKyc } from "../../action/doctorActions";
+import Loading from '../spinner/loading';
 
 function DocorKyc() {
   const [name, setName] = useState<string>("");
@@ -25,12 +26,16 @@ function DocorKyc() {
     certificate: null,
   });
 
-  const { doctorInfo,} = useSelector(
+  const { doctorInfo,loading} = useSelector(
     (state: RootState) => state.doctor
   );
 
-  const trainer_id = doctorInfo?.id;
-  const specialization = doctorInfo?.specialization;
+  console.log("doctorInfo in selector:", doctorInfo);
+
+  const doctor_id = doctorInfo?.id;
+  console.log("doc",doctor_id);
+  
+ 
 
   const dispatch = useDispatch<AppDispatch>();
 
@@ -76,15 +81,9 @@ function DocorKyc() {
     }
   
     const formData = new FormData();
-    formData.append('doctor_id', trainer_id!);
+    formData.append('doctor_id', doctor_id!);
   
-    if (Array.isArray(specialization)) {
-      specialization.forEach((spec) => {
-        formData.append('specialization[]', spec);
-      });
-    } else {
-      formData.append('specialization', specialization!);
-    }
+    
   
     formData.append('name', name);
     formData.append('email', email);
@@ -130,7 +129,7 @@ function DocorKyc() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      {/* {loading && <Loading />} */}
+      {loading && <Loading />}
       <h1 className="text-3xl font-bold mb-6 text-center">KYC Submission</h1>
       <p className="mb-6 text-center text-gray-600">
         Please fill in the details below to complete your KYC submission.
