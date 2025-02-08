@@ -5,7 +5,7 @@ function DoctorDashboard() {
     <div className="min-h-screen bg-gray-100 p-6 flex flex-col">
 
       {/* Header Section */}
-      <div className="bg-[#572c52] p-4 text-white flex items-center justify-between rounded-t-lg">
+      <div className="bg-[#5cbba8] p-4 text-white flex items-center justify-between rounded-t-lg">
         <h1 className="text-2xl font-bold">Doctor Dashboard</h1>
         <div className="flex items-center gap-4">
           <span>Welcome, Doctor</span>
@@ -23,16 +23,16 @@ function DoctorDashboard() {
               <a href="/doctor-dashboard" className="text-gray-700 hover:text-[#572c52]">Dashboard</a>
             </li>
             <li>
-              <a href="/trainer-profile" className="text-gray-700 hover:text-[#572c52]">My Profile</a>
+              <a href="/doctor-profile" className="text-gray-700 hover:text-[#572c52]">My Profile</a>
             </li>
             <li>
               <a href="/doctor-kyc" className="text-gray-700 hover:text-[#572c52]">KYC Verification</a>
             </li>
             <li>
-              <a href="/trainer-courses" className="text-gray-700 hover:text-[#572c52]">Courses</a>
+              {/* <a href="/trainer-courses" className="text-gray-700 hover:text-[#572c52]">Courses</a> */}
             </li>
             <li>
-              <a href="/trainer-stats" className="text-gray-700 hover:text-[#572c52]">Statistics</a>
+              <a href="/doctor-stats" className="text-gray-700 hover:text-[#572c52]">Statistics</a>
             </li>
           </ul>
         </div>
@@ -59,7 +59,7 @@ function DoctorDashboard() {
           </div>
 
           {/* Upcoming Courses */}
-          <div className="bg-gray-50 p-4 rounded-lg shadow-md">
+          {/* <div className="bg-gray-50 p-4 rounded-lg shadow-md">
             <h4 className="text-lg font-semibold text-[#572c52]">Upcoming Courses</h4>
             <ul className="mt-4">
               <li className="flex justify-between items-center py-2">
@@ -75,18 +75,18 @@ function DoctorDashboard() {
                 <span className="text-gray-500">20/01/2024</span>
               </li>
             </ul>
-          </div>
+          </div> */}
 
           {/* Activity Stats */}
           <div className="bg-gray-50 p-4 rounded-lg shadow-md">
             <h4 className="text-lg font-semibold text-[#572c52]">Activity Statistics</h4>
             <div className="mt-4 grid grid-cols-2 gap-4">
               <div className="text-center">
-                <h5 className="font-medium text-gray-600">Total Students</h5>
+                <h5 className="font-medium text-gray-600">Total users</h5>
                 <p className="text-2xl font-bold text-[#572c52]">150</p>
               </div>
               <div className="text-center">
-                <h5 className="font-medium text-gray-600">Total Courses</h5>
+                <h5 className="font-medium text-gray-600">Total appoinments</h5>
                 <p className="text-2xl font-bold text-[#572c52]">12</p>
               </div>
             </div>

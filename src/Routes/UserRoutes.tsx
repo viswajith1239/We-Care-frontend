@@ -6,6 +6,7 @@ import Otp from '../pages/userPages/Otp';
 
 import Login from '../pages/userPages/Login';
 import HomePage from '../pages/userPages/HomePage';
+import DoctorsPage from '../pages/userPages/DoctorsPage';
 
 
 
@@ -17,6 +18,7 @@ function UserRoutes() {
         <Route path="/signup" element={<Signup/>}/>
         <Route path="/verifyotp" element={<Otp/>}/>
         <Route path="/login" element={<Login/>}/>
+        <Route path="/doctors" element={<DoctorsPage/>}/>
 
         
     </Routes>

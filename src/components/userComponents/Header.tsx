@@ -33,20 +33,21 @@ function Header() {
     
     <nav className="hidden md:flex space-x-8">
     <h1 className="text-1xl font-bold text-white">
-  <a href="#" className="hover:text-yellow-400 transition">
+  <a href="/" className="hover:text-yellow-400 transition">
     Home
   </a>
      </h1>
 
 
+    
      <h1 className="text-1xl font-bold text-white">
-  <a href="#" className="hover:text-yellow-400 transition">
-    About
+  <a href="/doctors" className="hover:text-yellow-400 transition">
+    Doctors
   </a>
      </h1>
      <h1 className="text-1xl font-bold text-white">
   <a href="#" className="hover:text-yellow-400 transition">
-    Doctors
+    About
   </a>
      </h1>
      <h1 className="text-1xl font-bold text-white">

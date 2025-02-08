@@ -3,7 +3,7 @@ import logo_img from "../../assets/wecare logo.png"
 
 const Footer = () => {
   return (
-    <footer className="bg-[#5cbba8] text-white p-8">
+    <footer className="bg-[#5cbba8] text-white rounded-t-3xl p-8">
     <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
       {/* Logo and Intro */}
       <div className="flex flex-col items-center md:items-start">
