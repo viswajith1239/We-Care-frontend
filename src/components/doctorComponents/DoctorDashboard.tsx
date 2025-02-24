@@ -1,97 +1,142 @@
-// import React from 'react';
+import { useEffect, useState } from "react";
+// import { useNavigate } from "react-router-dom";
+import doctorAxiosInstance from "../../axios/doctorAxiosInstance";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../app/store";
+import API_URL from "../../axios/API_URL";
+
+interface Specialization {
+  name: string;
+  _id: string;
+}
+
+interface BookingDetail {
+  name: string;
+  _id: string;
+  startDate: string;
+  startTime: string;
+  appoinmentEndTime: string;
+  specialization: Specialization;
+  paymentStatus: string;
+  appoinmentStatus?: string;
+  userId: { _id: string; name: string };
+}
 
 function DoctorDashboard() {
-  return (
-    <div className="min-h-screen bg-gray-100 p-6 flex flex-col">
+  const [bookingDetails, setBookingDetails] = useState<BookingDetail[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const appoinmentsPerPage = 3;
+  // const navigate = useNavigate();
+  const { doctorInfo } = useSelector((state: RootState) => state.doctor);
 
-      {/* Header Section */}
-      <div className="bg-[#5cbba8] p-4 text-white flex items-center justify-between rounded-t-lg">
-        <h1 className="text-2xl font-bold">Doctor Dashboard</h1>
-        <div className="flex items-center gap-4">
-          <span>Welcome, Doctor</span>
-          <button className="bg-blue-500 px-4 py-2 rounded-lg hover:bg-blue-600 transition">Logout</button>
+  useEffect(() => {
+    const fetchBookingDetails = async () => {
+      if (!doctorInfo?.id) return;
+      try {
+        const response = await doctorAxiosInstance.get(
+          `${API_URL}/doctor/bookingdetails/${doctorInfo.id}`
+        );
+        const upcomingAppoinmets = response.data.data.filter(
+          (appoinmet: BookingDetail) => new Date(appoinmet.startDate) >= new Date()
+        );
+        setBookingDetails(upcomingAppoinmets);
+      } catch (error) {
+        console.error("Error fetching booking details:", error);
+      }
+    };
+    fetchBookingDetails();
+  }, [doctorInfo.id]);
+
+  const uniqueUserIds = new Set(bookingDetails.map((booking) => booking.userId._id));
+  const totalUsers = uniqueUserIds.size;
+
+  const indexOfLastAppoinmets = currentPage * appoinmentsPerPage;
+  const indexOfFirstAppoinmets = indexOfLastAppoinmets - appoinmentsPerPage;
+  const currentAppoinments = bookingDetails.slice(indexOfFirstAppoinmets, indexOfLastAppoinmets);
+  const totalPages = Math.max(1, Math.ceil(bookingDetails.length / appoinmentsPerPage));
+
+  return (
+    <div className="p-6 bg-gray-100 min-h-screen">
+      <div className="text-center mb-6">
+        <h1 className="text-3xl font-bold text-gray-800">Doctor Dashboard</h1>
+        
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-white rounded-lg shadow-md p-6 text-center">
+          <h3 className="text-lg font-semibold text-gray-800">📅 Total Appoinments</h3>
+          <p className="text-2xl font-bold text-gray-700">{bookingDetails.length}</p>
+        </div>
+        <div className="bg-white rounded-lg shadow-md p-6 text-center">
+          <h3 className="text-lg font-semibold text-gray-800">👥 Active Doctors</h3>
+          <p className="text-2xl font-bold text-gray-700">{totalUsers}</p>
         </div>
       </div>
 
-      {/* Dashboard Content */}
-      <div className="flex flex-col md:flex-row gap-6 mt-6">
-
-        {/* Sidebar */}
-        <div className="bg-white shadow-lg rounded-lg p-4 w-full md:w-1/4">
-          <ul className="space-y-4">
-            <li>
-              <a href="/doctor-dashboard" className="text-gray-700 hover:text-[#572c52]">Dashboard</a>
-            </li>
-            <li>
-              <a href="/doctor-profile" className="text-gray-700 hover:text-[#572c52]">My Profile</a>
-            </li>
-            <li>
-              <a href="/doctor-kyc" className="text-gray-700 hover:text-[#572c52]">KYC Verification</a>
-            </li>
-            <li>
-              {/* <a href="/trainer-courses" className="text-gray-700 hover:text-[#572c52]">Courses</a> */}
-            </li>
-            <li>
-              <a href="/doctor-stats" className="text-gray-700 hover:text-[#572c52]">Statistics</a>
-            </li>
-          </ul>
+      <div className="bg-white rounded-lg shadow-md p-6 mb-6 mt-8">
+        <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2 mb-4 justify-center">
+          📅 Upcoming Appoinments
+        </h2>
+        <div className="overflow-hidden rounded-lg border border-gray-200">
+          <table className="w-full border-collapse rounded-lg overflow-hidden">
+            <thead>
+              <tr className="bg-gray-50">
+                <th className="py-2 px-4  bg-[#00897B] text-white"> Name</th>
+                <th className="py-2 px-4  bg-[#00897B] text-white ">Date</th>
+                <th className="py-2 px-4  bg-[#00897B] text-white">Time</th>
+                <th className="py-2 px-4  bg-[#00897B] text-white">Payment Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentAppoinments.length > 0 ? (
+                currentAppoinments.map((appoinment) => (
+                  <tr key={appoinment._id} className="border-t">
+                    <td className="py-2 px-4 text-center">{appoinment.userId.name}</td>
+                    <td className="py-2 px-4 text-center">
+                      {new Date(appoinment.startDate).toLocaleDateString("en-US")}
+                    </td>
+                    <td className="py-2 px-4 text-center">{appoinment.startTime}</td>
+                    <td
+                      className={`py-2 px-4 font-semibold text-center ${
+                        appoinment.paymentStatus === "Confirmed" ? "text-green-600" : "text-red-500"
+                      }`}
+                    >
+                      {appoinment.paymentStatus}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={4} className="py-4 text-center text-gray-500">
+                    No upcoming appoinments.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
 
-        {/* Main Content */}
-        <div className="flex-1 bg-white shadow-lg rounded-lg p-6 space-y-6">
-          
-          {/* Trainer Overview */}
-          <div className="flex justify-between items-center">
-            <div>
-              <h3 className="text-xl font-semibold text-[#572c52]">Overview</h3>
-              <p className="text-gray-600">Welcome back! Here's your activity and KYC status.</p>
-            </div>
-            <button className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition">Update Profile</button>
+        {totalPages > 1 && (
+          <div className="flex justify-between items-center mt-4">
+            <button
+              className="px-4 py-2 bg-gray-300  rounded-md hover:bg-[#00897B] disabled:opacity-50 text-black"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+            <span className="text-gray-600">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              className="px-4 py-2 bg-gray-300  rounded-md hover:bg-[#00897B] disabled:opacity-50 text-black"
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Next 
+            </button>
           </div>
-
-          {/* KYC Status Card */}
-          <div className="bg-gray-50 p-4 rounded-lg shadow-md">
-            <h4 className="text-lg font-semibold text-[#572c52]">KYC Status</h4>
-            <div className="flex justify-between items-center mt-4">
-              <span className="text-gray-600">Status: <strong>Pending</strong></span>
-              <button className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition">Check KYC</button>
-            </div>
-          </div>
-
-          {/* Upcoming Courses */}
-          {/* <div className="bg-gray-50 p-4 rounded-lg shadow-md">
-            <h4 className="text-lg font-semibold text-[#572c52]">Upcoming Courses</h4>
-            <ul className="mt-4">
-              <li className="flex justify-between items-center py-2">
-                <span className="text-gray-700">Course 1</span>
-                <span className="text-gray-500">01/01/2024</span>
-              </li>
-              <li className="flex justify-between items-center py-2">
-                <span className="text-gray-700">Course 2</span>
-                <span className="text-gray-500">10/01/2024</span>
-              </li>
-              <li className="flex justify-between items-center py-2">
-                <span className="text-gray-700">Course 3</span>
-                <span className="text-gray-500">20/01/2024</span>
-              </li>
-            </ul>
-          </div> */}
-
-          {/* Activity Stats */}
-          <div className="bg-gray-50 p-4 rounded-lg shadow-md">
-            <h4 className="text-lg font-semibold text-[#572c52]">Activity Statistics</h4>
-            <div className="mt-4 grid grid-cols-2 gap-4">
-              <div className="text-center">
-                <h5 className="font-medium text-gray-600">Total users</h5>
-                <p className="text-2xl font-bold text-[#572c52]">150</p>
-              </div>
-              <div className="text-center">
-                <h5 className="font-medium text-gray-600">Total appoinments</h5>
-                <p className="text-2xl font-bold text-[#572c52]">12</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -64,6 +64,18 @@ export const registerDoctor = createAsyncThunk(
     }
   )
 
+  export const GoogleLogins = createAsyncThunk<IDoctor | null, string, { rejectValue: string }>(
+    "doctor/googlesignup",
+    async (token, thunkAPI) => {
+      try {
+        const response = await doctorservice.googleAuth(token);
+        return response.data
+      } catch (error: any) {
+        return thunkAPI.rejectWithValue(error.message || "An unknown error occurred");
+      }
+    }
+  );
+
   export const submitKyc = createAsyncThunk(
     'doctor/kyc', 
     async ({ formData }: { formData: FormData }, thunkAPI) => {  // Accept FormData here

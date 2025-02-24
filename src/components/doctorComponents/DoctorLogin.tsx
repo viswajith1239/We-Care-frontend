@@ -3,7 +3,8 @@ import {useState} from "react";
 import { Toaster, toast } from "react-hot-toast";
 import { AppDispatch } from "../../app/store";
 import { useDispatch } from "react-redux";
-import {loginDoctor} from "../../action/doctorActions"
+import {loginDoctor,GoogleLogins} from "../../action/doctorActions"
+import {GoogleLogin,CredentialResponse} from "@react-oauth/google"
 
 
 
@@ -40,6 +41,32 @@ function DoctorLogin(){
           }
         }
       };
+
+       const handleGoogleResponse = async (response: CredentialResponse) => {
+          const token = response.credential;
+          if (token) {
+            dispatch(GoogleLogins(token)).then((response: any) => {
+              console.log("dd",response)
+              if (response.meta.requestStatus !== "rejected") {
+                const doctor = response.payload; // Assuming backend sends doctor data
+                console.log("uuu",doctor);
+                
+        
+                if (doctor?.pending) {
+                  navigate("/doctor");  // Redirect to Doctor Dashboard
+                } else {
+                  toast.error("Complete your KYC verification first.");
+                  navigate("/doctor");  // Redirect to KYC page
+                }
+              }
+            });
+          }
+        };
+      
+        const handleGoogleError = () => {
+          console.error("Google login failed");
+        };
+      
         return(
             
                 <section className="flex flex-col items-center pt-6  max-w-1xl w-full ">
@@ -100,6 +127,12 @@ function DoctorLogin(){
   </Link>
                       </p>
                     </form>
+                    <div className="flex justify-center w-full mt-4">
+              <GoogleLogin
+                  onSuccess={handleGoogleResponse}
+                  onError={handleGoogleError}
+/>
+                </div>
                   </div>
                 </div>
               </section>

@@ -1,21 +1,42 @@
-import React from 'react'
+
+import {useEffect,useRef,useState} from 'react'
 import logo_img from "../../assets/wecare logo.png"
-import { useNavigate } from 'react-router-dom';
+import { Link,useNavigate } from 'react-router-dom';
+import Cookies from "js-cookie";
+import profileicon from "../../assets/user.png"
 
 
 function Header() {
   
   const navigate=useNavigate()
 
-  function goToSignUp(event:React. MouseEvent<HTMLButtonElement>): void {
-    navigate("/signup")
-    throw new Error('Function not implemented.');
-  }
-  function goToLogin(event:React. MouseEvent<HTMLButtonElement>): void {
-    navigate("/login")
-    throw new Error('Function not implemented.');
+ 
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null); // Ref for the dropdown
+
+
+  // Handle Logout
+  function handleLogout() {
+    Cookies.remove("AccessToken");
+    navigate("/login");
   }
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        profileMenuRef.current &&
+        !profileMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsProfileMenuOpen(false); // Close the dropdown
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <header className="bg-[#5cbba8] text-[#572c5f] p-4 sticky top-0 z-50">
@@ -37,10 +58,7 @@ function Header() {
     Home
   </a>
      </h1>
-
-
-    
-     <h1 className="text-1xl font-bold text-white">
+ <h1 className="text-1xl font-bold text-white">
   <a href="/doctors" className="hover:text-yellow-400 transition">
     Doctors
   </a>
@@ -60,16 +78,32 @@ function Header() {
     
     <div className="hidden md:flex space-x-4">
      
-      <button
-        onClick={goToSignUp}
-        className="text-white bg-[#1F2937]  font-medium rounded-lg text-lg leading-8 px-8 py-3 cursor-pointer text-center mr-2 inline-flex items-center hover:bg-[#1F2937] "
-      >
-        Signup
-      </button>
-      <button onClick={goToLogin}
-       className="bg-[#1F2937] text-white py-2 px-4 font-medium rounded-lg hover:bg-[#1F2937] transition">
-        Logout
-      </button>
+     
+
+      <div className="relative" ref={profileMenuRef}>
+          <img
+            alt="user profile"
+            src={profileicon}
+            className="h-7 w-7 cursor-pointer rounded-full object-cover"
+            onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+          />
+          {isProfileMenuOpen && (
+            <ul
+              role="menu"
+              className="absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white text-gray-800"
+            >
+              <li className="px-4 py-2 hover:bg-gray-100">
+                <Link to="/profile">My Profile</Link>
+              </li>
+              <li
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={handleLogout}
+              >
+                Logout
+              </li>
+            </ul>
+          )}
+        </div>
     </div>
 
   

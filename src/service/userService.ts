@@ -68,13 +68,65 @@ const googleAuth=async(token:string)=>{
          console.log(error)
          throw new Error(errormessage);
   }
+  
 }
+
+const forgotPassword=async(emailData:string)=>{
+  try {
+      console.log("email is",emailData)
+       const response=await userAxiosInstance.post(`${API_URL}/user/forgotpassword`,{emailData})
+       console.log("the response from forgotpswd",response)
+       return response.data
+  } catch (error) {
+      console.log("Forgot Password Error",error)
+  }
+
+}
+
+
+const verifyForgotOtp=async({ userData, otp,}:{userData:User;otp:string})=>{
+
+  try{
+
+   const response=await axios.post(`${API_URL}/user/forgototp`,{userData,otp})
+   
+   console.log("the frontend response otp",response)
+   if(response.data){
+       localStorage.setItem("user",JSON.stringify(response.data))
+   }
+   return response.data
+  }catch(error:any){
+      const errormessage=error.response?.data?.message
+      console.log(error)
+      throw new Error(errormessage);
+
+  }
+
+}
+
+const resetPassword=async( userData: string, payload: { newPassword: string })=>{
+  try {
+   console.log("Email in request:", userData);
+   console.log("Password payload:", payload);
+   const response=await userAxiosInstance.post(`${API_URL}/user/resetpassword`, { userData, payload });
+   console.log("Frontend response:", response);
+   return response.data;
+  } catch (error) {
+    console.error("Error in ResetPassword:", error);
+  }
+}
+
+
+
 
 const userService = {
     registerForm,
     verifyOtp,
     login,
-    googleAuth
+    googleAuth,
+    forgotPassword,
+    verifyForgotOtp,
+    resetPassword
     
   };
 

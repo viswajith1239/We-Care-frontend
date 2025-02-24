@@ -95,7 +95,7 @@ function login(){
         }
       });
     }
-  };
+  };  
 
   const handleGoogleError = () => {
     console.error("Google login failed");
@@ -183,6 +183,11 @@ function login(){
      Sign in here
   </Link>
                 </p>
+                <p className="text-center mt-4">
+            <a href="/forgot-password" className="text-[#00897B] hover:underline">
+              Forgot Password?
+            </a>
+          </p>
               </form>
               <div className="flex justify-center w-full mt-4">
               <GoogleLogin

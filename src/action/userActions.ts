@@ -55,6 +55,25 @@ export const verifyOtp = createAsyncThunk(
   }
 );
 
+export const verifyForgotOtp=createAsyncThunk(
+  "user/otp",
+  async({userData,otp}:VerifyOtpArgs,thunkAPI)=>{
+
+      try {
+        
+          const response=await userService.verifyForgotOtp({userData,otp})
+          console.log("yess")
+          console.log("response is----",response)
+          return response
+      } catch (error:any) {
+        console.log("response----",error)
+          return thunkAPI.rejectWithValue(error.response.data)
+          
+      }
+  }
+
+)
+
 interface loginUser {
   email: string;
   password: string;

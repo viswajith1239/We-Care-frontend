@@ -1,15 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import userAxiosInstance from '../../axios/userAxiosInstance';
 import API_URL from '../../axios/API_URL';
 import {Doctor} from "../../types/doctor"
 import {useNavigate}  from 'react-router-dom';
 import { useLocation } from "react-router-dom";
-
-
-
-
 function DoctorsList() {
-    const[doctors,setDoctors]=useState<Doctor[]>([])
+    // const[doctors,setDoctors]=useState<Doctor[]>([])
     const [doctorsData, setDoctorsData] = useState<Doctor[]>([]);
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [displayLimit, setDisplayLimit] = useState(6);
@@ -52,7 +48,7 @@ function DoctorsList() {
         fetchAllDoctors()
     }, [location.search])
     const handleViewProfile = (doctorId: string) => {
-      navigate(`/trainersprofileview/${doctorId}`);
+      navigate(`/doctorsprofileview/${doctorId}`);
     };
 
     const filteredDoctors = doctorsData.filter(
@@ -64,7 +60,7 @@ function DoctorsList() {
     );
 
     console.log("Search Term:", searchTerm);
-    console.log("Trainers Data:", doctorsData);
+    console.log("Doctors Data:", doctorsData);
 
     const handleLoadMore = () => {
       setDisplayLimit((prevLimit) => prevLimit + 6); 
@@ -75,6 +71,16 @@ function DoctorsList() {
       <h1 className="text-4xl font-bold text-center mb-8 text-black">
         Meet Our Doctors
       </h1>
+
+      <div className="flex justify-center mb-6">
+        <input
+          type="text"
+          placeholder="Search for a doctor..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-6">
         {filteredDoctors.slice(0, displayLimit).map((doctor: Doctor) => (
@@ -109,9 +115,9 @@ function DoctorsList() {
           <div className="flex justify-center mt-6">
           <button
             onClick={handleLoadMore}
-            className="bg-[#572c52] hover:bg-[#9f889d] text-white py-2 px-6 rounded"
+            className="bg-[#00897B] hover:bg-[#00897B] text-white py-2 px-6 rounded"
           >
-            Load More Trainers
+            Load More Doctors
           </button>
         </div>
       )}
@@ -119,10 +125,10 @@ function DoctorsList() {
         <div className="flex items-center justify-center col-span-full mt-10">
           <div className="text-center">
             <h1 className="text-xl font-semibold mb-4">
-              Sorry, we couldn’t find any doctors that matched your criteria.
+              Sorry, we couldn't find any doctors that matched your criteria.
             </h1>
             <p className="text-gray-600">
-              Try removing some of your search filters. <br />
+              Try removing some of your search filters. <br/>
               (Helpful tip: You can book different doctors and continue a healty life 
             )
             </p>

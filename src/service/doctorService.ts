@@ -96,6 +96,21 @@ const registerDoctor = async (doctorData: IDoctor) => {
     }
   };
 
+  const googleAuth=async(token:string)=>{
+    try {
+       
+        const response=await axios.post(`${API_URL}/doctor/googlesignup`,{token},{
+            headers: { "Content-Type": "application/json" },
+        })
+        
+        return response
+    } catch (error:any) {
+           const errormessage=error.response?.data?.message|| " token failed.."
+           console.log(error)
+           throw new Error(errormessage);
+    }
+  }
+
   const kycStatus = async (doctor_id: string) => {
     console.log("request gone from servicefront")
     try {
@@ -117,7 +132,8 @@ const registerDoctor = async (doctorData: IDoctor) => {
     verifyOtp,
     loginDoctor,
     kycSubmission,
-    kycStatus
+    kycStatus,
+    googleAuth
     
   }
   export default doctorService;

@@ -4,7 +4,7 @@ import {
   FaBars,
   FaChartPie,
   // FaListAlt,
-  // FaUsers,
+  FaUsers,
   FaSignOutAlt,
 } from "react-icons/fa";
 
@@ -39,7 +39,7 @@ function DoctorSideBar() {
         {/* Navigation Links */}
         <nav className="flex flex-col space-y-6">
           <Link
-            to="/doctor"
+            to=""
             className="flex items-center px-4 py-2 text-gray-100 hover:bg-gray-400 hover:bg-opacity-25 rounded-2xl"
           >
             <FaChartPie size={22} />
@@ -59,13 +59,13 @@ function DoctorSideBar() {
             <FaUsers size={22} />
             <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Messages</span>
           </Link> */}
-          {/* <Link
-            to="/admin/user-listing"
-            className="flex items-center px-4 py-2 text-gray-100 hover:bg-gray-400 hover:bg-opacity-25 rounded-2xl"
+           <Link
+            to="/doctor/scheduleappoinments"
+            className="flex items-center p-3 text-gray-100 text-gray-100 hover:bg-gray-400 hover:bg-opacity-25 rounded-2xl "
           >
             <FaUsers size={22} />
-            <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Profile</span>
-          </Link> */}
+            <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Schedule Appoinment</span>
+          </Link>
           <Link
             to="/doctor/login"
             className="flex items-center px-4 py-2 text-gray-100 hover:bg-gray-400 hover:bg-opacity-25 rounded-2xl"
