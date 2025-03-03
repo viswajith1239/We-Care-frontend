@@ -6,8 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../app/store";
 import {registerDoctor} from "../../action/doctorActions"
-
 import { Toaster,  toast } from "react-hot-toast";
+import bgimage from "../../assets/young-handsome-physician-medical-robe-with-stethoscope.jpg"
 
 interface ISpecialization {
     _id: string;
@@ -111,9 +111,13 @@ function DoctorSignUp(){
 
  
     return(
+      <div 
+      className="relative bg-cover bg-center min-h-screen" 
+      style={{ backgroundImage: `url(${bgimage})` }}
+    >
         <section className="flex flex-col items-center pt-6  max-w-1xl w-full ">
           <Toaster/>
-        <div className="w-full  rounded-3xl bg-white  shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+        <div className="w-full  rounded-3xl bg-white/30 backdrop-blur-[1px]   shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
              Doctor Signup
@@ -129,7 +133,8 @@ function DoctorSignUp(){
                   type="text"
                   name="name"
                   id="name"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:bg-gray-700 dark:border-gray-600 dark:placeholder-black dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+
                   placeholder="Enter name"
                 
                 />
@@ -145,7 +150,8 @@ function DoctorSignUp(){
                   type="email"
                   name="username"
                   id="username"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:bg-gray-700 dark:border-gray-600 dark:placeholder-black dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+
                   placeholder="Enter email"
                   required
                 />
@@ -161,7 +167,8 @@ function DoctorSignUp(){
                   type="number"
                   name="phone"
                   id="phone"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:bg-gray-700 dark:border-gray-600 dark:placeholder-black dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+
                   placeholder="Enter phone"
                   required
                 />
@@ -169,7 +176,7 @@ function DoctorSignUp(){
               </div>
               <div className="relative">
   <div
-    className="relative border border-gray-300 p-2 rounded-md w-full text-left focus:ring-2 focus:ring-[#572c5f] cursor-pointer"
+    className="relative border border-gray-300 p-2 rounded-md w-full text-left focus:ring-2 focus:ring-[#572c5f] cursor-pointer  bg-white"
     onClick={toggleDropdown}
   >
     {/* Text Content */}
@@ -232,8 +239,8 @@ function DoctorSignUp(){
                   type="password"
                   name="password"
                   id="password"
-                  placeholder="••••••••"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  placeholder="Enter password"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:bg-gray-700 dark:border-gray-600 dark:placeholder-black dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   required
                 />
                 {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
@@ -244,7 +251,7 @@ function DoctorSignUp(){
               >
                 Create an account
               </button>
-              <p className="text-sm font-light text-gray-500 dark:text-gray-400">
+              <p className="text-md font-light text-black-500 dark:text-black-400">
                 Already have an account? 
                 <Link 
     className="font-medium text-[#5cbba8] hover:underline hover:text-[#5cbba8]"
@@ -258,7 +265,8 @@ function DoctorSignUp(){
           </div>
         </div>
       </section>
-      
+
+      </div>
       
     )
 }

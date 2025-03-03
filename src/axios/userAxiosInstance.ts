@@ -1,5 +1,6 @@
 import axios, {  AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import API_URL from './API_URL';
+import Cookies from 'js-cookie';
 
 interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
     _retry?: boolean;
@@ -15,7 +16,7 @@ userAxiosInstance.interceptors.request.use(
     (config: CustomAxiosRequestConfig) => {
         console.log('Request Interceptor for User');
         
-        const token = localStorage.getItem("access_token");
+        const token = localStorage.getItem("accesstoken");
         if (token) {
             
             config.headers['Authorization'] = `Bearer ${token}`;
@@ -39,7 +40,7 @@ userAxiosInstance.interceptors.response.use(
                 const response = await userAxiosInstance.post<{ accessToken: string }>('/api/user/refresh-token', {}, { withCredentials: true });
                 const { accessToken } = response.data;
                 
-                localStorage.setItem("access_token", accessToken);
+               
                 originalRequest.headers['Authorization'] = `Bearer ${accessToken}`;
 
                 return userAxiosInstance(originalRequest);
@@ -54,7 +55,7 @@ userAxiosInstance.interceptors.response.use(
             console.error('Access denied, account is blocked');
             
             // Clear the token and redirect to login
-            localStorage.removeItem("access_token");
+            
             // window.location.href = '/login';
         }
         

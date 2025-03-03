@@ -84,19 +84,17 @@ export const loginUser = createAsyncThunk(
   async ({ email, password }: loginUser, thunkAPI) => {
     try {
       const response = await userService.login({ email, password });
-      console.log('user login response data', response.data);  
-      return response.data; 
+      console.log('User login response data:', response.data);
+      return response.data;
     } catch (error: any) {
-      console.log("enterd to aerror");
-      
-      if (error.response && error.response.status === 403) {
-        console.log("Email user blocked", error.response);
-        return thunkAPI.rejectWithValue({ status: 403, message: 'Your account is blocked.' });
-      }
-      return thunkAPI.rejectWithValue(error.response.data);
+      console.error("Entered into error handling:", error); // Debugging log
+
+      return thunkAPI.rejectWithValue(error);
     }
   }
 );
+
+
 
 export const GoogleLogins = createAsyncThunk<User | null, string, { rejectValue: string }>(
   "user/googlesignup",

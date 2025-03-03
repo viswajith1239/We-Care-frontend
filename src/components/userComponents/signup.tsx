@@ -6,6 +6,7 @@ import {useDispatch} from "react-redux"
 import {useNavigate} from "react-router-dom"
 import {Link} from "react-router-dom"
 import {registerForm} from "../../action/userActions"
+import bgimage from "../../assets/doctor-nurses-special-equipment.jpg"
 import {User} from "../../features/userTyepes"
 // import image from "../../assets/health-still-life-with-copy-space.jpg"
 // import { FiEye, FiEyeOff } from "react-icons/fi"; 
@@ -78,7 +79,10 @@ const Signup: React.FC=()=>{
     return(
         
         
-      <div className="relative bg-center  mt-0 min-h-screen">
+      <div 
+      className="relative bg-cover bg-center min-h-screen" 
+      style={{ backgroundImage: `url(${bgimage})` }}
+    >
         <Toaster/>
       <div className='absolute -z-10 h-full overflow-hidden '>
         <div className='absolute bg-[#c8ebc51f] w-full h-full' ></div>
@@ -87,7 +91,7 @@ const Signup: React.FC=()=>{
      <section className="flex flex-col items-center py-10  justify-center" >
        
           <div
-           className="w-[400px] md:w-[500px] bg-[#ffffff24] rounded-lg shadow  md:mt-0 sm:max-w-md xl:p-0  ">
+           className="w-[400px] md:w-[500px] bg-white/30 backdrop-blur-[1px] rounded-lg shadow  md:mt-0 sm:max-w-md xl:p-0  ">
             <div className="p-6 space-y-4 md:space-y-6 sm:p-8 ">
               <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                 Create an account
@@ -98,7 +102,7 @@ const Signup: React.FC=()=>{
                 <div>
                   <label
                     htmlFor="name"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    className="block mb-2 text-md font-medium text-gray-900 dark:text-white text-left"
                   >
                     Your full name
                   </label>
@@ -108,17 +112,18 @@ const Signup: React.FC=()=>{
                     id="name"
                      value={name}
                      onChange={(e) => setName(e.target.value)}
-                   
-                  
-                    className="h-[37px] bg-transparent border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5  dark:border-gray-600 dark:placeholder-gray-500 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     placeholder="Name"
+                  
+                className="h-[37px] bg-white/50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:border-gray-600 dark:placeholder-black dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
+
+                   
                   />
                   {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
                 </div>
                 <div>
                   <label
                     htmlFor="email"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    className="block mb-2 text-md font-medium text-gray-900 dark:text-white text-left"
                   >
                     Email
                   </label>
@@ -127,7 +132,8 @@ const Signup: React.FC=()=>{
                       placeholder="Email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                    className="h-[37px] bg-transparent border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5  dark:border-gray-600 dark:placeholder-gray-500 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      className="h-[37px] bg-white/50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:border-gray-600 dark:placeholder-black dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
+
                   
                   />
                    {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
@@ -135,7 +141,7 @@ const Signup: React.FC=()=>{
                 <div>
                   <label
                     htmlFor="phone"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    className="block mb-2 text-md font-medium text-gray-900 dark:text-white text-left"
                   >
                     Phone
                   </label>
@@ -145,14 +151,15 @@ const Signup: React.FC=()=>{
                    value={phone}
                    onChange={(e) => setPhone(e.target.value)}
                     
-                    className="h-[37px] bg-transparent border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5  dark:border-gray-600 dark:placeholder-gray-500 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                   className="h-[37px] bg-white/50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:border-gray-600 dark:placeholder-black dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
+
                   />
                 {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
                 </div>
                 <div>
                   <label
                     htmlFor="password"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    className="block mb-2 text-md font-medium text-gray-900 dark:text-white text-left"
                   >
                     Password
                   </label>
@@ -161,7 +168,8 @@ const Signup: React.FC=()=>{
                      placeholder="Password"
                      value={password}
                      onChange={(e) => setPassword(e.target.value)}
-                    className="h-[37px] bg-transparent border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5  dark:border-gray-600 dark:placeholder-gray-500 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                     className="h-[37px] bg-white/50border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:border-gray-600 dark:placeholder-black dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
+
                   />
                   
               {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}

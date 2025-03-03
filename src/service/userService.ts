@@ -44,14 +44,16 @@ const login = async (userData: { email: string; password: string }) => {
     const response = await userAxiosInstance.post(`${API_URL}/user/login`, userData);
     return response; 
   } catch (error: any) {
-    if (error.response && error.response.status === 403) {
-      
-      throw new Error('userblocked');
+    console.error("Axios error response:", error.response); // Debugging log
+
+    if (error.response) {
+      return Promise.reject(error.response.data); // Return actual backend response
     }
-   
-    throw error.response ? error.response.data : new Error('An unknown error occurred');
+
+    return Promise.reject({ message: "An unknown error occurred" });
   }
 };
+
 
 
 

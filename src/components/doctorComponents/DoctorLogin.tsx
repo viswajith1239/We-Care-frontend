@@ -3,8 +3,9 @@ import {useState} from "react";
 import { Toaster, toast } from "react-hot-toast";
 import { AppDispatch } from "../../app/store";
 import { useDispatch } from "react-redux";
-import {loginDoctor,GoogleLogins} from "../../action/doctorActions"
-import {GoogleLogin,CredentialResponse} from "@react-oauth/google"
+import {loginDoctor} from "../../action/doctorActions"
+// import {GoogleLogin,CredentialResponse} from "@react-oauth/google"
+import bgimage from "../../assets/young-handsome-physician-medical-robe-with-stethoscope.jpg"
 
 
 
@@ -26,13 +27,14 @@ function DoctorLogin(){
           const loginData = { email, password };
           console.log("Login data....:", loginData);
           const action = await dispatch(loginDoctor(loginData));
-          console.log(action,"loginaction");
+          console.log(action,"loginaction")
           
           if (loginDoctor.rejected.match(action)) {
             const message = "Invalid credentials";
             toast.error(message);
             return;
           }
+       
           navigate("/doctor");
         } catch (error: any) {
           if (error.response) {
@@ -42,36 +44,39 @@ function DoctorLogin(){
         }
       };
 
-       const handleGoogleResponse = async (response: CredentialResponse) => {
-          const token = response.credential;
-          if (token) {
-            dispatch(GoogleLogins(token)).then((response: any) => {
-              console.log("dd",response)
-              if (response.meta.requestStatus !== "rejected") {
-                const doctor = response.payload; // Assuming backend sends doctor data
-                console.log("uuu",doctor);
+      //  const handleGoogleResponse = async (response: CredentialResponse) => {
+      //     const token = response.credential;
+      //     if (token) {
+      //       dispatch(GoogleLogins(token)).then((response: any) => {
+      //         console.log("dd",response)
+      //         if (response.meta.requestStatus !== "rejected") {
+      //           const doctor = response.payload; // Assuming backend sends doctor data
+      //           console.log("uuu",doctor);
                 
         
-                if (doctor?.pending) {
-                  navigate("/doctor");  // Redirect to Doctor Dashboard
-                } else {
-                  toast.error("Complete your KYC verification first.");
-                  navigate("/doctor");  // Redirect to KYC page
-                }
-              }
-            });
-          }
-        };
+      //           if (doctor?.pending) {
+      //             navigate("/doctor");  // Redirect to Doctor Dashboard
+      //           } else {
+      //             toast.error("Complete your KYC verification first.");
+      //             navigate("/doctor");  // Redirect to KYC page
+      //           }
+      //         }
+      //       });
+      //     }
+      //   };
       
-        const handleGoogleError = () => {
-          console.error("Google login failed");
-        };
+        // const handleGoogleError = () => {
+        //   console.error("Google login failed");
+        // };
       
         return(
-            
+          <div 
+          className="relative bg-cover bg-center min-h-screen" 
+          style={{ backgroundImage: `url(${bgimage})` }}
+        >
                 <section className="flex flex-col items-center pt-6  max-w-1xl w-full ">
                      <Toaster />
-                <div className="w-full  rounded-3xl bg-white  shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+                <div className="w-full  rounded-3xl bg-white/30 backdrop-blur-[1px] shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
                   <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
                     <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                      Doctor Login
@@ -79,7 +84,7 @@ function DoctorLogin(){
                     <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
                       
                       <div>
-                        <label htmlFor="username" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        <label htmlFor="username" className="block mb-2 text-md font-medium text-gray-900 dark:text-white ">
                           Email
                         </label>
                         <input
@@ -88,7 +93,7 @@ function DoctorLogin(){
                           type="email"
                           name="username"
                           id="username"
-                          className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                          className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:bg-gray-700 dark:border-gray-600 dark:placeholder-black dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                           placeholder="Enter email"
                           required
                         />
@@ -97,7 +102,7 @@ function DoctorLogin(){
                      
         
                       <div>
-                        <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        <label htmlFor="password" className="block mb-2 text-md font-medium text-gray-900 dark:text-white">
                           Password
                         </label>
                         <input
@@ -106,8 +111,8 @@ function DoctorLogin(){
                           type="password"
                           name="password"
                           id="password"
-                          placeholder="••••••••"
-                          className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                          placeholder="Enter password"
+                          className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:bg-gray-700 dark:border-gray-600 dark:placeholder-black dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                           required
                         />
                       </div>
@@ -117,7 +122,7 @@ function DoctorLogin(){
                       >
                         Login
                       </button>
-                      <p className="text-sm font-light text-gray-500 dark:text-gray-400">
+                      <p className="text-md font-light text-black-500 dark:text-black-400">
                       Don't have an account?{' '} 
                       <Link 
     className="font-medium text-[#5cbba8] hover:underline hover:text-[#5cbba8]"
@@ -127,15 +132,16 @@ function DoctorLogin(){
   </Link>
                       </p>
                     </form>
-                    <div className="flex justify-center w-full mt-4">
+                    {/* <div className="flex justify-center w-full mt-4">
               <GoogleLogin
                   onSuccess={handleGoogleResponse}
                   onError={handleGoogleError}
 />
-                </div>
+                </div> */}
                   </div>
                 </div>
               </section>
+              </div>
         )
 }
 export default DoctorLogin

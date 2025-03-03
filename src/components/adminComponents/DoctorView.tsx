@@ -37,7 +37,7 @@ function DoctorView() {
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
-    const fetchTrainerDetails = async () => {
+    const fetchDoctorDetails = async () => {
       try {
         const response = await adminAxiosInstance.get(
           `${API_URL}/admin/doctors/kyc/${doctorId}`
@@ -66,11 +66,11 @@ function DoctorView() {
           console.warn("No doctor data found");
         }
       } catch (error) {
-        console.error("Error fetching trainer data:", error);
+        console.error("Error fetching doctor data:", error);
       }
     };
 
-    fetchTrainerDetails();
+    fetchDoctorDetails();
   }, [doctorId]);
 
   const handleApproveStatusChange = async (newStatus: string) => {
@@ -114,7 +114,7 @@ function DoctorView() {
     setRejectionReason("");
   };
 
-  const validate = (): boolean => {
+  const validate = (): boolean => { 
     let isValid = true;
     const newErrors: Errors = {};
     if (!rejectionReason.trim()) {
@@ -139,7 +139,7 @@ function DoctorView() {
 
     try {
       await adminAxiosInstance.patch(
-        `/api/admin/kyc-status-update/${doctorId}`,
+        `${API_URL}/admin/kyc-status-update/${doctorId}`,
         {
           status: "rejected",
           rejectionReason,
@@ -170,7 +170,7 @@ function DoctorView() {
             <img
               src={doctor.profileImage}
               alt="Profile"
-              className="w-48 h-48 rounded-full shadow-xl object-cover"
+              className="w-48 h-48 rounded-full shadow-xl object-cover object-top"
             />
           </div>
 
@@ -264,7 +264,7 @@ function DoctorView() {
         </>
       ) : (
         <p className="text-center text-gray-500">
-          No trainer details available.
+          No doctor details available.
         </p>
       )}
 
@@ -294,7 +294,7 @@ function DoctorView() {
                 </button>
                 <button
                   type="submit"
-                  className="bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700"
+                  className="bg-[#00897B] text-white px-6 py-3 rounded-full hover:bg-[#00897B]"
                 >
                   Submit
                 </button>

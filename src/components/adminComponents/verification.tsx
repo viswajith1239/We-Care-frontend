@@ -114,7 +114,7 @@ function Verification() {
           ))
         ) : (
           <div className="text-gray-500 text-center py-6">
-            No trainers found.
+            No doctors found.
           </div>
         )}
       </div>

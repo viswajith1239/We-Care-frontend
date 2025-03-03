@@ -1,11 +1,13 @@
 
 import {Link,useNavigate} from "react-router-dom"
-import React, {  useState } from "react";
-import { useDispatch } from "react-redux";
+import React, {  useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Toaster, toast } from "react-hot-toast";
-import {AppDispatch} from "../../app/store"
+import {AppDispatch, RootState} from "../../app/store"
 import {loginUser,GoogleLogins} from "../../action/userActions"
 import {GoogleLogin,CredentialResponse} from "@react-oauth/google"
+import bgimage from "../../assets/doctor-nurses-special-equipment.jpg"
+
 
 interface Errors {
   email?: string;
@@ -21,7 +23,7 @@ function login(){
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
-  // const { userInfo, error } = useSelector((state: RootState) => state.user);
+  
   const validate = (): Errors => {
     const newErrors: Errors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -68,23 +70,33 @@ function login(){
     };
   
     dispatch(loginUser(userData))
-      .unwrap()
-      .then(() => {
-        toast.success("Login successful!");
-        setTimeout(() => {
-          navigate("/",{replace:true});
-        }, 1000);
-      })
-      .catch((error: any) => {
-        if (error?.message === "Your account is blocked.") {
-          toast.error("Your account is blocked.");
-        } else if (error?.message === "Invalid email or password") {
-          toast.error("Invalid email or password.");
-        } else {
-          toast.error("Login failed. Please check your credentials.");
-        }
-      });
+    .unwrap()
+    .then(() => {
+      toast.success("Login successful!");
+      setTimeout(() => {
+        navigate("/", { replace: true });
+      }, 1000);
+    })
+    .catch((error: any) => {
+      console.error("Login error:", error); // Ensure error is logged properly
+  
+      // Extract the correct error message
+      const errorMessage = error?.message || "Login failed. Please check your credentials.";
+  
+      if (errorMessage === "Your account is blocked.") {
+        toast.error("Your account is blocked.");
+      } else if (errorMessage === "Invalid email or password") {
+        toast.error(" Invalid email or password.");
+      } else {
+        toast.error(errorMessage);
+      }
+    });
+  
   };
+
+  // const { userInfo } = useSelector((state: RootState) => state.user);
+
+ 
     
   const handleGoogleResponse = async (response: CredentialResponse) => {
     const token = response.credential;
@@ -104,7 +116,10 @@ function login(){
      
       
     return(
-<div className="relative bg-center  mt-0 min-h-screen">
+      <div 
+      className="relative bg-cover bg-center min-h-screen" 
+      style={{ backgroundImage: `url(${bgimage})` }}
+    >
   <Toaster/>
             
         <div className='absolute -z-10 h-full overflow-hidden '>
@@ -113,7 +128,7 @@ function login(){
         </div>
         <section className="flex flex-col items-center py-10  justify-center" >
           <div
-           className="w-[400px] md:w-[500px] bg-[#ffffff24] rounded-lg shadow  md:mt-0 sm:max-w-md xl:p-0  ">
+           className="w-[400px] md:w-[500px] bg-white/30 backdrop-blur-[1px] border border-white/40 rounded-lg shadow-lg p-6 md:mt-0 sm:max-w-md ">
             <div className="p-6 space-y-4 md:space-y-6 sm:p-8 ">
               <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                 Login
@@ -126,7 +141,7 @@ function login(){
                   <label
                     htmlFor="email"
                     
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    className="block mb-2 text-md font-medium text-gray-900 dark:text-white text-left"
                   >
                     Email
                   </label>
@@ -136,7 +151,8 @@ function login(){
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       
-                    className="h-[37px] bg-transparent border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5  dark:border-gray-600 dark:placeholder-gray-500 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                     className="w-full h-[40px] p-2 text-black bg-white/50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00897B] placeholder:text-black"
+
                   
                   />
                      {errors.email && (
@@ -148,7 +164,7 @@ function login(){
                 <div>
                   <label
                     htmlFor="password"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    className="block mb-2 text-md font-medium text-gray-900 dark:text-white text-left"
                   >
                     Password
                   </label>
@@ -159,7 +175,7 @@ function login(){
                 placeholder="Enter your password"
                 
                     
-                    className="h-[37px] bg-transparent border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5  dark:border-gray-600 dark:placeholder-gray-500 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    className="w-full h-[40px] p-2 text-black bg-white/50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00897B] placeholder:text-black"
                   />
                    {errors.password && (
                 <p className="text-red-500 text-sm mt-1">{errors.password}</p>
@@ -174,7 +190,7 @@ function login(){
                 >
                   Login
                 </button>
-                <p className="text-sm font-light text-trbg-transparent0 dark:text-gray-700 text-center">
+                <p className="text-md font-light text-black text-center">
                 Don't have an account?{' '}
                   <Link 
     className="font-medium text-[#5cbba8] hover:underline hover:text-[#5cbba8]"

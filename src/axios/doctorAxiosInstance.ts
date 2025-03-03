@@ -21,7 +21,7 @@ doctorAxiosInstance.interceptors.request.use(
     return config;
   },
   (error: AxiosError) => {
-    console.error("Trainer request error:", error);
+    console.error("doctor request error:", error);
     return Promise.reject(error);
   }
 );

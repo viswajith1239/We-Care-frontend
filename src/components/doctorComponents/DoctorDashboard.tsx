@@ -4,6 +4,7 @@ import doctorAxiosInstance from "../../axios/doctorAxiosInstance";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../app/store";
 import API_URL from "../../axios/API_URL";
+import { FaRegCalendarAlt } from "react-icons/fa";
 
 interface Specialization {
   name: string;
@@ -64,8 +65,11 @@ function DoctorDashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-white rounded-lg shadow-md p-6 text-center">
-          <h3 className="text-lg font-semibold text-gray-800">📅 Total Appoinments</h3>
-          <p className="text-2xl font-bold text-gray-700">{bookingDetails.length}</p>
+        <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 justify-center">
+        <FaRegCalendarAlt className="text-gray-600 w-5 h-5" />
+        Total Appointments
+        </h3>
+<p className="text-2xl font-bold text-gray-700">{bookingDetails.length}</p>
         </div>
         <div className="bg-white rounded-lg shadow-md p-6 text-center">
           <h3 className="text-lg font-semibold text-gray-800">👥 Active Doctors</h3>
@@ -75,7 +79,7 @@ function DoctorDashboard() {
 
       <div className="bg-white rounded-lg shadow-md p-6 mb-6 mt-8">
         <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2 mb-4 justify-center">
-          📅 Upcoming Appoinments
+           <FaRegCalendarAlt className="text-gray-600 w-6 h-6" /> Upcoming Appoinments
         </h2>
         <div className="overflow-hidden rounded-lg border border-gray-200">
           <table className="w-full border-collapse rounded-lg overflow-hidden">
