@@ -44,10 +44,10 @@ const login = async (userData: { email: string; password: string }) => {
     const response = await userAxiosInstance.post(`${API_URL}/user/login`, userData);
     return response; 
   } catch (error: any) {
-    console.error("Axios error response:", error.response); // Debugging log
+    console.error("Axios error response:", error.response); 
 
     if (error.response) {
-      return Promise.reject(error.response.data); // Return actual backend response
+      return Promise.reject(error.response.data); 
     }
 
     return Promise.reject({ message: "An unknown error occurred" });

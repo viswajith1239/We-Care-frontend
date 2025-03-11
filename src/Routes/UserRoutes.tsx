@@ -12,6 +12,9 @@ import ForgotPasswordPage from '../pages/userPages/ForgotPasswordPage';
 import ForgotPasswordOtpPage from '../pages/userPages/ForgotPasswordOtpPage';
 import ResetPasswordPage from '../pages/userPages/ResetPasswordPage';
 import SuccessPaymentPage from '../pages/userPages/SuccessPaymentPage';
+import UserLayout from '../components/userComponents/UserLayout';
+import UserProfilePage from '../pages/userPages/UserProfilePage';
+import BookingsPage from '../pages/userPages/BookingsPage';
 
 
 
@@ -29,6 +32,10 @@ function UserRoutes() {
         <Route path="/doctors" element={<DoctorsPage/>}/>
         <Route path="/doctorsprofileview/:doctorId" element={<DoctorProfileViewPage/>} />
         <Route path="/paymentSuccess"element={<SuccessPaymentPage/>}/>
+        <Route path="/profile"element={<UserLayout/>}>
+        <Route index element={<UserProfilePage/>}/>
+        <Route path="bookings" element={<BookingsPage/>}/>
+        </Route>
         
     </Routes>
     )

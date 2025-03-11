@@ -222,9 +222,8 @@ function DoctorsProfileView() {
     }
   
     // Keep all dates visible when reopening the calendar
-    if (datePickerRef.current) {
-      datePickerRef.current.setOpen(true);  // Keep the calendar open for easy selection
-    }
+    (datePickerRef.current as any)?.setOpen(true);
+
   };
   
   
@@ -232,9 +231,8 @@ function DoctorsProfileView() {
  
 
   const openCalendar = () => {
-    if (datePickerRef.current) {
-      datePickerRef.current.setOpen(true); // Open the calendar manually
-    }
+    (datePickerRef.current as any)?.setOpen(true);
+
   };
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-10 flex flex-col justify-center items-center">

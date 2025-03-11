@@ -29,7 +29,7 @@ function DoctorsPage() {
           </div>
   
          
-          <div className="flex-1 p-6 overflow-y-auto h-screen">
+          <div className="flex-1 p-6 ">
             <DoctorsList />
           </div>
         </div>

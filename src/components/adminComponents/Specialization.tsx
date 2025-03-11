@@ -101,6 +101,8 @@ export default function SpecializationTable() {
       console.error('Failed to save specialization:', error);
     }
   };
+  console.log("ss",specialization);
+  
 
   return (
     <div className="p-4">

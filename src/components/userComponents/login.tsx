@@ -75,12 +75,13 @@ function login(){
       toast.success("Login successful!");
       setTimeout(() => {
         navigate("/", { replace: true });
+        window.history.pushState(null, "", window.location.href);
       }, 1000);
     })
     .catch((error: any) => {
-      console.error("Login error:", error); // Ensure error is logged properly
+      console.error("Login error:", error); 
   
-      // Extract the correct error message
+      
       const errorMessage = error?.message || "Login failed. Please check your credentials.";
   
       if (errorMessage === "Your account is blocked.") {
