@@ -7,6 +7,7 @@ import DoctorDashboard from "../components/doctorComponents/DoctorDashboard";
 import ProtectRoute from "../Routes/protector/DoctorProtectRoue";
 import ScheduleAppoinments from "../components/doctorComponents/ScheduleAppoinments";
 import DoctorKyc from "../components/doctorComponents/DoctorKyc";
+import DoctorChat from "../components/doctorComponents/DoctorChat"
 
 function DoctorRoutes() {
   return (
@@ -19,15 +20,9 @@ function DoctorRoutes() {
       
       <Route path="/" element={<DoctorLayout />} >
       <Route index element={<ProtectRoute><DoctorDashboard /></ProtectRoute> } />
-      <Route 
-        path="/doctor" 
-        element={
-          <ProtectRoute>
-            <DoctorKyc />
-          </ProtectRoute>
-        } 
-      />
+      <Route  path="/doctor" element={<ProtectRoute> <DoctorKyc /></ProtectRoute> } />
       <Route path="scheduleappoinments" element={<ProtectRoute><ScheduleAppoinments/></ProtectRoute>} />
+      <Route path="messages" element={<DoctorChat doctorId={''}/>}/>
        
       </Route>
     </Routes>

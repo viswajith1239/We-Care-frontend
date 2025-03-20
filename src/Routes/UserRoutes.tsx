@@ -15,6 +15,8 @@ import SuccessPaymentPage from '../pages/userPages/SuccessPaymentPage';
 import UserLayout from '../components/userComponents/UserLayout';
 import UserProfilePage from '../pages/userPages/UserProfilePage';
 import BookingsPage from '../pages/userPages/BookingsPage';
+import UserProtectRoute from './protector/UserProtectRoute';
+import UserChat from "../components/userComponents/UserChat"
 
 
 
@@ -22,7 +24,7 @@ import BookingsPage from '../pages/userPages/BookingsPage';
 function UserRoutes() {
     return(
     <Routes>
-         <Route path="/" element={<HomePage/>}/>
+        <Route path="/"element={<UserProtectRoute><HomePage /></UserProtectRoute>}/>
         <Route path="/signup" element={<Signup/>}/>
         <Route path="/verifyotp" element={<Otp/>}/>
         <Route path="/login" element={<Login/>}/>
@@ -35,6 +37,7 @@ function UserRoutes() {
         <Route path="/profile"element={<UserLayout/>}>
         <Route index element={<UserProfilePage/>}/>
         <Route path="bookings" element={<BookingsPage/>}/>
+        <Route path="message" element={<UserChat doctorId={''}/>}/>
         </Route>
         
     </Routes>

@@ -6,6 +6,7 @@ import {
   // FaListAlt,
   FaUsers,
   FaSignOutAlt,
+  FaEnvelope,
 } from "react-icons/fa";
 
 function DoctorSideBar() {
@@ -52,19 +53,21 @@ function DoctorSideBar() {
             <FaListAlt size={22} />
             <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Sessions</span>
           </Link> */}
-          {/* <Link
-            to=""
-            className="flex items-center px-4 py-2 text-gray-100 hover:bg-gray-400 hover:bg-opacity-25 rounded-2xl"
-          >
-            <FaUsers size={22} />
-            <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Messages</span>
-          </Link> */}
+         
            <Link
             to="/doctor/scheduleappoinments"
             className="flex items-center p-3 text-gray-100 text-gray-100 hover:bg-gray-400 hover:bg-opacity-25 rounded-2xl "
           >
             <FaUsers size={22} />
             <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Schedule Appoinment</span>
+          </Link>
+
+          <Link
+            to="/doctor/messages"
+            className="flex items-center px-4 py-2 text-gray-100 hover:bg-gray-400 hover:bg-opacity-25 rounded-2xl"
+          >
+            <FaEnvelope size={22} />
+            <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Messages</span>
           </Link>
           <Link
             to="/doctor/login"

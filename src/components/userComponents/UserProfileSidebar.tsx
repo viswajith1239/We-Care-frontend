@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaBars, FaChartPie, FaListAlt, FaCheckCircle, FaUsers, FaSignOutAlt, FaCalendarCheck, FaCalendarAlt, FaEnvelope } from "react-icons/fa";
+import { FaBars, FaChartPie, FaListAlt, FaCheckCircle, FaUsers,  FaCalendarCheck, FaCalendarAlt, FaEnvelope } from "react-icons/fa";
 
 function UserProfileSidebar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -14,7 +14,7 @@ function UserProfileSidebar() {
   const isActive = (path: string) => location.pathname === path ? "bg-gray-400 bg-opacity-50" : "hover:bg-gray-400 hover:bg-opacity-25";;
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-full bg-gray-100">
       
       {/* Sidebar */}
       <div
@@ -33,7 +33,7 @@ function UserProfileSidebar() {
         {/* Navigation Links */}
         <nav className="flex flex-col space-y-10">
           <Link
-            to="/admin/dashboard"
+            to=""
             className={`flex items-center px-4 py-2 text-gray-100 rounded-2xl hover:bg-gray-400 hover:bg-opacity-25 ${isActive("")}`}
           >
             <FaChartPie size={22} />
@@ -56,17 +56,17 @@ function UserProfileSidebar() {
             <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Bookings</span>
           </Link>
 
-          <Link
+          {/* <Link
             to=""
             className={`flex items-center px-4 py-2 text-gray-100 rounded-2xl hover:bg-gray-400 hover:bg-opacity-25 ${isActive("")}`}
           >
             <FaCalendarAlt  size={22} />
             <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Appoinments</span>
-          </Link>
+          </Link> */}
 
           <Link
-            to=""
-            className={`flex items-center px-4 py-2 text-gray-100 rounded-2xl hover:bg-gray-400 hover:bg-opacity-25 ${isActive("")}`}
+            to="message"
+            className={`flex items-center px-4 py-2 text-gray-100 rounded-2xl hover:bg-gray-400 hover:bg-opacity-25 ${isActive("/profile/message")}`}
           >
             <FaEnvelope  size={22} />
             <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Message</span>
