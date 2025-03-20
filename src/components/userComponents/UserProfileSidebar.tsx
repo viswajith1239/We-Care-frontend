@@ -4,33 +4,33 @@ import { FaBars, FaChartPie, FaListAlt, FaCheckCircle, FaUsers,  FaCalendarCheck
 
 function UserProfileSidebar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const location = useLocation(); // Get current route
+  const location = useLocation();
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  // Define a function to check if a link is active
+
   const isActive = (path: string) => location.pathname === path ? "bg-gray-400 bg-opacity-50" : "hover:bg-gray-400 hover:bg-opacity-25";;
 
   return (
     <div className="flex h-full bg-gray-100">
       
-      {/* Sidebar */}
+     
       <div
         className={`${
           isSidebarOpen ? "w-64" : "w-20"
         } bg-[#00897B] text-white flex flex-col p-5 transition-all duration-300 rounded-2xl`}
       >
         
-        {/* Sidebar Header */}
+      
         <div className="flex justify-between items-center mb-6">
           <button onClick={toggleSidebar} className="text-white">
             <FaBars size={24} />
           </button>
         </div>
 
-        {/* Navigation Links */}
+       
         <nav className="flex flex-col space-y-10">
           <Link
             to=""

@@ -12,23 +12,23 @@ function Header() {
 
  
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  const profileMenuRef = useRef<HTMLDivElement>(null); // Ref for the dropdown
+  const profileMenuRef = useRef<HTMLDivElement>(null); 
 
 
-  // Handle Logout
+ 
   function handleLogout() {
     Cookies.remove("AccessToken");
     navigate("/login");
   }
 
-  // Close dropdown when clicking outside
+  
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         profileMenuRef.current &&
         !profileMenuRef.current.contains(event.target as Node)
       ) {
-        setIsProfileMenuOpen(false); // Close the dropdown
+        setIsProfileMenuOpen(false); 
       }
     };
     document.addEventListener('mousedown', handleClickOutside);

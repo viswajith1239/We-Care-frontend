@@ -179,14 +179,14 @@ function DoctorSignUp(){
     className="relative border border-gray-300 p-2 rounded-md w-full text-left focus:ring-2 focus:ring-[#572c5f] cursor-pointer  bg-white"
     onClick={toggleDropdown}
   >
-    {/* Text Content */}
+   
     <span>
       {selectedSpecializations.length > 0
         ? selectedSpecializations.join(", ")
         : "Select Specializations"}
     </span>
 
-    {/* Dropdown Icon */}
+    
     <svg
       xmlns="http://www.w3.org/2000/svg"
       className={`absolute top-1/2 right-2 h-5 w-5 transform -translate-y-1/2 transition-transform duration-200 ${
@@ -203,7 +203,7 @@ function DoctorSignUp(){
     </svg>
   </div>
 
-  {/* Dropdown Options */}
+ 
   {isDropdownOpen && (
     <div className="absolute z-50 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
       {loading ? (

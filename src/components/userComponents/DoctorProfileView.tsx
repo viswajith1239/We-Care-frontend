@@ -90,7 +90,7 @@ function DoctorsProfileView() {
         
         console.log("Fetched Schedules:", schedules);
   
-        // Extract available dates for the selected doctor
+        
         const date: string[] = Array.from(
           new Set(
             schedules
@@ -203,7 +203,7 @@ function DoctorsProfileView() {
     if (date) {
       const formattedDate = dayjs(date).format("YYYY-MM-DD");
   
-      // Filter slots for the selected date
+      
       const slotsForDate:any = sessionSchedules
         .filter(schedule => 
           dayjs(schedule.selectedDate || schedule.startDate).format("YYYY-MM-DD") === formattedDate &&
@@ -218,10 +218,10 @@ function DoctorsProfileView() {
   
       setAvailableSlots(slotsForDate);
     } else {
-      setAvailableSlots([]); // Clear slots if no date is selected
+      setAvailableSlots([]); 
     }
   
-    // Keep all dates visible when reopening the calendar
+  
     (datePickerRef.current as any)?.setOpen(true);
 
   };
@@ -237,10 +237,10 @@ function DoctorsProfileView() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-10 flex flex-col justify-center items-center">
       <div className="max-w-xl w-full bg-white shadow-xl rounded-lg text-gray-900 overflow-hidden">
-        {/* Background Image */}
+       
         <div className="rounded-t-lg h-32 overflow-hidden relative bg-[#00897B] bg-opacity-50"></div>
 
-        {/* Profile Image */}
+      
         <div className="mx-auto w-32 h-32 relative -mt-16 border-4 border-white rounded-full overflow-hidden">
           <img
             className="object-cover object-top h-full w-full"
@@ -249,7 +249,7 @@ function DoctorsProfileView() {
           />
         </div>
 
-        {/* Doctor Details */}
+      
         <div className="text-center mt-2 p-4">
           <h2 className="text-xl font-semibold">Dr. {doctor?.name}</h2>
           <p className="text-gray-700">
@@ -258,7 +258,7 @@ function DoctorsProfileView() {
           </p>
         </div>
 
-        {/* Description */}
+        
         <p className="text-gray-700 mt-4 px-4">
           <strong>Dr. {doctor?.name}</strong> is a highly skilled and compassionate medical 
           professional specializing in{" "}
@@ -266,7 +266,7 @@ function DoctorsProfileView() {
           They are dedicated to providing exceptional patient care and personalized treatment plans.
         </p>
 
-        {/* Book Appointment Button */}
+        
         <div className="p-4 border-t mx-8 mt-2 text-center">
           <button
             onClick={() => setShowDateSection(true)}
@@ -277,12 +277,12 @@ function DoctorsProfileView() {
         </div>
       </div>
 
-      {/* Date Selection & Calendar (Opens Below the Parent Div) */}
+      
       {showDateSection && (
         <div className="mt-4 w-full max-w-xl p-4 bg-white shadow-md rounded-lg">
           <h3 className="text-lg font-semibold text-gray-800 mb-2">Choose Available Date</h3>
 
-          {/* Date Picker Box with Calendar Icon */}
+          
           <div className="relative w-48 mx-auto">
             <DatePicker
               ref={datePickerRef}
@@ -301,7 +301,7 @@ function DoctorsProfileView() {
             />
           </div>
 
-          {/* Display Appointments or No Slot Message */}
+         
           {selectedDate && availableSlots.length > 0 ? (
   <div className="mt-4 p-4 bg-white shadow-md rounded-lg w-full max-w-xl">
     <h3 className="text-lg font-semibold text-gray-800 mb-2">Available Slots</h3>

@@ -5,7 +5,7 @@ const Footer = () => {
   return (
     <footer className="bg-[#5cbba8] text-white rounded-t-3xl p-8">
     <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
-      {/* Logo and Intro */}
+     
       <div className="flex flex-col items-center md:items-start">
         <div className="text-lg font-semibold h-16 flex items-center">
           <img 
@@ -20,7 +20,7 @@ const Footer = () => {
         </p>
       </div>
   
-      {/* Quick Links */}
+     
       <div>
         <h3 className="font-semibold text-2xl mb-4 text-center md:text-left">Quick Links</h3>
         <ul className="space-y-2 text-center md:text-left">
@@ -31,7 +31,7 @@ const Footer = () => {
         </ul>
       </div>
   
-      {/* Services */}
+     
       <div>
         <h3 className="font-semibold mb-4 text-2xl   text-center md:text-left">Services</h3>
         <ul className="space-y-2 text-center md:text-left">
@@ -41,7 +41,7 @@ const Footer = () => {
         </ul>
       </div>
   
-      {/* Contact Information */}
+      
       <div>
         <h3 className="font-semibold mb-4 text-2xl  text-center md:text-left">Contact Us</h3>
         <nav className="flex flex-col gap-2 text-center md:text-left">
@@ -52,7 +52,7 @@ const Footer = () => {
       </div>
     </div>
   
-    {/* Footer Bottom Section */}
+   
     <div className="text-center mt-8">
       <p className="text-sm">
         &copy; {new Date().getFullYear()} WeCare. Developed by 

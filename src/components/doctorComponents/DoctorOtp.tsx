@@ -64,7 +64,7 @@ function DoctorOtp(){
         newOtp[index] = value;
         setOtp(newOtp);
   
-        // Automatically focus the next input box
+        
         if (value && index < otp.length - 1) {
           const nextInput = document.getElementById(`otp-${index + 1}`);
           nextInput?.focus();
@@ -83,7 +83,7 @@ function DoctorOtp(){
         return;
       }
   
-      const otpString = otp.join(""); // Combine digits into a single string
+      const otpString = otp.join(""); 
       if (doctorData) {
        dispatch(verifyOtp({ doctorData, otp: otpString })).then((res) => {
       
@@ -110,7 +110,7 @@ function DoctorOtp(){
         } else {
           toast.error(response.data?.message || "An error occurred. Please try again.");
         }
-      } catch (error: any) { // Add error parameter here
+      } catch (error: any) { 
         console.error("Error resending OTP:", error);
         toast.error(error.response?.data?.message || "An error occurred. Please try again.");
       }

@@ -18,10 +18,10 @@ function Banner() {
     backgroundPosition: 'center',
   }}
 >
-  {/* Color overlay */}
+ 
   <div className="absolute inset-0 bg-[#00897B] bg-opacity-30"></div>
 
-  {/* Content */}
+ 
   <div className="relative w-[90%] mx-auto flex items-center justify-between flex-col">
     <div className="lg:w-fit mr-[35.2rem] ">
       <div className="w-full lg:w-4/5 space-y-5 mt-10 text-white">

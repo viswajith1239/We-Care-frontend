@@ -184,7 +184,7 @@ function DocorKyc() {
        
           <h2 className="text-xl font-semibold mb-4">KYC Document Upload</h2>
 
-          {/* Profile Image */}
+          
           <div className="flex items-center mb-4 space-x-4">
             <h2 className="w-1/4">Profile Image</h2>
             <input
@@ -207,7 +207,7 @@ function DocorKyc() {
             </div>
           )}
 
-          {/* Aadhaar Front Side */}
+         
           <div className="flex items-center mb-4 space-x-4">
             <h2 className="w-1/4"> Aadhaar Front Side</h2>
             <input
@@ -230,7 +230,7 @@ function DocorKyc() {
             </div>
           )}
 
-          {/* Aadhaar Back Side */}
+         
           <div className="flex items-center mb-4 space-x-4">
             <h2 className="w-1/4"> Aadhaar Back Side</h2>
             <input
@@ -253,7 +253,7 @@ function DocorKyc() {
             </div>
           )}
 
-          {/* Certificate */}
+        
           <div className="flex items-center mb-4 space-x-4">
             <h2 className="w-1/4">Certificate</h2>
             <input

@@ -18,26 +18,25 @@ function DoctorSideBar() {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
+     
       <div
         className={`${
           isSidebarOpen ? "w-64" : "w-20"
         } bg-[#00897B] text-white flex flex-col p-5 transition-all duration-300 rounded-2xl`}
       >
-        {/* Sidebar Header */}
+       
         <div className="flex justify-between items-center mb-6">
           <button onClick={toggleSidebar} className="text-white">
             <FaBars size={24} />
           </button>
           {isSidebarOpen && (
             <div className="flex items-center justify-center">
-              {/* Logo placeholder */}
-              {/* Add logo here if needed */}
+             
             </div>
           )}
         </div>
 
-        {/* Navigation Links */}
+        
         <nav className="flex flex-col space-y-6">
           <Link
             to=""

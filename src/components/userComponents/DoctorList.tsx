@@ -21,7 +21,7 @@ function DoctorsList() {
             try {
                 const response=await userAxiosInstance.get(`${API_URL}/user/doctors`)
              //   const doctorsData=response.data
-              //  setTrainers(doctorsData)
+              //  seDoctors(doctorsData)
               const doctors = response.data;
 
                 console.log("-----------",doctors)

@@ -34,7 +34,7 @@ function DoctorsPage() {
           </div>
         </div>
   
-        {/* Footer */}
+       
         <Footer/>
       </div>
     );

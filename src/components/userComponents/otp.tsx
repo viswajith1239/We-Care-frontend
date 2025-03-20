@@ -63,7 +63,7 @@ const Otp: React.FC = () => {
       newOtp[index] = value;
       setOtp(newOtp);
 
-      // Automatically focus the next input box
+      
       if (value && index < otp.length - 1) {
         const nextInput = document.getElementById(`otp-${index + 1}`);
         nextInput?.focus();
@@ -82,7 +82,7 @@ const Otp: React.FC = () => {
       return;
     }
 
-    const otpString = otp.join(""); // Combine digits into a single string
+    const otpString = otp.join(""); 
     if (userData) {
      dispatch(verifyOtp({ userData, otp: otpString })).then((res) => {
     
@@ -109,7 +109,7 @@ const Otp: React.FC = () => {
       } else {
         toast.error(response.data?.message || "An error occurred. Please try again.");
       }
-    } catch (error: any) { // Add error parameter here
+    } catch (error: any) { 
       console.error("Error resending OTP:", error);
       toast.error(error.response?.data?.message || "An error occurred. Please try again.");
     }

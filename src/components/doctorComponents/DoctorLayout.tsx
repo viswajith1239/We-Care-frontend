@@ -23,17 +23,17 @@ const DoctorLayout: React.FC = () => {
 
   return (
     <div className="h-screen flex bg-slate-100">
-      {/* Sidebar */}
+     
       <DoctorSideBar />
 
-      {/* Main Content */}
+     
       <div className="flex-1 flex flex-col">
-        {/* Top Bar */}
+       
         <header className="bg-gradient-to-r from-[#5cbba8] to-[#5cbba8] text-white shadow-md py-4 px-6 flex items-center justify-between border rounded-lg ">
           <h1 className="text-2xl font-semibold">Doctor Dashboard</h1>
 
           <div className="flex items-center space-x-6">
-            {/* Notifications */}
+           
             <div className="relative">
               <BsBell
                 className="h-6 w-6 cursor-pointer"
@@ -58,7 +58,7 @@ const DoctorLayout: React.FC = () => {
               )}
             </div>
 
-            {/* Profile */}
+           
             <div className="relative">
               <FaUserCircle
                 className="text-2xl cursor-pointer"
@@ -92,7 +92,7 @@ const DoctorLayout: React.FC = () => {
 
 
 
-        {/* Content Area */}
+       
         <div className="flex-1 p-6 bg-slate-100 overflow-y-auto">
           <Outlet />
         </div>

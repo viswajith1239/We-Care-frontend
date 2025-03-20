@@ -61,7 +61,7 @@ function DoctorsListFilterBar({ }:DoctorListFilterBarProps) {
   
   
     
-    // url search
+   
   
     
     const handleToggleDisplay = () => {
@@ -79,7 +79,7 @@ function DoctorsListFilterBar({ }:DoctorListFilterBarProps) {
         <div className="bg-[#00897B] shadow-lg rounded-xl p-6 space-y-6 mt-10 border border-gray-300 w-full max-w-md">
         <h2 className="text-2xl font-bold text-white">Filter Doctors</h2>
       
-        {/* Specialization Filter */}
+       
         <div className="flex flex-col">
           <label className="text-sm font-semibold text-white mb-4">
             Specialization

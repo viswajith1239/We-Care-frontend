@@ -209,7 +209,7 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     if (pageNumber < 1) {
       setCurrentPage(1);  
     } else if (pageNumber > Math.ceil(sessionSchedules.length / itemsPerPage)) {
-      setCurrentPage(Math.ceil(sessionSchedules.length / itemsPerPage));  // Last page
+      setCurrentPage(Math.ceil(sessionSchedules.length / itemsPerPage));  
     } else {
       setCurrentPage(pageNumber);
     }
@@ -233,7 +233,7 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
   
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white p-6 md:p-8 rounded-xl w-full max-w-lg shadow-xl relative">
-        {/* Close Button */}
+        
         <button
           onClick={handleCancel}
           className="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-2xl"
@@ -241,12 +241,12 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
           &times;
         </button>
 
-        {/* Title */}
+       
         <h2 className="text-2xl font-bold text-gray-900 text-center mb-6">Add Appointment Details</h2>
 
-        {/* Form */}
+     
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Specialization */}
+         
           <div>
             <label className="text-gray-700 font-medium">Specialization</label>
             <select
@@ -264,7 +264,7 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
             </select>
           </div>
 
-          {/* Price */}
+       
           <div>
             <label className="text-gray-700 font-medium">Price</label>
             <input
@@ -276,7 +276,7 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
             />
           </div>
 
-          {/* Session Type Details */}
+         
           {sessionType === "Single" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -313,7 +313,7 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
             </div>
           )}
 
-          {/* Buttons */}
+         
           <div className="flex justify-end space-x-4 mt-6">
             <button
               onClick={handleCancel}
@@ -337,7 +337,7 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
 
 
 
-      {/* Scheduled Sessions Table */}
+    
       <div className="mt-1">
         <h2 className="text-2xl font-bold text-black mb-4 text-center">
           Scheduled Appoinments
@@ -356,7 +356,7 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
           <tbody>
   {currentSessions.map((appoinment, index) => (
     <tr key={index} className="border-b">
-      {/* Appointment Number */}
+   
       <td className="py-3 px-6 text-center">
         {indexOfFirstItem + index + 1} 
       </td>
@@ -402,6 +402,3 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
 };
 
 export default ScheduleAppoinments;
-// function setLoading(arg0: boolean) {
-//   throw new Error("Function not implemented.");
-// }

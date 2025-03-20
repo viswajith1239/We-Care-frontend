@@ -15,7 +15,7 @@ interface BookingDetail {
     // startDate: string;
     startTime: string;
     endTime: string;
-    // sessionType: string;
+   
     paymentStatus: string;
     appoinmentStatus?: string;
     userId: string;
@@ -32,7 +32,7 @@ interface BookingDetail {
     const fetchBookingDetails = async () => {
       try {
         setLoading(true);
-        // Check if userInfo and userInfo.id exist before making the API call
+        
         if (userInfo && userInfo.id) {
           const response = await userAxiosInstance.get(`${API_URL}/user/bookings-details/${userInfo.id}`);
           console.log("ppp",response);
@@ -51,7 +51,7 @@ interface BookingDetail {
   
     useEffect(() => {
       fetchBookingDetails();
-    }, [userInfo]);  // Added userInfo as a dependency
+    }, [userInfo]);  
   
     if (loading) {
       return <div className="flex justify-center items-center h-64">
@@ -158,7 +158,7 @@ interface BookingDetail {
           </table>
         </div>
      
-      {/* Pagination Controls */}
+     
       <div className="flex justify-between items-center space-x-2 mt-4">
         <button
           className={`px-6 py-2 rounded-lg ${currentPage === 1 ? "bg-gray-400 cursor-not-allowed" : "bg-[#00897B] text-white"}`}

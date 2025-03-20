@@ -13,7 +13,7 @@ function ResetPassword() {
     const location = useLocation();
     const navigate = useNavigate();
 
-    // Store userData if it exists
+    
     useEffect(() => {
         if (location.state) {
             setUserData(location.state);
@@ -40,7 +40,7 @@ function ResetPassword() {
             const response = await userService.resetPassword(userData, { newPassword });
             if (response.message === "Password reset successfully") {
                 toast.success("Your Password Reset Successfully");
-                localStorage.removeItem("resetUserData"); // Clear stored user data
+                localStorage.removeItem("resetUserData");
                 navigate("/login");
             }
         } catch (error) {

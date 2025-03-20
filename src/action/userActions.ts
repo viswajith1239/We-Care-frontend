@@ -87,7 +87,7 @@ export const loginUser = createAsyncThunk(
       console.log('User login response data:', response.data);
       return response.data;
     } catch (error: any) {
-      console.error("Entered into error handling:", error); // Debugging log
+      console.error("Entered into error handling:", error); 
 
       return thunkAPI.rejectWithValue(error);
     }
