@@ -15,7 +15,7 @@ const doctorAxiosInstance = axios.create({
   withCredentials: true,
 });
 
-// Request interceptor
+
 doctorAxiosInstance.interceptors.request.use(
   (config: CustomAxiosRequestConfig) => {
     const token = localStorage.getItem("accesstoken");
@@ -31,7 +31,7 @@ doctorAxiosInstance.interceptors.request.use(
   }
 );
 
-// Response interceptor
+
 doctorAxiosInstance.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError) => {

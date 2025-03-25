@@ -11,7 +11,7 @@ function UserProfile() {
   const [currentPassword, setCurrentPassword] = useState<string>('')
   const [newPassword, setNewPassword] = useState<string>('')
   const [confirmPassword, setConfirmPassword] = useState<string>('')
-  const [formData, setFormData] = useState<User>({ id: "", name: "", phone: "", email: "", password: "", dob: "", gender: "",});
+  const [formData, setFormData] = useState<User>({ id: "", name: "", phone: "", email: "", password: "", dob: "", gender: "",profileImage:""});
   const [passwordVisibility, setPasswordVisibility] = useState({current: false, new: false, confirm: false,});
 
 
@@ -32,7 +32,7 @@ function UserProfile() {
         const response = await userAxiosInstance.get(`${API_URL}/user/users/${userId}`);
         console.log("yyy",response);
         
-        setFormData(response.data.data);
+        setFormData(response.data.response);
       } catch (error) {
         console.error("Failed to fetch user details", error);
       }
@@ -72,7 +72,50 @@ function UserProfile() {
   };
 
   
+  const handleResetPassword = async (e: React.FormEvent) => {
+    try {
+      e.preventDefault();
   
+      if (confirmPassword !== newPassword) {
+        toast.error('New password and confirm password do not match!');
+        return;
+      }
+  
+      if (newPassword.trim() === '') {
+        toast.error('Password cannot be empty or contain only spaces.');
+        return;
+      }
+  
+      if (newPassword.length < 6) {
+        toast.error('Password must be at least 6 characters long.');
+        return;
+      }
+  
+      const data = {
+        currentPassword,
+        newPassword,
+      };
+  
+      const response = await userAxiosInstance.patch(`${API_URL}/user/reset-password/${userInfo?.id}`, data);
+  
+      if (response.status === 200) {
+        toast.success(response.data.message || 'Password reset successfully!');
+      }
+    } catch (error: any) {
+      console.error(error);
+  
+      const errorMessage = error?.response?.data?.message || error?.message || 'Something went wrong. Please try again.';
+      toast.error(errorMessage);
+    }
+  };
+  
+
+  const togglePasswordVisibility = (field: string) => {
+    setPasswordVisibility((prev: any) => ({
+      ...prev,
+      [field]: !prev[field],
+    }));
+  };
 
   return (
     <>
@@ -236,6 +279,77 @@ function UserProfile() {
           </div>
         )}
       </div>
+      <div className="flex justify-center mt-5">
+  <div className="h-[55vh] bg-white w-[75%] shadow-md rounded-md p-8">
+    <h1 className="p-0 font-bold text-2xl">Reset Password</h1>
+    <form onSubmit={handleResetPassword} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label className="block mb-1 font-medium text-gray-700">Old Password</label>
+        <div className="relative">
+          <input
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            type={passwordVisibility.current ? "text" : "password"}
+            name="oldPassword"
+            className="border border-gray-500 p-2 rounded-md w-full"
+          />
+          <button
+            type="button"
+            className="absolute right-3 top-3 text-gray-500"
+            onClick={() => togglePasswordVisibility("current")}
+          >
+            {passwordVisibility.current ? "Hide" : "Show"}
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <label className="block mb-1 font-medium text-gray-700">New Password</label>
+        <div className="relative">
+          <input
+            onChange={(e) => setNewPassword(e.target.value)}
+            type={passwordVisibility.new ? "text" : "password"}
+            name="newPassword"
+            className="border border-gray-500 p-2 rounded-md w-full"
+          />
+          <button
+            type="button"
+            className="absolute right-3 top-3 text-gray-500"
+            onClick={() => togglePasswordVisibility("new")}
+          >
+            {passwordVisibility.new ? "Hide" : "Show"}
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <label className="block mb-1 font-medium text-gray-700">Confirm Password</label>
+        <div className="relative">
+          <input
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            type={passwordVisibility.confirm ? "text" : "password"}
+            name="confirmPassword"
+            className="border border-gray-500 p-2 rounded-md w-full"
+          />
+          <button
+            type="button"
+            className="absolute right-3 top-3 text-gray-500"
+            onClick={() => togglePasswordVisibility("confirm")}
+          >
+            {passwordVisibility.confirm ? "Hide" : "Show"}
+          </button>
+        </div>
+        <div className="col-span-1 md:col-span-2 flex  justify-center pt-5 ">
+        <button type="submit" className="bg-[#00897B] text-white py-3 px-6 rounded-md hover:bg-[#00796B] ">
+          Reset Password
+        </button>
+      </div>
+      </div>
+
+      
+    </form>
+  </div>
+</div>
+
 
      
 

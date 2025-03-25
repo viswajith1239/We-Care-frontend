@@ -14,7 +14,7 @@ import axios, {
     withCredentials: true,
   });
   
-  //request
+ 
   adminAxiosInstance.interceptors.request.use(
     (config: CustomAxiosRequestConfig) => {
       const token = localStorage.getItem("admin_access_token");
@@ -30,7 +30,7 @@ import axios, {
     }
   );
   
-  //response
+ 
   
   adminAxiosInstance.interceptors.response.use(
     (response: AxiosResponse) => response,

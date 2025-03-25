@@ -1,7 +1,5 @@
-// import React from 'react'
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import userAxiosInstance from "../../axios/userAxiosInstance";
-// import { jwtDecode } from "jwt-decode";
 import API_URL from "../../axios/API_URL";
 import Swal from "sweetalert2";
 import { useSelector } from "react-redux";
@@ -12,10 +10,8 @@ interface BookingDetail {
     doctorId: { _id: string };
     name: string;
     _id: string;
-    // startDate: string;
     startTime: string;
     endTime: string;
-   
     paymentStatus: string;
     appoinmentStatus?: string;
     userId: string;
@@ -59,7 +55,6 @@ interface BookingDetail {
       </div>;
     }
 
-
     const handleCancel = async (appoinmentId: string, userId: string, doctorId: string) => {
       const result = await Swal.fire({
         title: "Do you want to cancel this appoinment?",
@@ -79,18 +74,31 @@ interface BookingDetail {
           });
           console.log("Cancel Appointment Response:", response); 
           toast.success("Appointment cancelled successfully!");
-          // Swal.fire("Refunded!", "Your session has been cancelled and refunded.", "success");
   
           fetchBookingDetails();
         } catch (error) {
-          // Swal.fire("Error!", "Failed to cancel the session. Try again later.", "error");
         }
       }
     };
 
-  const totalPages = Math.ceil(bookingDetails.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedBookings = bookingDetails.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    const handleViewDetails = (booking: BookingDetail) => {
+      Swal.fire({
+        title: "Booking Details",
+        html: `
+          <strong>Doctor:</strong> ${booking.doctorName} <br>
+          <strong>Date:</strong> ${new Date(booking.bookingDate).toLocaleDateString()} <br>
+          <strong>Time:</strong> ${booking.startTime} - ${booking.endTime} <br>
+          <strong>Payment Status:</strong> ${booking.paymentStatus} <br>
+          <strong>Appointment Status:</strong> ${booking.appoinmentStatus || 'Not Started'}
+        `,
+        icon: "info",
+        confirmButtonText: "Close"
+      });
+    };
+
+    const totalPages = Math.ceil(bookingDetails.length / ITEMS_PER_PAGE);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const paginatedBookings = bookingDetails.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   
     return (
       <div className="container mx-auto px-4 py-8">
@@ -116,7 +124,7 @@ interface BookingDetail {
         <td className="py-3 px-4 border-b">{new Date(booking.bookingDate).toLocaleDateString()}</td>
         <td className="py-3 px-4 border-b">{booking.startTime} - {booking.endTime}</td>
         <td className="py-3 px-4 border-b">
-          <span className={`px-2 py-1 rounded-full text-xs ${
+                  <span className={`px-2 py-1 rounded-full text-xs ${
             booking.paymentStatus?.toLowerCase() === 'completed' ? 'bg-green-100 text-green-800' :
             booking.paymentStatus?.toLowerCase() === 'pending' ? 'bg-yellow-100 text-yellow-800' :
             booking.paymentStatus?.toLowerCase() === 'confirmed' ? 'bg-green-100 text-white-800' :
@@ -124,24 +132,20 @@ interface BookingDetail {
           }`}>
             {booking.paymentStatus}
           </span>
-        </td>
-        <td className="py-3 px-4 border-b">
-          <span className={`px-2 py-1 rounded-full text-xs ${
-            booking.appoinmentStatus === 'completed' ? 'bg-green-100 text-green-800' :
-            booking.appoinmentStatus === 'scheduled' ? 'bg-blue-100 text-blue-800' :
-            booking.appoinmentStatus === 'cancelled' ? 'bg-red-100 text-red-800' :
-            'bg-gray-100 text-gray-800'
-          }`}>
-            {booking.appoinmentStatus || 'Not Started'}
-          </span>
-        </td>
+                  </td>
+        <td className="py-3 px-4 border-b">{booking.appoinmentStatus || 'Not Started'}</td>
         <td className="py-3 px-4 border-b">
           <button 
             className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
             onClick={() => handleCancel(booking._id, booking.userId, booking.doctorId._id)}
-             
           >
             Cancel
+          </button>
+          <button 
+            className="ml-2 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
+            onClick={() => handleViewDetails(booking)}
+          >
+            View Details
           </button>
         </td>
       </tr>
@@ -154,30 +158,27 @@ interface BookingDetail {
     </tr>
   )}
 </tbody>
-
           </table>
         </div>
-     
-     
-      <div className="flex justify-between items-center space-x-2 mt-4">
-        <button
-          className={`px-6 py-2 rounded-lg ${currentPage === 1 ? "bg-gray-400 cursor-not-allowed" : "bg-[#00897B] text-white"}`}
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-        >
-          Prev
-        </button>
-        <span className="px-6 py-2 text-black font-bold">{`Page ${currentPage} of ${totalPages}`}</span>
-        <button
-          className={`px-4 py-2 rounded-lg ${currentPage === totalPages ? "bg-gray-400 cursor-not-allowed" : "bg-[#00897B] text-white"}`}
-          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-          disabled={currentPage === totalPages}
-        >
-          Next
-        </button>
-      </div>
+        <div className="flex justify-between mt-4">
+          <button 
+            className="px-4 py-2 bg-gray-300 rounded mr-2 disabled:opacity-50"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          <span className="px-4 py-2 text-black font-bold">Page {currentPage} of {totalPages}</span>
+          <button 
+            className="px-4 py-2 bg-gray-300 rounded ml-2 disabled:opacity-50"
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+        </div>
+      
     </div>
     );
   }
-
 export default Bookings
