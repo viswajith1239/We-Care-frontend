@@ -301,7 +301,7 @@ const ScheduleAppoinments: React.FC = () => {
               value={formData.recurrenceEnd}
               onChange={handleInputChange}
               className="w-full mt-2 p-3 border border-gray-300 rounded-lg"
-              min={formData.selectedDate}
+              min={new Date().toISOString().split("T")[0]}
             />
           </div>
         </div>

@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import MessageInputBar from "./MessageInputBar";
 import API_URL from "../../axios/API_URL";
+import { useSocketContext } from "../../context/socket";
 
 interface Message {
   senderId: string;
@@ -29,6 +30,7 @@ const Chat: React.FC<DoctorChatProps> = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
+  let { socket } = useSocketContext();
 
 
   useEffect(() => {
@@ -63,6 +65,22 @@ const Chat: React.FC<DoctorChatProps> = () => {
 
     fetchMessages();
   }, [selectedDoctor, userInfo]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.emit("join", doctorInfo?.id || userInfo?.id);
+
+    const handleNewMessage = (newMessage: any) => {
+      setMessages((prev) => [...prev, newMessage]);
+    };
+
+    socket.on("messageUpdate", handleNewMessage);
+
+    return () => {
+      socket.off("messageUpdate", handleNewMessage);
+    };
+  }, [socket, doctorInfo?.id, userInfo?.id]);
 
 
   const handleSelectDoctor = (doctor: Doctor) => {

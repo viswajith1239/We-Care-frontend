@@ -4,6 +4,7 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import API_URL from "../../axios/API_URL";
+import {useSocketContext} from "../../context/socket"
 
 
 interface MessageInputBarProps {
@@ -15,6 +16,7 @@ function MessageInputBar({ doctorId, onNewMessage }: MessageInputBarProps) {
   const [message, setMessage] = useState("");
   const { userInfo } = useSelector((state: RootState) => state.user);
   const {doctorInfo}=useSelector((state:RootState)=>state.doctor)
+  const { socket } = useSocketContext();
   console.log("pppp",doctorInfo);
   
 
@@ -47,6 +49,12 @@ console.log("receiver iddddddddddddd==========",receiverId)
       
 
       await axios.post(`${API_URL}/messages/send`, newMessage);
+      if (socket) {
+        socket.emit("sendMessage", newMessage); 
+      } else {
+        console.error("Socket is not initialized");
+      }
+     
 
      
       onNewMessage(newMessage);

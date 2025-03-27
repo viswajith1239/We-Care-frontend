@@ -5,6 +5,7 @@ import { RootState } from "../../app/store";
 import MessageInputBar from "./MessageInputBar";
 import API_URL from "../../axios/API_URL";
 import { FaVideo } from "react-icons/fa";
+import { useSocketContext } from '../../context/socket';
 
 interface Message {
   senderId: string;
@@ -30,6 +31,7 @@ const Chat: React.FC <DoctorChatProps>= () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [selecteduser, setSelectedDoctor] = useState<User | null>(null);
+  let { socket } = useSocketContext();
 
   console.log(" Selected Doctor:", selecteduser);
   console.log(" Users List:", users);
@@ -90,6 +92,22 @@ const Chat: React.FC <DoctorChatProps>= () => {
     fetchMessages();
   }, [selecteduser, userInfo]);
 
+
+      useEffect(() => {
+          if (!socket) return;
+
+          socket.emit("join", doctorInfo?.id || userInfo?.id);
+
+          const handleNewMessage = (newMessage: any) => {
+            setMessages((prev) => [...prev, newMessage]);
+          };
+
+          socket.on("messageUpdate", handleNewMessage);
+
+          return () => {
+            socket.off("messageUpdate", handleNewMessage);
+          };
+        }, [socket, doctorInfo?.id, userInfo?.id]);
  
   const handleSelectDoctor = (doctor: User) => {
     console.log("Doctor Selected:", doctor.id);
