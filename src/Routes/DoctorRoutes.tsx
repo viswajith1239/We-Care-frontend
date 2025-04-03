@@ -29,7 +29,7 @@ function DoctorRoutes() {
       <Route path="editProfile" element={<ProtectRoute><DoctorProfileEditPage /></ProtectRoute>} />
       <Route path="scheduleappoinments" element={<ProtectRoute><ScheduleAppoinments/></ProtectRoute>} />
       <Route path="wallet" element={<ProtectRoute><WalletPage /></ProtectRoute>} />
-      <Route path="messages" element={<DoctorChat doctorId={''}/>}/>
+      <Route path="messages" element={<DoctorChat doctorId={''} bookingId={null} userId={""}/>}/>
       <Route path="bookings" element={<BookingsPage/>}/>
        
       </Route>
