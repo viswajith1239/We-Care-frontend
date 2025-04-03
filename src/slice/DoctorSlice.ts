@@ -1,5 +1,5 @@
 import {createSlice,PayloadAction} from "@reduxjs/toolkit"
-import { registerDoctor,loginDoctor,submitKyc,getKycStatus} from "../action/doctorActions"
+import { registerDoctor,loginDoctor,submitKyc,getKycStatus, logoutDoctor} from "../action/doctorActions"
 
 
 interface DoctorState{
@@ -9,6 +9,7 @@ interface DoctorState{
     videoCall:  VideoCallPayload | null;
     showVideoCallDoctor: boolean
     roomIdDoctor: null | string
+    doctorToken: null | string;
 
 
     error:null|any  
@@ -30,17 +31,14 @@ const doctor = localStorage.getItem("doctor");
 const parsedDoctor = doctor && doctor !== "undefined" ? JSON.parse(doctor) : null;
 
 const initialState:DoctorState={
-    doctorInfo:parsedDoctor,
-    loading:false,
-    error:null,
-    videoCall: null,
-    showVideoCallDoctor: false,
-    roomIdDoctor: null,
-    kycStatus: "pending",
-
-    // doctorToken:localStorage.getItem("trainer_access_token") || null,
-    // specializations: [],
-
+  doctorInfo: parsedDoctor,
+  loading: false,
+  error: null,
+  videoCall: null,
+  showVideoCallDoctor: false,
+  roomIdDoctor: null,
+  kycStatus: "pending",
+  doctorToken: null
 }
 
 const doctorSlice=createSlice({
@@ -54,13 +52,14 @@ const doctorSlice=createSlice({
 
           setVideoCall(state, action: PayloadAction<VideoCallPayload  | null>) {
             state.videoCall = action.payload;
-            console.log('hit vidocall slice........???????????', state.videoCall);
+            console.log('state.videoCall user', state.videoCall);
             
           },
           setShowVideoCall(state, action: PayloadAction<boolean>) {
-            console.log("///////whhhhhhhhhh///",action.payload)
+            // console.log("///////whhhhhhhhhh///",action.payload)
             state.showVideoCallDoctor = action.payload;
-            console.log('showVideoCall Doctor slice><><><><>@@@@@@@@', state.showVideoCallDoctor);
+            console.log('action.payload trainer',action.payload)
+            // console.log('showVideoCall Doctor slice><><><><>@@@@@@@@', state.showVideoCallDoctor);
       
           },
           setRoomId(state, action: PayloadAction<string | null>) {
@@ -153,6 +152,18 @@ const doctorSlice=createSlice({
 
             state.loading = false;
             state.error = action.payload?.message || "OTP verification failed";
+          })
+
+          .addCase(logoutDoctor.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+          })
+          .addCase(logoutDoctor.fulfilled, (state) => {
+            state.loading = false;
+            state.doctorInfo = null;
+            state.doctorToken = null;
+            localStorage.removeItem("doctor");
+            localStorage.removeItem("doctor_access_token");
           })
         }
 

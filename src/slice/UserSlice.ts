@@ -5,7 +5,7 @@
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {  User } from "../features/userTyepes";
-import {registerForm,verifyOtp,loginUser } from "../action/userActions";
+import {registerForm,verifyOtp,loginUser, logoutUser } from "../action/userActions";
 
 export interface UserState {
   userInfo: User | null;  
@@ -141,6 +141,14 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+
+      .addCase(logoutUser.fulfilled, (state, action: PayloadAction<User>) => {
+        state.userInfo = null;
+        state.error = null;
+        localStorage.removeItem('user')
+        localStorage.removeItem('access_token')
+      })
+
 
 
       

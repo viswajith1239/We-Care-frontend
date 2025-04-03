@@ -118,6 +118,10 @@ const resetPassword=async( userData: string, payload: { newPassword: string })=>
   }
 }
 
+const logout = () => {
+  return userAxiosInstance.post(`${API_URL}/user/logout`, {});
+}
+
 
 
 
@@ -128,7 +132,8 @@ const userService = {
     googleAuth,
     forgotPassword,
     verifyForgotOtp,
-    resetPassword
+    resetPassword,
+    logout
     
   };
 

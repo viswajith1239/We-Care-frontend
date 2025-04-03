@@ -1,5 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import doctorservice from "../service/doctorService"
+import doctorService from "../service/doctorService";
 
 
 export interface IDoctor {
@@ -109,5 +110,18 @@ export const registerDoctor = createAsyncThunk(
       
      }
     }
+    
   
+  )
+
+  export const logoutDoctor = createAsyncThunk(
+    'doctor/logout',
+    async (_, thunkAPI) => {
+      try {
+        const response = await doctorService.logoutDoctor()    
+        return response  
+      } catch (error: any) {
+        return thunkAPI.rejectWithValue(error.response)
+      }
+    }
   )

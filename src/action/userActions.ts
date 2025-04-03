@@ -107,3 +107,16 @@ export const GoogleLogins = createAsyncThunk<User | null, string, { rejectValue:
     }
   }
 );
+
+export const logoutUser = createAsyncThunk(
+  'user/logout',
+  async (_, thunkAPI) => {
+    try {
+      const response = await userService.logout();
+      console.log('logout response', response);
+      return response.data; 
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.response.data); 
+    }
+  }
+)

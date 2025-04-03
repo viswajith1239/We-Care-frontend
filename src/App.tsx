@@ -15,12 +15,12 @@ import { useSelector } from "react-redux";
 function App() {
   const {videoCall, showVideoCallDoctor} = useSelector((state: RootState) => state.doctor)
   const {showIncomingVideoCall, showVideoCallUser} = useSelector((state: RootState) => state.user)
-  console.log("vvvv",videoCall);
+  console.log("vvvv",showVideoCallUser);
   console.log("iiii",showVideoCallDoctor);
   
   
-  console.log("showIncomingVideoCall:", showIncomingVideoCall);
-      console.log("showVideoCallUser:", showVideoCallUser);
+  // console.log("showIncomingVideoCall:12", showIncomingVideoCall);
+  //     console.log("showVideoCallUser:", showVideoCallUser);
 
   return (
     

@@ -126,6 +126,20 @@ const registerDoctor = async (doctorData: IDoctor) => {
     }
   };
 
+  const logoutDoctor = async () => {
+    try {
+      const response = await doctorAxiosInstance.post(`${API_URL}/doctor/logout`);
+      return response.data;
+    } catch (error: any) {
+      console.error(
+        "Error during doctor logout:",
+        error.response ? error.response.data : error.message
+      );
+      throw error;
+    }
+  };
+  
+
 
   const doctorService={
     registerDoctor,
@@ -133,7 +147,8 @@ const registerDoctor = async (doctorData: IDoctor) => {
     loginDoctor,
     kycSubmission,
     kycStatus,
-    googleAuth
+    googleAuth,
+    logoutDoctor
     
   }
   export default doctorService;

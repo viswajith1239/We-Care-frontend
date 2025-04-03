@@ -7,6 +7,7 @@ import { AppDispatch,RootState } from "../app/store"
 import { endCallDoctor, setRoomId, setShowVideoCall, setVideoCall } from "../slice/DoctorSlice";
 import toast from "react-hot-toast";
 import { endCallUser, setRoomIdUser, setShowIncomingVideoCall, setShowVideoCallUser, setVideoCallUser } from "../slice/UserSlice";
+import { data } from "react-router-dom";
 
 type SocketType = ReturnType<typeof io>;
 
@@ -24,7 +25,10 @@ export const SocketContextProvider = ({ children }: { children: ReactNode }): JS
         const { doctorInfo } = useSelector((state: RootState) => state.doctor);
         const dispatch = useDispatch<AppDispatch>();
         const loggedUser = userInfo?.id || doctorInfo?.id || null;
-
+console.log('userInfo',userInfo)
+console.log('doctorInfo',doctorInfo)
+        
+console.log('userInfo',loggedUser)
 
         useEffect(() => {
             console.log("Initializing socket connection...");
@@ -59,8 +63,10 @@ export const SocketContextProvider = ({ children }: { children: ReactNode }): JS
               return;
             }
             socket.on("incoming-video-call", (data: any) => {
-      
+              // console.log('DATA context',data)
+              
               if (userInfo?.id===data._id) {
+                // console.log('DATA',data)
               dispatch(setShowIncomingVideoCall({
                 _id: data._id,
                 doctorId: data.from,
@@ -83,7 +89,7 @@ export const SocketContextProvider = ({ children }: { children: ReactNode }): JS
             // Accepted Call
             socket.on("accepted-call", (data: any) => {
             
-              
+              console.log('accepted-call',data)
               dispatch(setRoomId(data.roomId));
               dispatch(setShowVideoCall(true));
         
