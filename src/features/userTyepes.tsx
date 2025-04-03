@@ -15,5 +15,17 @@ export interface User {
     loading: boolean;       
     error: string | null;   
     token:string|null;
+    showIncomingVideoCall: any | null; 
+    videoCall: null | string;
+    showVideoCallUser: boolean;
+    roomIdUser: null | string;
    
+  }
+
+  interface IncomingVideoCall {
+    _id: string | null;
+    callType: string;
+    trainerName: string
+    trainerImage: string
+    roomId: string  | null;
   }

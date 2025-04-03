@@ -54,14 +54,14 @@ function Header() {
     
     <nav className="hidden md:flex space-x-8">
     <h1 className="text-1xl font-bold text-white">
-  <a href="/" className="hover:text-yellow-400 transition">
+    <Link to="/" className="hover:text-yellow-400 transition">
     Home
-  </a>
+  </Link>
      </h1>
  <h1 className="text-1xl font-bold text-white">
-  <a href="/doctors" className="hover:text-yellow-400 transition">
-    Doctors
-  </a>
+ <Link to="/doctors" className="hover:text-yellow-400 transition">
+  Doctors
+</Link>
      </h1>
      <h1 className="text-1xl font-bold text-white">
   <a href="#" className="hover:text-yellow-400 transition">

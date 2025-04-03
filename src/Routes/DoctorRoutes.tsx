@@ -9,6 +9,9 @@ import ScheduleAppoinments from "../components/doctorComponents/ScheduleAppoinme
 import DoctorKyc from "../components/doctorComponents/DoctorKyc";
 import DoctorChat from "../components/doctorComponents/DoctorChat"
 import BookingsPage from "../pages/doctorPages/BookingsPage";
+import WalletPage from "../pages/doctorPages/WalletPage";
+import DoctorProfilePage from "../pages/doctorPages/DoctorProfilePage";
+import DoctorProfileEditPage from "../pages/doctorPages/DoctorProfileEditPage";
 
 function DoctorRoutes() {
   return (
@@ -22,9 +25,12 @@ function DoctorRoutes() {
       <Route path="/" element={<DoctorLayout />} >
       <Route index element={<ProtectRoute><DoctorDashboard /></ProtectRoute> } />
       <Route  path="/doctor" element={<ProtectRoute> <DoctorKyc /></ProtectRoute> } />
+      <Route path="profile" element={<ProtectRoute><DoctorProfilePage /></ProtectRoute>} />
+      <Route path="editProfile" element={<ProtectRoute><DoctorProfileEditPage /></ProtectRoute>} />
       <Route path="scheduleappoinments" element={<ProtectRoute><ScheduleAppoinments/></ProtectRoute>} />
+      <Route path="wallet" element={<ProtectRoute><WalletPage /></ProtectRoute>} />
       <Route path="messages" element={<DoctorChat doctorId={''}/>}/>
-      <Route path= "bookings" element={<BookingsPage/>}/>
+      <Route path="bookings" element={<BookingsPage/>}/>
        
       </Route>
     </Routes>

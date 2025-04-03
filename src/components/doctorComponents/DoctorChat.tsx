@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
-import { RootState } from "../../app/store";
+import { AppDispatch, RootState } from "../../app/store";
 import MessageInputBar from "./MessageInputBar";
 import API_URL from "../../axios/API_URL";
 import { FaVideo } from "react-icons/fa";
 import { useSocketContext } from '../../context/socket';
+import { setVideoCall } from '../../slice/DoctorSlice';
+import { useDispatch } from 'react-redux';
+import { Doctor } from "../../types/doctor";
+import userimg from "../../assets/user.png"
+import doctorAxiosInstance from "../../axios/doctorAxiosInstance";
 
 interface Message {
+  _id: string;
   senderId: string;
   receiverId: string;
   message: string;
@@ -19,23 +25,35 @@ interface User {
   id: string;
   name: string;
   profileImage: string;
+  userId: string;
+  image: string
+  booking: string
+  appoinmentId:string
+ 
+
 }
 interface DoctorChatProps {
   doctorId: string;
+  bookingId: string | null;
+  userId: string;
 }
 
-const Chat: React.FC <DoctorChatProps>= () => {
+const Chat: React.FC <DoctorChatProps>= ({userId} ) => {
   const { userInfo } = useSelector((state: RootState) => state.user);
   const { doctorInfo } = useSelector((state: RootState) => state.doctor);
+  const [bookingId, setBookingId] = useState<string | null>(null);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [users, setUsers] = useState<User[]>([]);
-  const [selecteduser, setSelectedDoctor] = useState<User | null>(null);
+  const [selecteduser, setSelectedUser] = useState<User | null>(null);
+  const [doctorData, setDoctorData] = useState<Doctor | null>(null);
   let { socket } = useSocketContext();
+  const dispatch = useDispatch<AppDispatch>();
 
   console.log(" Selected Doctor:", selecteduser);
   console.log(" Users List:", users);
   console.log("Checking doctorInfo:", doctorInfo?.id);
+  const doctorId =doctorInfo?.id
 
 
   useEffect(() => {
@@ -52,9 +70,11 @@ const Chat: React.FC <DoctorChatProps>= () => {
         
         const extractedUsers = response.data.map((item: any) => ({
           _id: item._id, 
-          id: item.userId.userId, 
+          id: item.userId, 
           name: item.name, 
-          profileImage: item.userId.profileImage || "", 
+          // profileImage: item.profileImage || "", 
+          appoinmentId: item.appoinmentId
+
         }));
   
         setUsers(extractedUsers);
@@ -67,6 +87,42 @@ const Chat: React.FC <DoctorChatProps>= () => {
     fetchusers();
   }, [doctorInfo]);
   console.log("please check the users",users)
+
+
+  useEffect(() => {
+    if (!doctorId) return;
+
+    const fetchUsers = async () => {
+      try {
+        const response = await doctorAxiosInstance.get(`${API_URL}/doctor/bookingdetails/${doctorId}`);
+        
+
+        const seenUserId = new Set();
+        const uniqueUsers = response.data.data.filter((booking: any) => {
+          if (!booking.userId || !booking.userId._id) return false; // Ensure userId exists
+          if (seenUserId.has(booking.userId._id)) return false;
+          seenUserId.add(booking.userId._id);
+          return true;
+        });
+
+        // setUsers(uniqueUsers.map((booking: any) => ({
+          
+        //   // bookingId: booking._id,
+        // })));
+      } catch (error: any) {
+        console.error("Error fetching doctor:", error.response?.data || error.message);
+      }
+    };
+
+    fetchUsers();
+  }, [doctorId]);
+
+
+
+
+
+  
+
 
  
   useEffect(() => {
@@ -92,6 +148,18 @@ const Chat: React.FC <DoctorChatProps>= () => {
     fetchMessages();
   }, [selecteduser, userInfo]);
 
+  useEffect(() => {
+
+    const fetchDoctor = async () => {
+      console.log("nnnnnn");
+      
+      const response = await axios.get(`${API_URL}/doctor/${doctorInfo.id}`);
+      console.log("pppp",response)
+      setDoctorData(response.data.DoctorData[0]);
+    };
+    fetchDoctor();
+  }, [doctorInfo.id, userId]);
+
 
       useEffect(() => {
           if (!socket) return;
@@ -110,13 +178,39 @@ const Chat: React.FC <DoctorChatProps>= () => {
         }, [socket, doctorInfo?.id, userInfo?.id]);
  
   const handleSelectDoctor = (doctor: User) => {
-    console.log("Doctor Selected:", doctor.id);
-    setSelectedDoctor(doctor);
+    console.log("user Selected:", doctor.id);
+    setSelectedUser(doctor);
   };
 
  
   const handleNewMessage = (newMessage: Message) => {
-    setMessages((prev) => [...prev, newMessage]);
+    setMessages((prev) =>{
+      const isDuplicate = prev.some(
+        (msg) =>
+          msg._id === newMessage._id ||
+          (msg.createdAt === newMessage.createdAt &&
+            msg.message === newMessage.message)
+      );
+      return isDuplicate ? prev : [...prev, newMessage];
+    } );
+  };
+
+
+  const navigateVideoChat = () => {
+    console.log("videocallllllllll");
+    dispatch(
+      setVideoCall({
+        userID: selecteduser?._id || "",
+        type: "out-going",
+        callType: "video",
+        roomId: `${Date.now()}`,
+        userName: `${selecteduser?.name}`,
+        doctorName: `${doctorData?.name}`,
+        doctorImage: `${doctorData?.profileImage}`, 
+        bookingId: `${selecteduser?.appoinmentId}`
+        
+      })
+    );
   };
 
   return (
@@ -149,9 +243,10 @@ const Chat: React.FC <DoctorChatProps>= () => {
        
         {selecteduser ? (
           <div className="p-4 bg-[#00897B] text-white text-lg font-semibold flex items-center rounded-lg">
+            {/* <img className="h-10 w-10 rounded-full" src={userimg} alt="user" /> */}
           <span className="flex-1">Chat with {selecteduser.name}</span>
           <button
-            // onClick={handleVideoCall}
+            onClick={navigateVideoChat}
             className="p-2 rounded-lg hover:bg-[#00897B] transition-colors"
             title="Start Video Call"
             aria-label="Start video call"

@@ -56,8 +56,8 @@ function MessageInputBar({ userId, onNewMessage }: MessageInputBarProps) {
         console.error("Socket is not initialized");
       }
 
-    
-      onNewMessage(newMessage);
+    // onNewMessage(newMessage);
+     
       setMessage("");
     } catch (error: any) {
       console.error("Error sending message:", error.response?.data || error.message);

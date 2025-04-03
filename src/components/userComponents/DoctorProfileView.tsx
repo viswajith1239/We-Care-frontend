@@ -289,7 +289,7 @@ function DoctorsProfileView() {
               selected={selectedDate}
               onChange={handleDateChange}
               includeDates={availableSlots.map(date => new Date(date))}
-              
+              minDate={new Date()} 
               dateFormat="MM/dd/yyyy"
               placeholderText="Select a date"
               popperPlacement="bottom-start"

@@ -4,8 +4,20 @@
 
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { UserState, User } from "../features/userTyepes";
+import {  User } from "../features/userTyepes";
 import {registerForm,verifyOtp,loginUser } from "../action/userActions";
+
+export interface UserState {
+  userInfo: User | null;  
+  loading: boolean;       
+  error: string | null;   
+  token:string|null;
+  showIncomingVideoCall: any | null; 
+  videoCall: null | string;
+  showVideoCallUser: boolean;
+  roomIdUser: null | string;
+ 
+}
 
 // Initial state
 const user = localStorage.getItem("user");
@@ -17,6 +29,16 @@ const initialState: UserState = {
   token: localStorage.getItem("access_token") || null,
   loading: false,
   error: null,
+  showIncomingVideoCall: {
+    _id: "",
+    callType: "",
+    doctorName: "",
+    doctorImage: '',
+    roomId: null,
+  },
+  videoCall: null,
+  showVideoCallUser: false,
+  roomIdUser: null,
 
   
 };
@@ -35,7 +57,37 @@ const userSlice = createSlice({
     setError(state, action: PayloadAction<string>) {
       state.error = action.payload;
     },
-    
+    setShowIncomingVideoCall: (state, action) => {
+      state.showIncomingVideoCall = action.payload
+      console.log("nnnnnnnnnnnn",state.showIncomingVideoCall);
+      
+    },
+    setVideoCallUser(state, action: PayloadAction<string | null>) {
+      state.videoCall = action.payload;
+      console.log(",,,,,,,,,,,,",state.videoCall);
+      
+    },
+
+    setShowVideoCallUser(state, action: PayloadAction<boolean>) {
+      state.showVideoCallUser = action.payload;
+      console.log("#############",state.showVideoCallUser);
+      
+    },
+    setRoomIdUser(state, action: PayloadAction<string | null>) {
+      state.roomIdUser = action.payload;
+      console.log("!!!!!!!!",state.roomIdUser);
+      
+    },
+    endCallUser: (state) => {
+      console.log('hit  user sclice-------->');
+      
+      state.videoCall = null;
+      state.showIncomingVideoCall = null;
+      state.showVideoCallUser = false; // Ensure the video call state is false
+      state.roomIdUser = null;         // Clear the room ID if necessary
+      console.log('callend user slice',state.showIncomingVideoCall);
+      localStorage.removeItem("IncomingVideoCall");
+    },
     
   },
   extraReducers: (builder) => {
@@ -97,5 +149,5 @@ const userSlice = createSlice({
 });
 
 // Export actions and reducer
-export const { clearUser, setLoading, setError, } = userSlice.actions;
+export const { clearUser, setLoading, setError,setVideoCallUser,setShowVideoCallUser,setRoomIdUser,setShowIncomingVideoCall,endCallUser } = userSlice.actions;
 export default userSlice.reducer;

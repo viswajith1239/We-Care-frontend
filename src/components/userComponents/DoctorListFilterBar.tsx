@@ -1,123 +1,177 @@
+import axios from "axios";
 import { useEffect, useState } from "react";
-import { DoctorListFilterBarProps } from "../../types/doctor";
-import axios from "../../axios/userAxiosInstance";
 import API_URL from "../../axios/API_URL";
 import { Specialization } from "../../types/doctor";
 import { useNavigate } from "react-router-dom";
+import userAxiosInstance from "../../axios/userAxiosInstance";
 
-
-
-function DoctorsListFilterBar({ }:DoctorListFilterBarProps) {
-    const [] = useState({
-      specialization: [],
-      // gender: "",
-      // priceRange: [0, 100],
-      // language: "",
-    });
+function DoctorListFiterBar() {
+  const [specializations, setSpecializations] = useState<Specialization[]>([]);
+  const [selectedSpecializations, setSelectedSpecializations] = useState<string[]>([]);
+  const [selectedGender, setSelectedGender] = useState<string[]>([]);
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
+  const [displayLimit, setDisplayLimit] = useState(4);
+  const [isExpanded, setIsExpanded] = useState(false);
   
-    const[specializations,setSpecializations]=useState<Specialization[]>([])
-    const [selectedSpecializations, setSelectedSpecializations] = useState<string[]>([]);
-    const [displayLimit, setDisplayLimit] = useState(4);
-    const [isExpanded, setIsExpanded] = useState(false);
-    const navigate=useNavigate()
-  
+  const navigate = useNavigate();
+
   useEffect(()=>{
-  
-   const getspecializations=async()=>{
-      try {
-        const response=await axios.get(`${API_URL}/user/specializations`)
-        
-        setSpecializations(response.data)
-      } catch (error) {
-        console.log("error in fetching specialisation:",error)
-      }
+
+    const getspecializations=async()=>{
+       try {
+         const response=await userAxiosInstance.get(`${API_URL}/user/specializations`)
+         console.log("bbbbb",response);
+         
+         setSpecializations(response.data)
+       } catch (error) {
+         console.log("error in fetching specialisation:",error)
+       }
+     }
+     getspecializations()
+   },[])
+
+  const handleSelect = (type: string, value: string) => {
+    let updatedSelections: any = [];
+    if (type === "specialization") {
+      updatedSelections = selectedSpecializations.includes(value)
+        ? selectedSpecializations.filter((id) => id !== value)
+        : [...selectedSpecializations, value];
+      setSelectedSpecializations(updatedSelections);
+    } else if (type === "gender") {
+      updatedSelections = selectedGender.includes(value)
+        ? selectedGender.filter((gender) => gender !== value)
+        : [...selectedGender, value];
+      setSelectedGender(updatedSelections);
+    } else if (type === "language") {
+      updatedSelections = selectedLanguages.includes(value)
+        ? selectedLanguages.filter((language) => language !== value)
+        : [...selectedLanguages, value];
+      setSelectedLanguages(updatedSelections);
     }
-    getspecializations()
-  },[])
-  
-  
-  
-    const handleFilterChange = (type: string, value: string ) => {
-   
-   let updatedSelectedvalue:string[] = [];
-   if(type==="specialization"){
-   updatedSelectedvalue=selectedSpecializations.includes(value)?selectedSpecializations.filter((id)=>id!==value):[...selectedSpecializations,value]
-    console.log("updated val=",updatedSelectedvalue)
-    setSelectedSpecializations(updatedSelectedvalue)
-  
-   }
-   const params=new URLSearchParams(window.location.search)
-    if(type&& updatedSelectedvalue.length>0){
-      params.set(type,updatedSelectedvalue.join(","))
-  
-    }else{
-      params.delete(type)
+
+    // Update URL query parameters
+    const params = new URLSearchParams(window.location.search);
+    if (updatedSelections.length > 0) {
+      params.set(type, updatedSelections.join(","));
+    } else {
+      params.delete(type);
     }
-    console.log("Updated Params:", params.toString());
-  
-    navigate(`/doctors?${params.toString()}`)
-    
-    };
-  
-  
-    
-   
-  
-    
-    const handleToggleDisplay = () => {
-    
-      if (isExpanded) {
-        setDisplayLimit(4);
-      } else {
-        setDisplayLimit(specializations.length);
-      }
-      setIsExpanded(!isExpanded);
-    };
-  
-  
-    return (
-        <div className="bg-[#00897B] shadow-lg rounded-xl p-6 space-y-6 mt-10 border border-gray-300 w-full max-w-md">
-        <h2 className="text-2xl font-bold text-white">Filter Doctors</h2>
-      
-       
-        <div className="flex flex-col">
-          <label className="text-sm font-semibold text-white mb-4">
-            Specialization
+    navigate(`/doctors?${params.toString()}`);
+  };
+
+  const handleToggleDisplay = () => {
+    if (isExpanded) {
+      setDisplayLimit(4);
+    } else {
+      setDisplayLimit(specializations.length);
+    }
+    setIsExpanded(!isExpanded);
+  };
+
+  const handleResetFilters = () => {
+    setSelectedSpecializations([]);
+    setSelectedGender([]);
+    setSelectedLanguages([]);
+    const params = new URLSearchParams(window.location.search);
+    params.delete("specialization");
+    params.delete("gender");
+    params.delete("language");
+    navigate(`/doctors?${params.toString()}`);
+  };
+
+  return (
+    <div className="sticky top-20 h-[calc(100vh-80px)] w-63 bg-gray-100 text-black flex flex-col shadow-lg overflow-y-auto">
+  <h2 className="text-2xl font-bold p-4 border-b border-gray-700">Filters</h2>
+
+  <div className="p-4 border-b border-gray-700">
+    <h3 className="text-lg font-semibold mb-2">Specialization</h3>
+    <ul className="space-y-2">
+      {specializations.slice(0, displayLimit).map((spec) => (
+        <li key={spec._id} className="flex items-center">
+          <input
+            onChange={() => handleSelect("specialization", spec._id)}
+            type="checkbox"
+            id={spec._id}
+            name="specialization"
+            checked={selectedSpecializations.includes(spec._id)}
+            className="mr-2 w-4 h-4 border-2 border-gray-400 rounded-sm checked:bg-blue-500"
+          />
+          <label
+            htmlFor={spec._id}
+            className="cursor-pointer hover:bg-gray-200 p-2 rounded"
+          >
+            {spec.name}
           </label>
-      
-          <div className="grid grid-cols-2 gap-3">
-            {specializations.slice(0, displayLimit).map((spec) => (
-              <div
-                key={spec._id}
-                className="flex items-center space-x-3 bg-gray-100 p-2 rounded-lg w-full max-w-full"
-              >
-                <input
-                  type="checkbox"
-                  value={spec._id}
-                  checked={selectedSpecializations.includes(spec._id)}
-                  onChange={() => handleFilterChange("specialization", spec._id)}
-                  className="w-5 h-5 rounded-md border-gray-400 text-indigo-600 focus:ring focus:ring-indigo-300"
-                />
-                <label className="text-sm font-medium text-gray-900 flex-1 whitespace-nowrap overflow-hidden text-ellipsis">
-                  {spec.name}
-                </label>
-              </div>
-            ))}
-          </div>
-      
-          {specializations.length > 4 && (
-            <button
-              className="text-sm font-semibold text-white mt-3 hover:underline"
-              onClick={handleToggleDisplay}
-            >
-              {isExpanded ? "SEE LESS" : "SEE MORE"}
-            </button>
-          )}
-        </div>
-      </div>
-      
-      
-    );
-  }
-  
-  export default DoctorsListFilterBar;
+        </li>
+      ))}
+    </ul>
+    {specializations.length > 4 && (
+      <button
+        className="text-sm font-medium text-blue-500 mt-2"
+        onClick={handleToggleDisplay}
+      >
+        {isExpanded ? "SEE LESS" : "SEE MORE"}
+      </button>
+    )}
+  </div>
+
+  <div className="p-4 border-b border-gray-700">
+    <h3 className="text-lg font-semibold mb-2">Gender</h3>
+    <ul className="space-y-2">
+      {["Male", "Female"].map((gender) => (
+        <li key={gender} className="flex items-center">
+          <input
+            onChange={() => handleSelect("gender", gender)}
+            type="checkbox"
+            id={gender}
+            name="gender"
+            checked={selectedGender.includes(gender)}
+            className="mr-2 w-4 h-4 border-2 border-gray-400 rounded-sm checked:bg-blue-500"
+          />
+          <label
+            htmlFor={gender}
+            className="cursor-pointer hover:bg-gray-200 p-2 rounded"
+          >
+            {gender}
+          </label>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <div className="p-4 border-b border-gray-700">
+    <h3 className="text-lg font-semibold mb-2">Language</h3>
+    <ul className="space-y-2">
+      {["English", "Spanish", "French", "German"].map((language) => (
+        <li key={language} className="flex items-center">
+          <input
+            onChange={() => handleSelect("language", language)}
+            type="checkbox"
+            id={language}
+            name="language"
+            checked={selectedLanguages.includes(language)}
+            className="mr-2 w-4 h-4 border-2 border-gray-400 rounded-sm checked:bg-blue-500"
+          />
+          <label
+            htmlFor={language}
+            className="cursor-pointer hover:bg-gray-200 p-2 rounded"
+          >
+            {language}
+          </label>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <button
+    onClick={handleResetFilters}
+    className="mt-4 bg-red-500 text-white py-2 px-4 rounded mx-4 mb-4"
+  >
+    Reset Filters
+  </button>
+</div>
+
+  );
+}
+
+export default DoctorListFiterBar;

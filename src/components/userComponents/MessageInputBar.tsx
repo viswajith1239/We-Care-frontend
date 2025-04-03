@@ -57,7 +57,7 @@ console.log("receiver iddddddddddddd==========",receiverId)
      
 
      
-      onNewMessage(newMessage);
+      // onNewMessage(newMessage);
       setMessage("");
     } catch (error) {
       console.error("Error sending message", error);

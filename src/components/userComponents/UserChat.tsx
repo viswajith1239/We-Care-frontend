@@ -7,6 +7,7 @@ import API_URL from "../../axios/API_URL";
 import { useSocketContext } from "../../context/socket";
 
 interface Message {
+  _id: string;
   senderId: string;
   receiverId: string;
   message: string;
@@ -89,7 +90,15 @@ const Chat: React.FC<DoctorChatProps> = () => {
 
 
   const handleNewMessage = (newMessage: Message) => {
-    setMessages((prev) => [...prev, newMessage]);
+    setMessages((prev) =>{
+      const isDuplicate = prev.some(
+        (msg) =>
+          msg._id === newMessage._id ||
+          (msg.createdAt === newMessage.createdAt &&
+            msg.message === newMessage.message)
+      );
+      return isDuplicate ? prev : [...prev, newMessage];
+    });
   };
 
   return (
@@ -142,6 +151,7 @@ const Chat: React.FC<DoctorChatProps> = () => {
             <p className="text-gray-500">No messages yet</p>
           ) : (
             messages.map((msg, index) => (
+              
               <div
                 key={index}
                 className={`flex items-end mb-2 ${

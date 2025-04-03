@@ -4,6 +4,9 @@ import { useSelector,useDispatch } from "react-redux"
 import io from "socket.io-client"
 
 import { AppDispatch,RootState } from "../app/store"
+import { endCallDoctor, setRoomId, setShowVideoCall, setVideoCall } from "../slice/DoctorSlice";
+import toast from "react-hot-toast";
+import { endCallUser, setRoomIdUser, setShowIncomingVideoCall, setShowVideoCallUser, setVideoCallUser } from "../slice/UserSlice";
 
 type SocketType = ReturnType<typeof io>;
 
@@ -55,7 +58,87 @@ export const SocketContextProvider = ({ children }: { children: ReactNode }): JS
               console.warn("Socket instance is null; skipping event listener setup.");
               return;
             }
-        })
+            socket.on("incoming-video-call", (data: any) => {
+      
+              if (userInfo?.id===data._id) {
+              dispatch(setShowIncomingVideoCall({
+                _id: data._id,
+                doctorId: data.from,
+                callType: data.callType,
+                doctorName: data.doctorName,
+                doctorImage: data.doctorImage,
+                roomId: data.roomId,
+              }));
+            }
+            else if (doctorInfo && doctorInfo.id === data._id) {
+              // Doctor received their own call by mistake, ignore
+              console.log("Doctor received a call but ignoring it.");
+              return
+            }
+            else{
+              console.log("Unrelated socket event received; ignoring.");
+            }
+            });
+        
+            // Accepted Call
+            socket.on("accepted-call", (data: any) => {
+            
+              
+              dispatch(setRoomId(data.roomId));
+              dispatch(setShowVideoCall(true));
+        
+              socket.emit("doctor-call-accept", {
+                roomId: data.roomId,
+                doctorId: data.from,
+                to: data._id,
+              });
+            
+            });
+        
+            
+            socket.on("doctor-accept", (data: any) => {
+              dispatch(setRoomId(data.roomId));
+              dispatch(setShowVideoCall(true));
+            });
+        
+            // Call Rejected
+            socket.on("call-rejected", () => {
+              toast.error("Call ended/rejected");
+              dispatch(setVideoCall(null));
+              dispatch(endCallDoctor());
+              dispatch(endCallUser());
+            });
+        
+            // User Left
+            socket.on("user-left", (data: string | undefined) => {
+              
+              if (data === userInfo?.id) {
+                dispatch(setShowVideoCallUser(false));
+                dispatch(setRoomIdUser(null));
+                dispatch(setVideoCallUser(null));
+                dispatch(setShowIncomingVideoCall(null));
+              } else if (data === doctorInfo?.id) {
+                dispatch(setShowVideoCall(false));
+                dispatch(setRoomId(null));
+                dispatch(setVideoCall(null));
+              }
+            });
+          
+        
+            // Cleanup event listeners
+            return () => {
+              
+              socket.off("incoming-video-call");
+              socket.off("accepted-call");
+              // socket.off("doctor-accept");
+              socket.off("call-rejected");
+              socket.off("user-left");
+            
+            };
+        },[socket, dispatch])
+
+
+        
 
         return <SocketContext.Provider value={{ socket }}>{children}</SocketContext.Provider>;
          

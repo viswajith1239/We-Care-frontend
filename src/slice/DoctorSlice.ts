@@ -6,9 +6,24 @@ interface DoctorState{
     doctorInfo:null|any,
     loading:null|any
     kycStatus: string;
+    videoCall:  VideoCallPayload | null;
+    showVideoCallDoctor: boolean
+    roomIdDoctor: null | string
 
 
     error:null|any  
+}
+
+interface VideoCallPayload {
+  userID: string;
+  type: string;
+  callType: string;
+  roomId: string;
+  userName: string
+  // userImage: string;
+  doctorName: string;
+  doctorImage: string;
+  bookingId: string
 }
 
 const doctor = localStorage.getItem("doctor");
@@ -18,6 +33,9 @@ const initialState:DoctorState={
     doctorInfo:parsedDoctor,
     loading:false,
     error:null,
+    videoCall: null,
+    showVideoCallDoctor: false,
+    roomIdDoctor: null,
     kycStatus: "pending",
 
     // doctorToken:localStorage.getItem("trainer_access_token") || null,
@@ -33,6 +51,30 @@ const doctorSlice=createSlice({
             state.doctorInfo = null;
            
           },
+
+          setVideoCall(state, action: PayloadAction<VideoCallPayload  | null>) {
+            state.videoCall = action.payload;
+            console.log('hit vidocall slice........???????????', state.videoCall);
+            
+          },
+          setShowVideoCall(state, action: PayloadAction<boolean>) {
+            console.log("///////whhhhhhhhhh///",action.payload)
+            state.showVideoCallDoctor = action.payload;
+            console.log('showVideoCall Doctor slice><><><><>@@@@@@@@', state.showVideoCallDoctor);
+      
+          },
+          setRoomId(state, action: PayloadAction<string | null>) {
+            state.roomIdDoctor = action.payload;
+            console.log('roomIdDoctor slice', state.roomIdDoctor);
+          },
+
+          endCallDoctor: (state) => {
+            state.videoCall = null;
+            state.showVideoCallDoctor = false; 
+            state.roomIdDoctor = null;   
+            localStorage.removeItem("IncomingVideoCall"); 
+          },
+
           
     },
     extraReducers: (builder) => {
@@ -115,5 +157,5 @@ const doctorSlice=createSlice({
         }
 
 })
-export const { clearDoctor  } = doctorSlice.actions;
+export const { clearDoctor, setVideoCall,setShowVideoCall ,setRoomId,endCallDoctor } = doctorSlice.actions;
 export default doctorSlice.reducer;

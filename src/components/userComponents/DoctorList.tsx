@@ -19,25 +19,39 @@ function DoctorsList() {
         console.log("yes in useeffect")
         async function fetchAllDoctors(){
             try {
-                const response=await userAxiosInstance.get(`${API_URL}/user/doctors`)
+                const response=await userAxiosInstance.get<Doctor[]>(`${API_URL}/user/doctors`)
              //   const doctorsData=response.data
               //  seDoctors(doctorsData)
+
+              console.log("ooooo",response);
+              
               const doctors = response.data;
 
-                console.log("-----------",doctors)
-                const params=new URLSearchParams(window.location.search)
-                console.log("Current URL search:", window.location.search);
-
-                const selectedSpecialization=params.get("specialization")
-                console.log("Selected Specialization from URL:", selectedSpecialization);
-
-                const filteredDoctors = doctors.filter((doctor: { specializations: any[]; }) => {
-                  const matchesSpecialization = selectedSpecialization
-                  ? doctor.specializations?.some(spec => selectedSpecialization.includes(spec._id))
+              const params = new URLSearchParams(location.search);
+              const selectedGender = params.get("gender")?.toLowerCase();
+              const selectedLanguage = params.get("language")?.toLowerCase();
+              const selectedSpecialization = params.get("specialization");
+      
+              const filteredDoctors = doctors.filter((doctor) => {
+                const matchesGender = selectedGender
+                  ? doctor.gender?.toLowerCase() === selectedGender
                   : true;
-                
-            return matchesSpecialization
-                })
+                const matchesLanguage = selectedLanguage
+                  ? Array.isArray(doctor.language)
+                    ? doctor.language?.some(
+                        (lang) => lang.toLowerCase() === selectedLanguage
+                      )
+                    : doctor.language?.toLowerCase() === selectedLanguage
+                  : true;
+
+                const matchesSpecialization = selectedSpecialization
+                  ? doctor.specializations?.some(
+                      (spec) => spec._id === selectedSpecialization
+                    )
+                  : true;
+                  
+                return matchesGender && matchesLanguage && matchesSpecialization;
+              });
                 setDoctorsData(filteredDoctors);
                 console.log("Filtered Doctors:", filteredDoctors);
 
