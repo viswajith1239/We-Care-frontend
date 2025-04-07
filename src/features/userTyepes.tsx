@@ -22,10 +22,10 @@ export interface User {
    
   }
 
-  interface IncomingVideoCall {
+   export interface IncomingVideoCall {
     _id: string | null;
     callType: string;
-    trainerName: string
-    trainerImage: string
+    doctorName: string
+    doctorImage: string
     roomId: string  | null;
   }

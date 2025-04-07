@@ -75,7 +75,7 @@ function DoctorsProfileView() {
             setDoctor(response.data[0]);
         }
       } catch (error) {
-        console.error("Error fetching trainer:", error);
+        console.error("Error fetching doctor:", error);
       }
     };
 

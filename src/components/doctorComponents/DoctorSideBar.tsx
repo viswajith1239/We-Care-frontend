@@ -7,7 +7,8 @@ import {
   FaSignOutAlt,
   FaEnvelope,
   FaCalendarCheck,
-  FaWallet
+  FaWallet,
+  FaFileMedical
 } from "react-icons/fa";
 
 function DoctorSideBar() {
@@ -75,6 +76,13 @@ function DoctorSideBar() {
           >
             <FaWallet size={22} />
             <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Wallet</span>
+          </Link>
+          <Link
+            to="/doctor/prescriptions"
+            className={`flex items-center px-4 py-2 text-gray-100 rounded-2xl ${isActive("/doctor/prescriptions")}`}
+          >
+            <FaFileMedical size={22} />
+            <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Precriptions</span>
           </Link>
 
           <Link

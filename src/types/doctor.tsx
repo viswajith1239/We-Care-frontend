@@ -35,7 +35,7 @@ export interface IAppoinmentSchedule {
   specializationId: ISpecialization
   duration?: string; 
   status: 'Pending' | 'Confirmed' | 'Completed' | 'Cancelled' | 'InProgress'; 
-  trainerId: string;
+  doctorId: string;
   selectedDate:string
 }
 
@@ -66,7 +66,7 @@ export interface ITransaction {
 }
 
 export interface IWallet {
-  trainerId: string;
+  doctorId: string;
   balance: number;
   transactions: ITransaction[];
   createdAt?: Date;

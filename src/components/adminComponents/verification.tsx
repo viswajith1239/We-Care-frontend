@@ -49,7 +49,7 @@ function Verification() {
             console.log("KYC Data:", doctors.kycData.kycStatus);
           });
           setDoctorsKycData(DoctorsData);
-        console.log('all pending trainers',DoctorsData);
+        console.log('all pending doctors',DoctorsData);
 
       } catch (error) {
         console.error('Error fetching KYC data:', error);

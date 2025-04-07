@@ -3,18 +3,19 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import { useEffect, useState } from "react";
 import DoctorKyc from "../doctorComponents/DoctorKyc";
+import API_URL from "../../axios/API_URL";
 
 function KycRejectionStatus() {
   const [isResubmitted, setIsResubmitted] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
 
   const { doctorInfo } = useSelector((state: RootState) => state.doctor);
-  const trainerId = doctorInfo.id;
+  const doctorId = doctorInfo.id;
 
   const handleResubmit = async () => {
     try {
       const response = await axiosInstance.put(
-        `/api/trainer/kyc/resubmit/${trainerId}`
+        `${API_URL}/doctor/kyc/resubmit/${doctorId}`
       );
 
       if (response.status === 200) {
@@ -29,7 +30,7 @@ function KycRejectionStatus() {
     const fetchData = async () => {
       try {
         const response = await axiosInstance.get(
-          `/api/trainer/rejection-reason/${trainerId}`
+          `${API_URL}/doctor/rejection-reason/${doctorId}`
         );
         setRejectionReason(response.data.reason);
       } catch (error) {

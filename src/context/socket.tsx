@@ -63,10 +63,17 @@ console.log('userInfo',loggedUser)
               return;
             }
             socket.on("incoming-video-call", (data: any) => {
-              // console.log('DATA context',data)
+              console.log('DATA context',data)
+              console.log("DATA received in context:", data);
+    console.log("Current User Info:", userInfo);
+    console.log("Current Doctor Info:", doctorInfo);
+
+    // Explicitly log and compare IDs
+    console.log("Comparing userInfo.id:", userInfo?.id, "with data._id:", data._id);
+    console.log("Comparing doctorInfo.id:", doctorInfo?.id, "with data._id:", data._id);
               
               if (userInfo?.id===data._id) {
-                // console.log('DATA',data)
+                console.log('DATA',data)
               dispatch(setShowIncomingVideoCall({
                 _id: data._id,
                 doctorId: data.from,
@@ -75,11 +82,13 @@ console.log('userInfo',loggedUser)
                 doctorImage: data.doctorImage,
                 roomId: data.roomId,
               }));
+           
             }
-            else if (doctorInfo && doctorInfo.id === data._id) {
+            
+            else if (doctorInfo && doctorInfo.id ==data._id) {
               // Doctor received their own call by mistake, ignore
               console.log("Doctor received a call but ignoring it.");
-              return
+              
             }
             else{
               console.log("Unrelated socket event received; ignoring.");

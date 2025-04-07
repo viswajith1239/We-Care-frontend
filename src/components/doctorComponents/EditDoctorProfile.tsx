@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-// import bgImage from "../../assets/trainers-tablet.jp";
 import axiosInstance from "../../axios/doctorAxiosInstance";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
@@ -45,7 +44,7 @@ const EditDoctorProfile: React.FC = () => {
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
   useEffect(() => {
-    const fetchTrainer = async () => {
+    const fetchDoctor = async () => {
       try {
         const response = await axiosInstance.get(
           `${API_URL}/doctor/${doctorId}`
@@ -64,11 +63,11 @@ const EditDoctorProfile: React.FC = () => {
           about: doctorData.about || "",
         });
       } catch (err) {
-        setError("Failed to load trainer data");
-        console.error("Error fetching trainer data:", err);
+        setError("Failed to load doctor data");
+        console.error("Error fetching doctor data:", err);
       }
     };
-    fetchTrainer();
+    fetchDoctor();
   }, [doctorId]);
 
   useEffect(() => {
@@ -164,163 +163,163 @@ const EditDoctorProfile: React.FC = () => {
 
 
   return (
-    <div className="bg-gray-100 min-h-screen flex flex-col items-center">
-      <Toaster />
-      <div className="w-full max-w-4xl mb-8 flex flex-col items-start md:flex-row md:justify-between gap-4 px-4">
-        <h2 className="text-4xl font-bold text-gray-800">Doctor Profile</h2>
-      </div>
-
-      <form onSubmit={handleProfileUpdate} className="w-full max-w-4xl">
-        <div className="bg-white flex flex-col items-center rounded-md relative w-full overflow-hidden">
-          <img
-            // src={bgImage}
-            alt="Background"
-            className="w-full h-64 object-cover rounded-t-md"
+    <div className="bg-gray-100 min-h-screen flex flex-col items-center bg-white rounded-md overflow-hidden">
+    <Toaster />
+  
+    {/* Heading and Profile Image - Centered */}
+    <div className="w-full max-w-4xl flex flex-col items-center justify-center px-4 mt-10 mb-8">
+      <h2 className="text-4xl font-bold text-gray-800 mb-4">Doctor Profile</h2>
+      <div className="relative">
+        <img
+          src={
+            typeof formData.profileImage === "string"
+              ? formData.profileImage
+              : URL.createObjectURL(formData.profileImage)
+          }
+          alt="Profile"
+          className="w-40 h-40 rounded-full bg-slate-500 object-cover border-4 border-white shadow-lg"
+        />
+  
+        {/* Camera icon for upload */}
+        <div className="absolute bottom-2 right-2 bg-white p-1 rounded-full shadow">
+          <label htmlFor="profileImageInput" className="cursor-pointer">
+            <FaCamera className="text-gray-600" size={18} />
+          </label>
+          <input
+            type="file"
+            id="profileImageInput"
+            style={{ display: "none" }}
+            accept="image/*"
+            onChange={handleImageChange}
           />
-
-          <div className="absolute top-36 md:top-44 left-8 md:left-12 flex items-center justify-center">
-            <img
-              src={
-                typeof formData.profileImage === "string"
-                  ? formData.profileImage
-                  : URL.createObjectURL(formData.profileImage)
-              }
-              alt="Profile"
-              className="w-40 h-40 rounded-full bg-slate-500 object-cover border-4 border-white shadow-lg"
-            />
-          </div>
-
-          <div className="absolute top-36 md:top-80 left-8 md:left-48 flex items-center justify-center">
-            <label htmlFor="profileImageInput" className="cursor-pointer">
-              <FaCamera className="text-gray-600" size={18} />
+        </div>
+      </div>
+    </div>
+  
+    {/* Form Section */}
+    <form onSubmit={handleProfileUpdate} className="w-full max-w-4xl">
+      <div className="bg-white rounded-md overflow-hidden">
+        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 p-8">
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            placeholder="Full Name"
+            className="p-3 border border-gray-300 bg-slate-100 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="Email Address"
+            className="p-3 border border-gray-300 bg-slate-100 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="tel"
+            name="phoneNumber"
+            value={formData.phoneNumber}
+            onChange={handleChange}
+            placeholder="Phone Number"
+            className="p-3 border border-gray-300 bg-slate-100 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="number"
+            name="yearsOfExperience"
+            value={formData.yearsOfExperience}
+            onChange={handleChange}
+            placeholder="Years of Experience"
+            className="p-3 border border-gray-300 bg-slate-100 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <select
+            name="language"
+            value={formData.language}
+            onChange={handleChange}
+            className="p-3 border border-gray-300 bg-slate-100 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="" disabled>
+              Select Language
+            </option>
+            <option value="english">English</option>
+            <option value="spanish">Spanish</option>
+            <option value="french">French</option>
+            <option value="german">German</option>
+            <option value="mandarin">Mandarin</option>
+          </select>
+          <select
+            name="gender"
+            value={formData.gender}
+            onChange={handleChange}
+            className="p-3 border border-gray-300 bg-slate-100 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="" disabled>
+              Select Gender
+            </option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="non-binary">Non-binary</option>
+            <option value="prefer-not-to-say">Prefer Not to Say</option>
+          </select>
+          <div className="col-span-2 flex flex-col">
+            <label htmlFor="about" className="font-medium mb-2">
+              About
             </label>
-            <input
-              type="file"
-              id="profileImageInput"
-              style={{ display: "none" }}
-              accept="image/*"
-              onChange={handleImageChange}
+            <textarea
+              id="about"
+              name="about"
+              value={formData.about}
+              onChange={handleChange}
+              placeholder="Write something about yourself..."
+              className="p-3 border border-gray-300 bg-slate-100 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+              rows={4}
             />
           </div>
-
-          <div className="mt-32 w-full grid grid-cols-1 md:grid-cols-2 gap-6 p-8">
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Full Name"
-              className="p-3 border border-gray-300 bg-slate-100 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Email Address"
-              className="p-3 border border-gray-300 bg-slate-100 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="tel"
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              placeholder="Phone Number"
-              className="p-3 border border-gray-300 bg-slate-100 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="number"
-              name="yearsOfExperience"
-              value={formData.yearsOfExperience}
-              onChange={handleChange}
-              placeholder="Years of Experience"
-              className="p-3 border border-gray-300 bg-slate-100 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <select
-              name="language"
-              value={formData.language}
-              onChange={handleChange}
-              className="p-3 border border-gray-300 bg-slate-100 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="" disabled>
-                Select Language
-              </option>
-              <option value="english">English</option>
-              <option value="spanish">Spanish</option>
-              <option value="french">French</option>
-              <option value="german">German</option>
-              <option value="mandarin">Mandarin</option>
-            </select>
-            <select
-              name="gender"
-              value={formData.gender}
-              onChange={handleChange}
-              className="p-3 border border-gray-300 bg-slate-100 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="" disabled>
-                Select Gender
-              </option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="non-binary">Non-binary</option>
-              <option value="prefer-not-to-say">Prefer Not to Say</option>
-            </select>
-            <div className="col-span-2 flex flex-col">
-              <label htmlFor="about" className="font-medium mb-2">
-                About
-              </label>
-              <textarea
-                id="about"
-                name="about"
-                value={formData.about}
-                onChange={handleChange}
-                placeholder="Write something about yourself..."
-                className="p-3 border border-gray-300 bg-slate-100 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-                rows={4}
-              />
-            </div>
-            <div className="col-span-2 flex flex-col">
-              <label htmlFor="specializations" className="mb-2 font-medium">
-                Specializations
-              </label>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {allSpecializations.map((specialization) => (
-                  <div
-                    key={specialization._id}
-                    className={`flex items-center space-x-2 border border-gray-300 px-4 py-2 rounded-md cursor-pointer ${
-                      formData.specializations.includes(specialization._id)
-                        ? "bg-blue-100 border-blue-400"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      handleSpecializationToggle(specialization._id)
-                    }
-                  >
-                    <input
-                      type="checkbox"
-                      checked={formData.specializations.includes(
-                        specialization._id
-                      )}
-                      readOnly
-                      className="hidden"
-                    />
-                    <span className="text-gray-700 text-sm">
-                      {specialization.name}
-                    </span>
-                  </div>
-                ))}
-              </div>
+          <div className="col-span-2 flex flex-col">
+            <label htmlFor="specializations" className="mb-2 font-medium">
+              Specializations
+            </label>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {allSpecializations.map((specialization) => (
+                <div
+                  key={specialization._id}
+                  className={`flex items-center space-x-2 border border-gray-300 px-4 py-2 rounded-md cursor-pointer ${
+                    formData.specializations.includes(specialization._id)
+                      ? "bg-blue-100 border-blue-400"
+                      : ""
+                  }`}
+                  onClick={() =>
+                    handleSpecializationToggle(specialization._id)
+                  }
+                >
+                  <input
+                    type="checkbox"
+                    checked={formData.specializations.includes(
+                      specialization._id
+                    )}
+                    readOnly
+                    className="hidden"
+                  />
+                  <span className="text-gray-700 text-sm">
+                    {specialization.name}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
+        </div>
+        <div className="flex justify-center mb-6">
           <button
             type="submit"
-            className="my-4 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+            className="px-6 py-3 bg-[#00897B] bg-[#00897B] text-white font-semibold rounded-lg shadow-md hover:bg-[#00897B] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
           >
             Save Changes
           </button>
         </div>
-      </form>
-    </div>
+      </div>
+    </form>
+  </div>
+  
   );
 };
 

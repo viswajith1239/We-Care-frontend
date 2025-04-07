@@ -69,7 +69,11 @@ const DoctorLayout: React.FC = () => {
                   <ul className="py-1">
                     <li
                       className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => navigate("/doctor/profile")}
+                      onClick={() => {navigate("/doctor/profile")
+                        setIsProfileDropdownOpen(false); 
+                      }
+                        
+                      }
                     >
                       My Profile
                     </li>

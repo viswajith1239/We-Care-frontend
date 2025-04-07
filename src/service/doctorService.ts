@@ -2,6 +2,7 @@
 import axios from "axios"
 import API_URL from "../axios/API_URL"
 import doctorAxiosInstance from "../axios/doctorAxiosInstance"
+import { Doctor } from "../types/doctor";
 export interface IDoctor {
     doctorId?: string;
     name: string;
@@ -138,6 +139,50 @@ const registerDoctor = async (doctorData: IDoctor) => {
       throw error;
     }
   };
+
+  const forgotPassword=async(emailData:string)=>{
+    try {
+        console.log("email is",emailData)
+         const response=await doctorAxiosInstance.post(`${API_URL}/doctor/forgotpassword`,{emailData})
+         console.log("the response from forgotpswd",response)
+         return response.data
+    } catch (error) {
+        console.log("Forgot Password Error",error)
+    }
+  }
+
+    const verifyForgotOtp=async({ doctorData, otp,}:{doctorData:Doctor;otp:string})=>{
+    
+      try{
+    
+       const response=await axios.post(`${API_URL}/doctor/forgototp`,{doctorData,otp})
+       
+       console.log("the frontend response otp",response)
+       if(response.data){
+           localStorage.setItem("user",JSON.stringify(response.data))
+       }
+       return response.data
+      }catch(error:any){
+          const errormessage=error.response?.data?.message
+          console.log(error)
+          throw new Error(errormessage);
+    
+      }
+    
+    }
+  
+    const resetPassword=async( doctorData: string, payload: { newPassword: string })=>{
+      try {
+       console.log("Email in request:", doctorData);
+       console.log("Password payload:", payload);
+       const response=await doctorAxiosInstance.post(`${API_URL}/doctor/resetpassword`, { doctorData, payload });
+       console.log("Frontend response:", response);
+       return response.data;
+      } catch (error) {
+        console.error("Error in ResetPassword:", error);
+      }
+    }
+  
   
 
 
@@ -148,7 +193,10 @@ const registerDoctor = async (doctorData: IDoctor) => {
     kycSubmission,
     kycStatus,
     googleAuth,
-    logoutDoctor
+    forgotPassword,
+    logoutDoctor,
+    verifyForgotOtp,
+    resetPassword
     
   }
   export default doctorService;

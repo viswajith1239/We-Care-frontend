@@ -58,7 +58,7 @@ const doctorSlice=createSlice({
           setShowVideoCall(state, action: PayloadAction<boolean>) {
             // console.log("///////whhhhhhhhhh///",action.payload)
             state.showVideoCallDoctor = action.payload;
-            console.log('action.payload trainer',action.payload)
+            console.log('action.payload doctor',action.payload)
             // console.log('showVideoCall Doctor slice><><><><>@@@@@@@@', state.showVideoCallDoctor);
       
           },

@@ -152,7 +152,7 @@ function DoctorView() {
       navigate("/admin/verification");
     } catch (error) {
       console.error(
-        "Error updating trainer status with rejection reason:",
+        "Error updating doctor status with rejection reason:",
         error
       );
     }

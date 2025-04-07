@@ -12,6 +12,10 @@ import BookingsPage from "../pages/doctorPages/BookingsPage";
 import WalletPage from "../pages/doctorPages/WalletPage";
 import DoctorProfilePage from "../pages/doctorPages/DoctorProfilePage";
 import DoctorProfileEditPage from "../pages/doctorPages/DoctorProfileEditPage";
+import ForgotPasswordPage from "../pages/doctorPages/ForgotPasswordPage";
+import ForgotPasswordOtpPage from "../pages/doctorPages/ForgotPasswordOtpPage";
+import ResetPasswordPage from "../pages/doctorPages/ResetPasswordPage";
+import PrescriptionsPage from "../pages/doctorPages/PrescriptionsPage";
 
 function DoctorRoutes() {
   return (
@@ -20,6 +24,9 @@ function DoctorRoutes() {
       <Route path="/signup" element={<DoctorSignUpPage />} />
       <Route path="/otp" element={<DoctorOtpPage />} />
       <Route path="/login" element={<DoctorLoginPage />} />
+      <Route path='/doctor-forgot-password' element={<ForgotPasswordPage/>}/>
+      <Route path='/doctor-forgot-passwordotp' element={<ForgotPasswordOtpPage/>}/>
+      <Route path='/doctor-resetpassword' element={<ResetPasswordPage/>}/>
 
       
       <Route path="/" element={<DoctorLayout />} >
@@ -31,6 +38,8 @@ function DoctorRoutes() {
       <Route path="wallet" element={<ProtectRoute><WalletPage /></ProtectRoute>} />
       <Route path="messages" element={<DoctorChat doctorId={''} bookingId={null} userId={""}/>}/>
       <Route path="bookings" element={<BookingsPage/>}/>
+      <Route path="prescriptions" element={<PrescriptionsPage/>}/>
+
        
       </Route>
     </Routes>

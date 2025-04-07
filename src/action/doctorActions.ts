@@ -44,6 +44,25 @@ export const registerDoctor = createAsyncThunk(
     }
   );
 
+  export const verifyForgotOtp=createAsyncThunk(
+    "doctor/otp",
+    async({doctorData,otp}:VerifyOtpArgs,thunkAPI)=>{
+  
+        try {
+          
+            const response=await doctorservice.verifyForgotOtp({doctorData,otp})
+            console.log("yess")
+            console.log("response is----",response)
+            return response
+        } catch (error:any) {
+          console.log("response----",error)
+            return thunkAPI.rejectWithValue(error.response.data)
+            
+        }
+    }
+  
+  )
+
   interface LoginDoctorArgs{
     email:string,
     password:string

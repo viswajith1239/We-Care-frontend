@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaBars, FaChartPie, FaListAlt, FaCheckCircle, FaUsers,  FaCalendarCheck, FaCalendarAlt, FaEnvelope } from "react-icons/fa";
+import { FaBars, FaChartPie,  FaUsers,  FaCalendarCheck,  FaEnvelope,  FaFileMedical } from "react-icons/fa";
 
 function UserProfileSidebar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -70,6 +70,14 @@ function UserProfileSidebar() {
           >
             <FaEnvelope  size={22} />
             <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Message</span>
+          </Link>
+
+          <Link
+            to="prescriptions"
+            className={`flex items-center px-4 py-2 text-gray-100 rounded-2xl hover:bg-gray-400 hover:bg-opacity-25 ${isActive("/profile/prescriptions")}`}
+          >
+            <FaFileMedical size={22} />
+            <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Precriptions</span>
           </Link>
 
           
