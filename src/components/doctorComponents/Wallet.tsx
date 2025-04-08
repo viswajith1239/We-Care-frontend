@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { IWallet } from "../../types/doctor";
-import toast from "react-hot-toast";
+import toast,{Toaster} from "react-hot-toast";
 import { RootState } from "../../app/store";
 import { useSelector } from "react-redux";
 import API_URL from "../../axios/API_URL";
@@ -64,10 +64,10 @@ function Wallet() {
         setIsModalOpen(false);
         setWithdrawMoney({ amount: null });
       } else {
-        alert("Withdrawal request failed. Please try again.");
+        toast.error("Withdrawal request failed. Please try again.");
       }
     } catch (error) {
-      alert("An error occurred. Please try again later.");
+      toast.error("An error occurred. Please try again later.");
     }
   };
 
@@ -80,6 +80,7 @@ function Wallet() {
 
   return (
     <div className="max-w-lg mx-auto p-4">
+    <Toaster/>
       <div className="bg-white p-6 shadow rounded mb-4">
         <h2 className="text-center text-xl font-semibold">Wallet Balance</h2>
         <h3 className="text-center text-3xl text-green-600">Rs.{walletData?.balance}</h3>
