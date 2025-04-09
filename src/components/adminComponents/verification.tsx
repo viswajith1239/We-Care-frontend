@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { FaFileAlt , FaPlus } from "react-icons/fa";
+import  { useEffect, useState } from "react";
+import { FaFileAlt ,  } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../app/store";
-import axios from "axios";
+// import axios from "axios";
 import API_URL from "../../axios/API_URL";
-import { Link, useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 import adminAxiosInstance from "../../axios/adminAxiosInstance";
 
 interface Doctor {

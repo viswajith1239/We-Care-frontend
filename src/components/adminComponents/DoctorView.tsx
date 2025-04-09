@@ -1,11 +1,11 @@
-import axios from "axios";
+// import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { FaUser, FaFileAlt, FaCheck, FaTimes } from "react-icons/fa";
+import {  FaCheck, FaTimes } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
 import adminAxiosInstance from "../../axios/adminAxiosInstance";
 import Swal from "sweetalert2";
 import API_URL from "../../axios/API_URL";
-import { useSelector } from "react-redux";
+// import { useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../app/store";
 import { useDispatch } from "react-redux";
 

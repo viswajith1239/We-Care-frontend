@@ -221,17 +221,13 @@ const ScheduleAppoinments: React.FC = () => {
   }, [doctorId]);
 
  
-  const handlePageChange = (pageNumber: number) => {
-    if (pageNumber < 1) {
-      setCurrentPage(1);  
-    } else if (pageNumber > Math.ceil(sessionSchedules.length / itemsPerPage)) {
-      setCurrentPage(Math.ceil(sessionSchedules.length / itemsPerPage));  
-    } else {
-      setCurrentPage(pageNumber);
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
     }
   };
 
-
+const totalPages = Math.ceil(sessionSchedules.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentSessions = sessionSchedules.slice(indexOfFirstItem, indexOfLastItem);
@@ -484,9 +480,13 @@ const ScheduleAppoinments: React.FC = () => {
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="px-4 py-2 bg-gray-300 text-black rounded mr-2 hover:bg-[#00897B]"
+            className={`px-6 py-2 rounded-lg ${
+              currentPage === 1
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-[#00897B] text-white"
+            }`}
           >
-            Previous
+            Prev
           </button>
           <span className="text-gray-600">
             Page {currentPage} of {Math.ceil(sessionSchedules.length / itemsPerPage)}
@@ -494,7 +494,11 @@ const ScheduleAppoinments: React.FC = () => {
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={indexOfLastItem >= sessionSchedules.length}
-            className="px-4 py-2 bg-gray-300 text-black rounded hover:bg-[#00897B]"
+            className={`px-4 py-2 rounded-lg ${
+              currentPage === totalPages
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-[#00897B] text-white"
+            }`}
           >
             Next
           </button>

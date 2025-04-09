@@ -33,7 +33,7 @@ function AdminSideBar() {
         {/* Navigation Links */}
         <nav className="flex flex-col space-y-6">
           <Link
-            to="/admin/dashboard"
+            to=""
             className={`flex items-center px-4 py-2 text-gray-100 rounded-2xl hover:bg-gray-400 hover:bg-opacity-25 ${isActive("/admin/dashboard")}`}
           >
             <FaChartPie size={22} />
