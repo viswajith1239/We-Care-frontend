@@ -5,6 +5,7 @@ import { Provider } from 'react-redux';
 import store from './app/store.tsx';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import {SocketContextProvider} from "../src/context/socket.tsx"
+import {NotificationProvider} from "../src/context/NotificationContext.tsx"
 
 
 
@@ -15,6 +16,7 @@ const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 
 createRoot(document.getElementById('root')!).render(
+  <NotificationProvider>
   <Provider store={store}>     
     <GoogleOAuthProvider clientId={clientId}>
       <SocketContextProvider>
@@ -22,4 +24,5 @@ createRoot(document.getElementById('root')!).render(
       </SocketContextProvider>
     </GoogleOAuthProvider>
   </Provider> 
+  </NotificationProvider>
 )

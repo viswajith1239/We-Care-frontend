@@ -287,6 +287,12 @@ const Chat: React.FC <DoctorChatProps>= ({userId} ) => {
         >
           {msg.message}
         </div>
+        <p className="text-sm text-gray-400 mt-1">
+                  {new Date(msg.createdAt || Date.now()).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
       </div>
     ))
   )}

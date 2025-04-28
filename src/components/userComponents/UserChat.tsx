@@ -31,7 +31,14 @@ const Chat: React.FC<DoctorChatProps> = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
-  let { socket } = useSocketContext();
+  let { socket,onlineUsers } = useSocketContext();
+  console.log("Online users list:", onlineUsers);
+  
+ 
+  
+ 
+  
+  
 
 
   useEffect(() => {
@@ -108,27 +115,37 @@ const Chat: React.FC<DoctorChatProps> = () => {
       <div className="w-1/3 bg-gray-100 p-4 border-r overflow-y-auto">
         <h2 className="text-lg font-semibold mb-4">Your Doctors</h2>
         <div className="space-y-2">
-          {doctors.length === 0 ? (
-            <p className="text-gray-500">No doctors available</p>
-          ) : (
-            doctors.map((doctor) => (
-              <div
-                key={doctor._id}
-                onClick={() => handleSelectDoctor(doctor)}
-                className={`flex items-center p-2 rounded-lg cursor-pointer ${
-                  selectedDoctor?._id === doctor._id ? "bg-[#00897B] text-white" : "hover:bg-gray-200"
-                }`}
-              >
-                <img
-                  src={doctor.profileImage}
-                  alt={doctor.name}
-                  className="w-10 h-10 rounded-full mr-3"
-                />
-                <span>{doctor.name}</span>
-              </div>
-            ))
-          )}
+  {doctors.length === 0 ? (
+    <p className="text-gray-500">No doctors available</p>
+  ) : (
+    doctors.map((doctor) => {
+      // Check if this specific doctor is online
+      console.log(",,,,,",doctorInfo?.id);
+      const isDoctorOnline = onlineUsers.includes(doctor._id);
+      console.log("0000000",isDoctorOnline)
+      
+      return (
+        <div
+          key={doctor._id}
+          onClick={() => handleSelectDoctor(doctor)}
+          className={`flex items-center p-2 rounded-lg cursor-pointer ${
+            selectedDoctor?._id === doctor._id ? "bg-[#00897B] text-white" : "hover:bg-gray-200"
+          }`}
+        >
+          <div className="relative mr-3">
+            <img
+              src={doctor.profileImage}
+              alt={doctor.name}
+              className="w-10 h-10 rounded-full mr-3"
+            />
+            <span className={`absolute bottom-0 right-0 w-3 h-3 ${isDoctorOnline ? "bg-green-500" : "bg-gray-400"} border-2 border-white rounded-full`}></span>
+          </div>
+          <span>{doctor.name}</span>
         </div>
+      );
+    })
+  )}
+</div>
       </div>
 
      
@@ -174,6 +191,15 @@ const Chat: React.FC<DoctorChatProps> = () => {
                 >
                   {msg.message}
                 </div>
+                
+                <p className="text-sm text-gray-400 mt-1">
+                  {new Date(msg.createdAt || Date.now()).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+               
+
               </div>
             ))
           )}

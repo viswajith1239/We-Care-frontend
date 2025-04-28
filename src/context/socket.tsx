@@ -8,27 +8,31 @@ import { endCallDoctor, setRoomId, setShowVideoCall, setVideoCall } from "../sli
 import toast from "react-hot-toast";
 import { endCallUser, setRoomIdUser, setShowIncomingVideoCall, setShowVideoCallUser, setVideoCallUser } from "../slice/UserSlice";
 import { data } from "react-router-dom";
+import { useNotification } from "./NotificationContext";
 
 type SocketType = ReturnType<typeof io>;
 
 interface SocketContextType {
   socket: SocketType | null;
+  onlineUsers: string[]
 }
-const SocketContext = createContext<SocketContextType>({ socket: null });
+const SocketContext = createContext<SocketContextType>({ socket: null,onlineUsers: [] });
 
 export const useSocketContext = () => useContext(SocketContext);
 
 export const SocketContextProvider = ({ children }: { children: ReactNode }): JSX.Element => {
       
         const [socket, setSocket] = useState<SocketType | null>(null);
+        const [onlineUsers,setonlineUsers]=useState([])
         const { userInfo } = useSelector((state: RootState) => state.user);
         const { doctorInfo } = useSelector((state: RootState) => state.doctor);
         const dispatch = useDispatch<AppDispatch>();
         const loggedUser = userInfo?.id || doctorInfo?.id || null;
+        const {addDoctorNotification, addUserNotification} = useNotification()
 console.log('userInfo',userInfo)
 console.log('doctorInfo',doctorInfo)
         
-console.log('userInfo',loggedUser)
+console.log('userInfos',loggedUser)
 
         useEffect(() => {
             console.log("Initializing socket connection...");
@@ -47,7 +51,13 @@ console.log('userInfo',loggedUser)
             newSocket.on("connect", () => {
               console.log("Socket connected:", newSocket.id);
               setSocket(newSocket);
+              
             });
+            newSocket.on("getonline",(userSocketMap)=>{
+              setonlineUsers(userSocketMap)
+              console.log();
+              
+            })
         
            // Cleanup socket on unmount
             return () => {
@@ -139,6 +149,16 @@ console.log('userInfo',loggedUser)
               }
             });
           
+            socket.on('receiveNewBooking', (data: string) => {
+              addDoctorNotification(data);
+            });
+            
+            socket.on('receiveCancelNotificationForDoctor', (data: string) => {
+              addDoctorNotification(data);
+            });
+
+
+            
         
             // Cleanup event listeners
             return () => {
@@ -148,13 +168,15 @@ console.log('userInfo',loggedUser)
               // socket.off("doctor-accept");
               socket.off("call-rejected");
               socket.off("user-left");
+              socket.off('receiveCancelNotificationForDoctor')
+              socket.off('receiveCancelNotificationForUser')
             
             };
-        },[socket, dispatch])
+        },[socket, dispatch,addUserNotification,addDoctorNotification])
 
 
         
 
-        return <SocketContext.Provider value={{ socket }}>{children}</SocketContext.Provider>;
+        return <SocketContext.Provider value={{ socket,onlineUsers }}>{children}</SocketContext.Provider>;
          
 }

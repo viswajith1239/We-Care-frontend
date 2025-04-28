@@ -4,7 +4,28 @@ import logo_img from "../../assets/wecare logo.png"
 import { Link,useNavigate } from 'react-router-dom';
 import Cookies from "js-cookie";
 import profileicon from "../../assets/user.png"
+import { RootState } from '../../app/store';
+import { useSelector } from 'react-redux';
+import userAxiosInstance from '../../axios/userAxiosInstance';
+import API_URL from '../../axios/API_URL';
+import toast from 'react-hot-toast';
+import { useNotification } from "../../context/NotificationContext";
+import { BsBell } from 'react-icons/bs';
 
+
+interface INotificationContent {
+  content: string;
+  bookingId: string;
+  read: boolean;
+}
+
+export interface INotification {
+  _id?: string;
+  receiverId?: string;
+  notifications?: INotificationContent[];
+  createdAt?: string;
+  updatedAt?: string;
+}
 
 function Header() {
   
@@ -13,7 +34,10 @@ function Header() {
  
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null); 
-
+  const {addUserNotification,clearUserNotifications, userNotifications, updateUserNotificationReadStatus, countUnreadNotificationsUser} = useNotification();
+  const [isNotificationOpen,setIsNotificationOpen]=useState(false)
+  const[notificationsData,setNotificationsData]=useState()
+  const { userInfo } = useSelector((state: RootState) => state.user);
 
  
   function handleLogout() {
@@ -37,6 +61,42 @@ function Header() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await userAxiosInstance.get(
+          `${API_URL}/user/notifications/${userInfo?.id}`
+        );
+        const serverNotifications = response.data?.notifications ?? [];
+        serverNotifications.forEach((notif: any) => {
+          if (notif && notif.content) {
+            addUserNotification(notif.content);
+          }
+        });
+      } catch (error) {
+        console.error("Failed to fetch notifications:", error);
+      }
+    };
+    fetchNotifications();
+  }, [userInfo?.id]);
+
+  const handleClear = async () => {
+    try {
+      const response = await userAxiosInstance.delete(
+        `${API_URL}/user/clear-notifications/${userInfo?.id}`
+      );
+      if (response.status === 200) {
+        toast.success(response.data.message);
+        clearUserNotifications();
+      } else {
+        console.error("Failed to clear notifications. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error clearing notifications:", error);
+    }
+  };
 
   return (
     <header className="bg-[#5cbba8] text-[#572c5f] p-4 sticky top-0 z-50">
@@ -76,7 +136,53 @@ function Header() {
     </nav>
 
     
-    <div className="hidden md:flex space-x-4">
+    <div className="hidden md:flex items-center space-x-4">
+
+{/* Notification Bell */}
+<div className="relative">
+  <BsBell 
+    className="h-6 w-6 text-[#572c5f] cursor-pointer" 
+    onClick={() => setIsNotificationOpen(!isNotificationOpen)} 
+  />
+  <span className="absolute -top-1 -right-1 w-4 h-4 text-[10px] font-bold text-white bg-red-600 rounded-full flex items-center justify-center">
+    {countUnreadNotificationsUser}
+  </span>
+
+  {/* Notification Dropdown */}
+  {isNotificationOpen && (
+    <div className="absolute right-0 mt-2 w-[320px] bg-white shadow-lg rounded-md p-4 z-50">
+      <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+        Notifications
+      </h3>
+      {userNotifications?.length ? (
+        <>
+          <ul className="space-y-3 mt-2 max-h-64 overflow-y-auto">
+            {userNotifications.map((notification, index) => (
+              <li
+                key={index}
+                className={`text-sm text-gray-700 border-b pb-2 cursor-pointer ${
+                  notification.read ? "opacity-50 bg-gray-100" : "bg-[#dce1d9]"
+                }`}
+              >
+                {typeof notification.message === "string"
+                  ? notification.message
+                  : "Invalid message"}
+              </li>
+            ))}
+          </ul>
+          <div onClick={handleClear} className="flex justify-end mt-2">
+            <button className="text-sm text-gray-800 hover:underline">
+              Clear
+            </button>
+          </div>
+        </>
+      ) : (
+        <p className="text-sm text-gray-500 mt-2">No new notifications</p>
+      )}
+    </div>
+  )}
+</div>
+
      
      
 

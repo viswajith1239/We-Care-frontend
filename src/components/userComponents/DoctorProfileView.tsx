@@ -306,6 +306,7 @@ function DoctorsProfileView() {
       `${API_URL}/user/edit-review`,
       data
     );
+    console.log("uuuuuu",response)
     setIsReviewModalOpen(false);
     setReviewComment(null);
     setSelectedRating(0);
@@ -314,6 +315,9 @@ function DoctorsProfileView() {
       toast.success(response.data.message);
     }
   };
+
+  console.log("pppp",hasUserReviewed);
+  
   useEffect(() => {
     const getAvgRatingAndTotalReviews = async () => {
       const response = await userAxiosInstance.get(
@@ -422,20 +426,21 @@ function DoctorsProfileView() {
 
 {bookingStatus === "Confirmed" ? (
         <div className="flex justify-end mr-10 sm:mr-4">
-          {!hasUserReviewed ? (
-            <button
-              onClick={handleAddReview}
-              className="bg-[#00897B] text-white  rounded-lg px-4 py-1 text-sm mt-5"
-              >
-              Add review
-            </button>
+          {hasUserReviewed ? (
+            
+             <button
+             onClick={handleEditReview}
+             className="bg-[#00897B] text-white  sm:px-2 sm:py-1 sm:text-sm"
+           >
+             Edit Review
+           </button>
           ) : (
             <button
-              onClick={handleEditReview}
-              className="bg-[#00897B] text-white  sm:px-2 sm:py-1 sm:text-sm"
+            onClick={handleAddReview}
+            className="bg-[#00897B] text-white  rounded-lg px-4 py-1 text-sm mt-5"
             >
-              Edit Review
-            </button>
+            Add review
+          </button>
           )}
         </div>
       ) : (
@@ -489,20 +494,23 @@ function DoctorsProfileView() {
                 Close
               </button>
               {!hasUserReviewed ? (
-                <button
-                  onClick={handleReviewSubmit}
-                  className="bg-[#00897B] px-3 py-2 rounded-md text-white sm:px-2 sm:py-1 sm:text-sm"
-                >
-                  Submit
-                </button>
-              ) : (
-                <button
-                  onClick={handleReviewEdit}
-                  className="bg-blue-500 px-3 py-2 rounded-md text-white sm:px-2 sm:py-1 sm:text-sm"
-                >
-                  Submit
-                </button>
-              )}
+                
+                
+               <button
+                onClick={handleReviewSubmit}
+                className="bg-[#00897B] px-3 py-2 rounded-md text-white sm:px-2 sm:py-1 sm:text-sm"
+              >
+                Submit
+              </button>
+              ): (
+                 <button
+                 onClick={handleReviewEdit}
+                 className="bg-blue-500 px-3 py-2 rounded-md text-white sm:px-2 sm:py-1 sm:text-sm"
+               >
+                 Submit
+               </button>
+            )}
+               
             </div>
           </div>
         </div>

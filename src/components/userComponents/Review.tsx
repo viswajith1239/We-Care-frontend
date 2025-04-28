@@ -39,10 +39,18 @@ function Review({ doctorId, reload, currentUser, onReviewCheck }: ReviewProps) {
       const response = await userAxiosInstance.get(
         `${API_URL}/user/reviews/${doctorId}`
       );
+      console.log(",,,,,,",response);
+      
       setReviews(response.data);
-      const userHasReviewed = response.data.some(
-        (review: IReview) => review.userId === currentUser
-      );
+      const userHasReviewed = response.data.some((review: IReview) => {
+        if (typeof review.userId === "string") {
+          return review.userId === currentUser;
+        } else {
+          return review.userId._id === currentUser;
+        }
+      });
+      
+      console.log("mmmm",userHasReviewed)
       onReviewCheck(userHasReviewed)
     };
     fetchDoctorReviews();

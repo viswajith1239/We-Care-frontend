@@ -16,8 +16,8 @@ interface Errors {
 function login(){
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-   const [showPassword, ] = useState<boolean>(false); 
-   const [errors, setErrors] = useState<Errors>({});
+  const [showPassword, ] = useState<boolean>(false); 
+  const [errors, setErrors] = useState<Errors>({});
 
 
   const dispatch = useDispatch<AppDispatch>();
