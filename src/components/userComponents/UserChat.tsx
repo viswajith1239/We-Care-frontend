@@ -11,6 +11,7 @@ interface Message {
   senderId: string;
   receiverId: string;
   message: string;
+  imageUrl?: string; // Changed from mediaUrl to imageUrl to match backend model
   createdAt: string;
 }
 
@@ -31,15 +32,8 @@ const Chat: React.FC<DoctorChatProps> = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
-  let { socket,onlineUsers } = useSocketContext();
+  let { socket, onlineUsers } = useSocketContext();
   console.log("Online users list:", onlineUsers);
-  
- 
-  
- 
-  
-  
-
 
   useEffect(() => {
     const fetchDoctors = async () => {
@@ -58,14 +52,22 @@ const Chat: React.FC<DoctorChatProps> = () => {
     fetchDoctors();
   }, [userInfo]);
 
-
   useEffect(() => {
     if (!selectedDoctor || !userInfo) return;
 
     const fetchMessages = async () => {
       try {
         const response = await axios.get(`${API_URL}/messages/${userInfo.id}/${selectedDoctor._id}`);
-        setMessages(response.data);
+        // Ensure we're handling the messages correctly
+        if (Array.isArray(response.data)) {
+          // Log the first message to debug imageUrl presence
+          if (response.data.length > 0) {
+            console.log("First message from backend:", response.data[0]);
+          }
+          setMessages(response.data);
+        } else {
+          console.error("Expected array of messages but got:", response.data);
+        }
       } catch (error) {
         console.error("Error fetching messages:", error);
       }
@@ -80,6 +82,7 @@ const Chat: React.FC<DoctorChatProps> = () => {
     socket.emit("join", doctorInfo?.id || userInfo?.id);
 
     const handleNewMessage = (newMessage: any) => {
+      console.log("New message received:", newMessage);
       setMessages((prev) => [...prev, newMessage]);
     };
 
@@ -90,14 +93,13 @@ const Chat: React.FC<DoctorChatProps> = () => {
     };
   }, [socket, doctorInfo?.id, userInfo?.id]);
 
-
   const handleSelectDoctor = (doctor: Doctor) => {
     setSelectedDoctor(doctor);
   };
 
-
   const handleNewMessage = (newMessage: Message) => {
-    setMessages((prev) =>{
+    console.log("Handling new message:", newMessage);
+    setMessages((prev) => {
       const isDuplicate = prev.some(
         (msg) =>
           msg._id === newMessage._id ||
@@ -109,48 +111,41 @@ const Chat: React.FC<DoctorChatProps> = () => {
   };
 
   return (
-   
     <div className="flex h-screen overflow-hidden">
-     
       <div className="w-1/3 bg-gray-100 p-4 border-r overflow-y-auto">
         <h2 className="text-lg font-semibold mb-4">Your Doctors</h2>
         <div className="space-y-2">
-  {doctors.length === 0 ? (
-    <p className="text-gray-500">No doctors available</p>
-  ) : (
-    doctors.map((doctor) => {
-      // Check if this specific doctor is online
-      console.log(",,,,,",doctorInfo?.id);
-      const isDoctorOnline = onlineUsers.includes(doctor._id);
-      console.log("0000000",isDoctorOnline)
-      
-      return (
-        <div
-          key={doctor._id}
-          onClick={() => handleSelectDoctor(doctor)}
-          className={`flex items-center p-2 rounded-lg cursor-pointer ${
-            selectedDoctor?._id === doctor._id ? "bg-[#00897B] text-white" : "hover:bg-gray-200"
-          }`}
-        >
-          <div className="relative mr-3">
-            <img
-              src={doctor.profileImage}
-              alt={doctor.name}
-              className="w-10 h-10 rounded-full mr-3"
-            />
-            <span className={`absolute bottom-0 right-0 w-3 h-3 ${isDoctorOnline ? "bg-green-500" : "bg-gray-400"} border-2 border-white rounded-full`}></span>
-          </div>
-          <span>{doctor.name}</span>
+          {doctors.length === 0 ? (
+            <p className="text-gray-500">No doctors available</p>
+          ) : (
+            doctors.map((doctor) => {
+              const isDoctorOnline = onlineUsers.includes(doctor._id);
+
+              return (
+                <div
+                  key={doctor._id}
+                  onClick={() => handleSelectDoctor(doctor)}
+                  className={`flex items-center p-2 rounded-lg cursor-pointer ${
+                    selectedDoctor?._id === doctor._id ? "bg-[#00897B] text-white" : "hover:bg-gray-200"
+                  }`}
+                >
+                  <div className="relative mr-3">
+                    <img
+                      src={doctor.profileImage}
+                      alt={doctor.name}
+                      className="w-10 h-10 rounded-full mr-3"
+                    />
+                    <span className={`absolute bottom-0 right-0 w-3 h-3 ${isDoctorOnline ? "bg-green-500" : "bg-gray-400"} border-2 border-white rounded-full`}></span>
+                  </div>
+                  <span>{doctor.name}</span>
+                </div>
+              );
+            })
+          )}
         </div>
-      );
-    })
-  )}
-</div>
       </div>
 
-     
       <div className="flex-1 flex flex-col">
-       
         {selectedDoctor ? (
           <div className="p-4 bg-[#00897B] text-white text-lg font-semibold rounded-lg">
             Chat with Dr.{selectedDoctor.name}
@@ -164,17 +159,20 @@ const Chat: React.FC<DoctorChatProps> = () => {
         )}
 
         <div className="flex-1 overflow-y-auto p-4">
+          
           {messages.length === 0 ? (
             <p className="text-gray-500">No messages yet</p>
           ) : (
             messages.map((msg, index) => (
-              
               <div
                 key={index}
-                className={`flex items-end mb-2 ${
+                className={`flex items-end mb-4 ${
                   msg.senderId === userInfo?.id ? "justify-end" : "justify-start"
                 }`}
               >
+
+                
+                
                 {msg.senderId !== userInfo?.id && (
                   <img
                     src={selectedDoctor?.profileImage}
@@ -182,24 +180,38 @@ const Chat: React.FC<DoctorChatProps> = () => {
                     className="w-8 h-8 rounded-full mr-2"
                   />
                 )}
-                <div
-                  className={`p-3 rounded-lg max-w-xs ${
-                    msg.senderId === userInfo?.id
-                      ? "bg-[#00897B]  text-white"
-                      : "bg-gray-300 text-black"
-                  }`}
-                >
-                  {msg.message}
+                <div className="flex flex-col">
+                  <div
+                    className={`p-3 rounded-lg max-w-xs ${
+                      msg.senderId === userInfo?.id
+                        ? "bg-[#00897B] text-white"
+                        : "bg-gray-300 text-black"
+                    }`}
+                  >
+                    {/* Show message text if it exists */}
+                    {msg.message && <p className="mb-2">{msg.message}</p>}
+                    
+                    {/* Show image if imageUrl exists - changed from mediaUrl to imageUrl */}
+                    {msg.imageUrl && (
+                      <img 
+                        src={msg.imageUrl} 
+                        alt="Message attachment" 
+                        className="rounded-lg max-w-full max-h-64 mt-1" 
+                        onError={(e) => {
+                          console.error("Image failed to load:", msg.imageUrl);
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    )}
+                  </div>
+                  
+                  <p className="text-sm text-gray-400 mt-1 self-end">
+                    {new Date(msg.createdAt || Date.now()).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
                 </div>
-                
-                <p className="text-sm text-gray-400 mt-1">
-                  {new Date(msg.createdAt || Date.now()).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
-               
-
               </div>
             ))
           )}
