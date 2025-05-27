@@ -1,6 +1,6 @@
 
 import {useEffect,useRef,useState} from 'react'
-import logo_img from "../../assets/wecare logo.png"
+import logo_img from "../../assets/wmremove-transformed.png"
 import { Link,useNavigate } from 'react-router-dom';
 import Cookies from "js-cookie";
 import profileicon from "../../assets/user.png"
@@ -106,7 +106,7 @@ function Header() {
   <img 
     src={logo_img} 
     alt="Logo" 
-    className="w-12 h-12 rounded-full object-cover" 
+    className="w-28 h-12 rounded-full object-cover" 
   />
 </div>
 

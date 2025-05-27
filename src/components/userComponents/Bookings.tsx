@@ -7,6 +7,7 @@ import { RootState } from "../../app/store";
 import toast from "react-hot-toast";
 
 interface BookingDetail {
+    startDate: string;
     doctorId: { _id: string };
     name: string;
     _id: string;
@@ -121,7 +122,7 @@ interface BookingDetail {
     paginatedBookings.map((booking) => (
       <tr key={booking._id} className="hover:bg-gray-50">
         <td className="py-3 px-4 border-b">{booking.doctorName}</td>
-        <td className="py-3 px-4 border-b">{new Date(booking.bookingDate).toLocaleDateString()}</td>
+        <td className="py-3 px-4 border-b">{new Date(booking.startDate).toLocaleDateString()}</td>
         <td className="py-3 px-4 border-b">{booking.startTime} - {booking.endTime}</td>
         <td className="py-3 px-4 border-b">
                   <span className={`px-2 py-1 rounded-full text-xs ${

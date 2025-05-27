@@ -18,6 +18,7 @@ import BookingsPage from '../pages/userPages/BookingsPage';
 import UserProtectRoute from './protector/UserProtectRoute';
 import UserChat from "../components/userComponents/UserChat"
 import PrescriptionPage from '../pages/userPages/PrescriptionPage';
+import AddReportsPage from '../pages/userPages/AddReportsPage';
 
 
 
@@ -40,6 +41,7 @@ function UserRoutes() {
         <Route path="bookings" element={<BookingsPage/>}/>
         <Route path="message" element={<UserChat doctorId={''}/>}/>
         <Route path="prescriptions" element={<PrescriptionPage/>}/>
+        <Route path="reports" element={<AddReportsPage/>}/>
         </Route>
         
     </Routes>

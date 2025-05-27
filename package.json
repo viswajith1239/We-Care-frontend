@@ -25,6 +25,7 @@
     "checkbox": "^0.0.1",
     "d3": "^7.9.0",
     "dayjs": "^1.11.13",
+    "emoji-picker-react": "^4.12.2",
     "formik": "^2.4.6",
     "framer-motion": "^12.6.3",
     "init": "^0.1.2",

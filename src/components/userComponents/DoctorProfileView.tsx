@@ -9,7 +9,7 @@ import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css"
-import { FaCalendarAlt } from "react-icons/fa"; 
+import { FaCalendarAlt, FaStar } from "react-icons/fa"; 
 // import Cookies from "js-cookie";
 
 import { RootState } from "../../app/store";
@@ -342,7 +342,21 @@ function DoctorsProfileView() {
             src={doctor?.profileImage}
             alt="Doctor"
           />
+
+          
         </div>
+         <div className="text-right">
+              {avgRatingAndTotalReviews.length > 0 && (
+                  <div className="p-4 mt-0   rounded-lg mx-8">
+                  <p className="text-yellow-500 font-semibold text-lg">
+                    <FaStar className="inline-block text-yellow-500" /> {avgRatingAndTotalReviews[0]?.averageRating?.toFixed(1) || 0}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    ({avgRatingAndTotalReviews[0]?.totalReviews || 0} reviews)
+                  </p>
+                 </div>
+              )}
+            </div>
 
       
         <div className="text-center mt-2 p-4">
@@ -351,7 +365,12 @@ function DoctorsProfileView() {
             <strong>Specialization: </strong>
             {doctor?.specializations[0]?.name || "N/A"}
           </p>
+          
         </div>
+
+       
+         
+        
 
         
         <p className="text-gray-700 mt-4 px-4">

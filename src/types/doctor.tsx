@@ -22,6 +22,10 @@ export interface Doctor {
 }
 
 export interface IAppoinmentSchedule {
+  daysOfWeek: any;
+  recurrenceInterval: number;
+  recurrenceType: string;
+  isRecurring: boolean;
   date: ReactNode;
   specialization: string;
   _id: string;

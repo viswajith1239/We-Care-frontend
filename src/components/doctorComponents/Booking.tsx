@@ -9,6 +9,7 @@ import { RootState } from "../../app/store";
 import toast from "react-hot-toast";
 
 interface BookingDetail {
+  startDate: string | number | Date;
   userId: { _id: string; name: string; email: string; phone: string };
   _id: string;
   startTime: string;
@@ -129,7 +130,7 @@ function Bookings() {
                   </td>
                  
                   <td className="py-3 px-4 border-b">
-                    {new Date(booking.bookingDate).toLocaleDateString()}
+                  {new Date(booking.startDate).toLocaleDateString()}
                   </td>
                   <td className="py-3 px-4 border-b">
                     {booking.startTime} - {booking.endTime}

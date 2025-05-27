@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaBars, FaChartPie,  FaUsers,  FaCalendarCheck,  FaEnvelope,  FaFileMedical } from "react-icons/fa";
+import { FaBars, FaChartPie,  FaUsers,  FaCalendarCheck,  FaEnvelope,  FaFileMedical, FaFileUpload } from "react-icons/fa";
 
 function UserProfileSidebar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -31,7 +31,7 @@ function UserProfileSidebar() {
         </div>
 
        
-        <nav className="flex flex-col space-y-10">
+        <nav className="flex flex-col space-y-5">
           <Link
             to=""
             className={`flex items-center px-4 py-2 text-gray-100 rounded-2xl hover:bg-gray-400 hover:bg-opacity-25 ${isActive("")}`}
@@ -56,13 +56,7 @@ function UserProfileSidebar() {
             <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Bookings</span>
           </Link>
 
-          {/* <Link
-            to=""
-            className={`flex items-center px-4 py-2 text-gray-100 rounded-2xl hover:bg-gray-400 hover:bg-opacity-25 ${isActive("")}`}
-          >
-            <FaCalendarAlt  size={22} />
-            <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Appoinments</span>
-          </Link> */}
+         
 
           <Link
             to="message"
@@ -71,6 +65,14 @@ function UserProfileSidebar() {
             <FaEnvelope  size={22} />
             <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Message</span>
           </Link>
+
+           <Link
+            to="reports"
+            className={`flex items-center px-4 py-2 text-gray-100 rounded-2xl hover:bg-gray-400 hover:bg-opacity-25 ${isActive("/profile/reports")}`}
+          >
+            <FaFileUpload   size={22} />
+            <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Add Medical Reports</span>
+          </Link> 
 
           <Link
             to="prescriptions"

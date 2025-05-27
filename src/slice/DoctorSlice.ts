@@ -10,11 +10,16 @@ interface DoctorState{
     showVideoCallDoctor: boolean
     roomIdDoctor: null | string
     doctorToken: null | string;
+     showPrescription: boolean
 
-
+ notificationDoctor: Notification[];
     error:null|any  
 }
-
+interface Notification {
+  content: string;
+  read: boolean;
+  createdAt: string;
+}
 interface VideoCallPayload {
   userID: string;
   type: string;
@@ -38,7 +43,9 @@ const initialState:DoctorState={
   showVideoCallDoctor: false,
   roomIdDoctor: null,
   kycStatus: "pending",
-  doctorToken: null
+  doctorToken: null,
+  showPrescription: false,
+  notificationDoctor: []
 }
 
 const doctorSlice=createSlice({
@@ -66,6 +73,17 @@ const doctorSlice=createSlice({
             state.roomIdDoctor = action.payload;
             console.log('roomIdDoctor slice', state.roomIdDoctor);
           },
+           setNotificationDoctor(state, action: PayloadAction<Notification[]>) {
+      state.notificationDoctor = [...state.notificationDoctor, ...action.payload];
+      console.log('action',action.payload);
+      
+      console.log("notificationDoctor slice", state.notificationDoctor);
+    },
+
+    setPrescription(state, action: PayloadAction<boolean>) {
+      state.showPrescription = action.payload
+    },
+    
 
           endCallDoctor: (state) => {
             state.videoCall = null;
@@ -168,5 +186,5 @@ const doctorSlice=createSlice({
         }
 
 })
-export const { clearDoctor, setVideoCall,setShowVideoCall ,setRoomId,endCallDoctor } = doctorSlice.actions;
+export const { clearDoctor, setVideoCall,setShowVideoCall ,setRoomId,endCallDoctor,setPrescription, setNotificationDoctor } = doctorSlice.actions;
 export default doctorSlice.reducer;

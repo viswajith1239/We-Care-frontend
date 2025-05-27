@@ -16,6 +16,7 @@ import ForgotPasswordPage from "../pages/doctorPages/ForgotPasswordPage";
 import ForgotPasswordOtpPage from "../pages/doctorPages/ForgotPasswordOtpPage";
 import ResetPasswordPage from "../pages/doctorPages/ResetPasswordPage";
 import PrescriptionsPage from "../pages/doctorPages/PrescriptionsPage";
+import ReportPage from "../pages/doctorPages/ReportPage";
 
 function DoctorRoutes() {
   return (
@@ -38,6 +39,7 @@ function DoctorRoutes() {
       <Route path="wallet" element={<ProtectRoute><WalletPage /></ProtectRoute>} />
       <Route path="messages" element={<DoctorChat doctorId={''} bookingId={null} userId={""}/>}/>
       <Route path="bookings" element={<BookingsPage/>}/>
+       <Route path="reports" element={<ReportPage/>}/>
       <Route path="prescriptions" element={<PrescriptionsPage/>}/>
 
        

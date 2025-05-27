@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FaBars, FaChartPie, FaListAlt, FaCheckCircle, FaUsers, FaSignOutAlt } from "react-icons/fa";
+import logo_img from "../../assets/wmremove-transformed.png"
 
 function AdminSideBar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -28,6 +29,13 @@ function AdminSideBar() {
           <button onClick={toggleSidebar} className="text-white">
             <FaBars size={24} />
           </button>
+           {isSidebarOpen && (
+      <img
+         src={logo_img} 
+        alt="WeCare Logo"
+    className="w-28 h-12 rounded-full object-cover mr-14" 
+      />
+    )}
         </div>
 
         {/* Navigation Links */}

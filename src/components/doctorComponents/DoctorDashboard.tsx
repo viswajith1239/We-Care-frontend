@@ -117,7 +117,7 @@ function DoctorDashboard() {
         <div className="bg-white rounded-lg shadow-md p-6 text-center flex flex-col items-center">
   <div className="flex items-center space-x-2 mb-2">
     <FaUserDoctor size={30} className="text-gray-700" />
-    <h3 className="text-lg font-semibold text-gray-800">Active Doctors</h3>
+    <h3 className="text-lg font-semibold text-gray-800">Active Patients</h3>
   </div>
   <p className="text-2xl font-bold text-gray-700">{totalUsers}</p>
 </div>

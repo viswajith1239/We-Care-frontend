@@ -26,8 +26,8 @@ import userimg from "../../assets/user.png"
           });
     
           timeoutRef.current = setTimeout(() => {
-            handleEndCall(); // Automatically end the call
-          }, 30000);
+            handleEndCall(); 
+          }, 60000);
         }
         return () => {
             if (timeoutRef.current) {

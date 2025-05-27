@@ -7,7 +7,7 @@ import { RootState } from "../../app/store";
 import { useEffect, useRef } from "react";
 
 import { useSocketContext } from "../../context/socket";
-import { setRoomId, setShowVideoCall, setVideoCall } from "../../slice/DoctorSlice";
+import { setRoomId, setShowVideoCall, setVideoCall,setPrescription } from "../../slice/DoctorSlice";
 
 
 function DoctorVideoCall(){
@@ -54,6 +54,7 @@ function DoctorVideoCall(){
             }
     
             // Reset state on leave
+            dispatch(setPrescription(true))
             dispatch(setShowVideoCall(false));
             dispatch(setRoomId(null));
             dispatch(setVideoCall(null));

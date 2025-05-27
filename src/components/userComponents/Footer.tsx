@@ -1,5 +1,5 @@
 import { FaFacebook, FaInstagram, FaTwitter, FaLinkedin } from 'react-icons/fa'; 
-import logo_img from "../../assets/wecare logo.png"
+import logo_img from "../../assets/wmremove-transformed.png"
 
 const Footer = () => {
   return (
@@ -11,7 +11,7 @@ const Footer = () => {
           <img 
             src={logo_img} 
             alt="Logo" 
-            className="w-12 h-12 rounded-full object-cover" 
+            className="w-28 h-12 rounded-full object-cover" 
           />
           <h1 className="ml-4 font-bold text-xl"></h1>
         </div>
