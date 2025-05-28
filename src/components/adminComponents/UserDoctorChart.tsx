@@ -42,7 +42,7 @@ const UserDoctorChart: React.FC<UserDoctorChartProps> = ({ data }) => {
 
   return (
     <div className="flex flex-col items-center w-full">
-      {/* Chart */}
+   
       <div className="w-full h-96">
         <ResponsiveContainer width="95%" height="100%">
           <BarChart
@@ -65,7 +65,7 @@ const UserDoctorChart: React.FC<UserDoctorChartProps> = ({ data }) => {
         </ResponsiveContainer>
       </div>
 
-      {/* Side-by-side Tables */}
+
       
     </div>
   );

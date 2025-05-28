@@ -21,6 +21,10 @@ const AddReports: React.FC = () => {
     const { userInfo } = useSelector((state: RootState) => state.user);
       const [reports, setReports] = useState<ReportData[]>([]); 
   const [isLoadingReports, setIsLoadingReports] = useState<boolean>(false);
+    const { doctorInfo } = useSelector((state: RootState) => state.doctor);
+    console.log("usere ",userInfo);
+    
+
     console.log("pppssss",userInfo);
 
     const fetchReports = async () => {
@@ -49,7 +53,7 @@ const AddReports: React.FC = () => {
     if (file && file.type.startsWith('image/')) {
       const url = URL.createObjectURL(file);
       setSelectedImage({ file, url });
-      // Clear preview when new file is selected
+      
       setPreviewImage(null);
     }
   };
@@ -60,7 +64,7 @@ const AddReports: React.FC = () => {
   const handleSubmit = async () => {
     if (!selectedImage) return;
 
-    // Check if user is logged in
+   
     if (!userInfo || !userInfo.id) {
       alert('Please log in to upload medical reports.');
       return;
@@ -72,9 +76,11 @@ const AddReports: React.FC = () => {
     try {
       const formData = new FormData();
       formData.append('image', selectedImage.file);
-      formData.append('userId', userInfo.id); // Add user ID from Redux state
+      formData.append('userId', userInfo.id); 
+      formData.append('doctorId', doctorInfo.id); 
+
       
-      // Optional: Add other user-related data if available
+     
       if (userInfo.name) {
         formData.append('userName', userInfo.name);
       }
@@ -120,7 +126,7 @@ const AddReports: React.FC = () => {
     setSelectedImage(null);
     setPreviewImage(null);
     setUploadedUrl(null);
-    // Clear the file input
+   
     const fileInput = document.getElementById('file-input') as HTMLInputElement;
     if (fileInput) {
       fileInput.value = '';
@@ -135,7 +141,7 @@ const AddReports: React.FC = () => {
         Add your previous medical reports here
       </h1>
       
-      {/* File Input */}
+     
       <div className="mb-6 flex  flex-col justify-center items-center">
         <label 
           htmlFor="file-input" 

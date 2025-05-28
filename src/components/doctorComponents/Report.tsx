@@ -9,12 +9,21 @@ interface ReportData {
   _id: string;
   imageUrl: string;
   createdAt?: string;
+  userId?: string;
+  userName?: string;
+  patientId?: string;
+  patientName?: string;
+  user?: {
+    _id: string;
+    name: string;
+    email?: string;
+  };
 }
 
-// Group reports by user (assuming you have user data in reports)
+
 interface GroupedReportData {
-  
-  userName: string;
+  patientId: string;
+  patientName: string;
   reports: ReportData[];
   totalReports: number;
   lastUpload?: string;
@@ -22,7 +31,6 @@ interface GroupedReportData {
 
 function Report() {
   const { doctorInfo } = useSelector((state: RootState) => state.doctor);
-   const { userInfo } = useSelector((state: RootState) => state.user);
 
   const [reports, setReports] = useState<ReportData[]>([]);
   const [groupedReports, setGroupedReports] = useState<GroupedReportData[]>([]);
@@ -44,19 +52,57 @@ function Report() {
       
       setReports(response.data.reports);
       
-      // Group reports by user (you might need to adjust this based on your data structure)
-      // For now, I'll assume all reports belong to the same user
-      const grouped: GroupedReportData[] = [{
+   
+      const reportsData: ReportData[] = response.data.reports;
+      
+      console.log("Reports data structure:", reportsData); 
+      
+      
+      const groupedMap = new Map<string, ReportData[]>();
+      
+      reportsData.forEach((report: ReportData) => {
+     
+        let userId: string;
+        let userName: string;
         
-        userName: userInfo?.name || "Unknown User",
-        reports: response.data.reports,
-        totalReports: response.data.reports.length,
-        lastUpload: response.data.reports.length > 0 
-          ? response.data.reports.sort((a: ReportData, b: ReportData) => 
-              new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
-            )[0].createdAt
-          : undefined
-      }];
+        if (report.user) {
+          
+          userId = report.user._id;
+          userName = report.user.name;
+        } else {
+          
+          userId = report.userId || report.patientId || 'unknown';
+          userName = report.userName || report.patientName || `User ${userId}`;
+        }
+        
+        if (!groupedMap.has(userId)) {
+          groupedMap.set(userId, []);
+        }
+        groupedMap.get(userId)!.push(report);
+      });
+      
+     
+      const grouped: GroupedReportData[] = Array.from(groupedMap.entries()).map(([userId, userReports]) => {
+      
+        const sortedReports = userReports.sort((a: ReportData, b: ReportData) => 
+          new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+        );
+    
+        let userName: string;
+        if (userReports[0].user) {
+          userName = userReports[0].user.name;
+        } else {
+          userName = userReports[0].userName || userReports[0].patientName || `User ${userId}`;
+        }
+        
+        return {
+          patientId: userId,
+          patientName: userName,
+          reports: sortedReports,
+          totalReports: userReports.length,
+          lastUpload: sortedReports.length > 0 ? sortedReports[0].createdAt : undefined
+        };
+      });
       
       setGroupedReports(grouped);
     } catch (error) {
@@ -69,7 +115,7 @@ function Report() {
 
   useEffect(() => {
     fetchReports();
-  }, [userInfo]);
+  }, [doctorInfo]);
 
   const handleViewReports = (userReports: ReportData[], userName: string) => {
     setSelectedUserReports(userReports);
@@ -80,17 +126,20 @@ function Report() {
   const handleImageClick = (imageUrl: string) => {
     setSelectedImage(imageUrl);
     setFullImageModal(true);
+     setShowModal(false);
   };
 
   const closeModal = () => {
     setShowModal(false);
     setSelectedUserReports([]);
     setSelectedUserName("");
+   
   };
 
   const closeImageModal = () => {
     setFullImageModal(false);
     setSelectedImage("");
+      setShowModal(true);
   };
 
   return (
@@ -104,30 +153,39 @@ function Report() {
         </div>
       ) : groupedReports.length > 0 ? (
         <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
+          <table className="min-w-full divide-y divide-gray-200 rounded-lg border">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                 <th className="px-6 py-3 text-xs font-medium bg-[#00897B] text-white text-center uppercase tracking-wider">
+                  Patient Id
+                </th>
+                <th className="px-6 py-3 bg-[#00897B] text-white text-center text-xs font-medium uppercase tracking-wider">
                   Patient Name
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 bg-[#00897B] text-white text-center text-xs font-medium  uppercase tracking-wider">
                   Total Reports
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3  text-xs font-medium bg-[#00897B] text-white text-center uppercase tracking-wider">
                   Last Upload
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3  text-xs font-medium bg-[#00897B] text-white text-center uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {groupedReports.map((group) => (
-                <tr  className="hover:bg-gray-50">
+              {groupedReports.map((group, index) => (
+                <tr key={group.patientId || index} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{group.userName}</div>
-                    <div className="text-sm text-gray-500">ID:</div>
+                    
+                    <div className="text-sm text-gray-500">ID: {group.patientId}</div>
                   </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                   
+                      <div className="text-sm font-medium text-gray-900">{group.patientName}</div>
+                   
+                  </td>
+                  
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                       {group.totalReports} reports
@@ -147,8 +205,8 @@ function Report() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button
-                      onClick={() => handleViewReports(group.reports, group.userName)}
-                      className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                      onClick={() => handleViewReports(group.reports, group.patientName)}
+                      className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-[#00897B] hover:bg-[#00897B] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
                     >
                       View Reports
                     </button>
@@ -170,7 +228,7 @@ function Report() {
         </div>
       )}
 
-      {/* Reports Modal */}
+    
       {showModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
           <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
@@ -224,7 +282,7 @@ function Report() {
         </div>
       )}
 
-      {/* Full Image Modal */}
+     
       {fullImageModal && selectedImage && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-60">
           <div className="relative max-w-4xl max-h-full p-4">

@@ -55,7 +55,7 @@ function DoctorProfile() {
       </div>
 
       <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl overflow-hidden flex flex-col items-center">
-        {/* Profile Image Centered */}
+       
         <div className="mt-8 flex justify-center w-full">
           <img
             src={doctor[0].profileImage}

@@ -91,7 +91,7 @@ function DoctorSideBar() {
             className={`flex items-center px-4 py-2 text-gray-100 rounded-2xl ${isActive("/doctor/prescriptions")}`}
           >
             <FaFileMedical size={22} />
-            <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Precriptions</span>
+            <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Medication history</span>
           </Link>
 
              <Link

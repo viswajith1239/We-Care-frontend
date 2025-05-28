@@ -119,7 +119,7 @@ function Verification() {
         )}
       </div>
 
-      {/* Modal code can remain the same */}
+     
     </div>
   );
 }

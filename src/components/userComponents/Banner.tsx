@@ -50,7 +50,7 @@ function Banner() {
 
   return (
     <div className="h-[900px] relative overflow-hidden">
-      {/* Image slider with opacity transitions */}
+     
       <div className="h-full w-full relative">
         {bannerSlides.map((slide, index) => (
           <div
@@ -64,10 +64,10 @@ function Banner() {
               zIndex: currentSlideIndex === index ? 1 : 0
             }}
           >
-            {/* Overlay for each slide */}
+            
             <div className="absolute inset-0 bg-[#00897B] bg-opacity-30"></div>
             
-            {/* Content for each slide */}
+      
             <div className="absolute inset-0 flex items-start justify-center">
               <div className="relative w-[90%] mx-auto flex items-center justify-between flex-col h-full">
                 <div className="lg:w-fit mr-[35.2rem] mt-20">
@@ -94,7 +94,7 @@ function Banner() {
         ))}
       </div>
 
-      {/* Navigation Dots */}
+     
       <div className="absolute bottom-8 left-0 right-0 flex justify-center space-x-2 z-10">
         {bannerSlides.map((_, index) => (
           <button
@@ -108,7 +108,7 @@ function Banner() {
         ))}
       </div>
 
-      {/* Navigation Arrows */}
+     
       <div className="absolute inset-y-0 left-0 flex items-center z-10">
         <button 
           onClick={() => setCurrentSlideIndex(prev => prev === 0 ? bannerSlides.length - 1 : prev - 1)}

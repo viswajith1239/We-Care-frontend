@@ -101,7 +101,7 @@ const DoctorLayout: React.FC = () => {
           <h1 className="text-2xl font-semibold">Doctor Dashboard</h1>
   
           <div className="flex items-center space-x-6">
-            {/* Notification Icon */}
+           
             <div className="relative" ref={notificationRef}>
               <BsBell
                 className="h-6 w-6 cursor-pointer"
@@ -154,7 +154,7 @@ const DoctorLayout: React.FC = () => {
               )}
             </div>
   
-            {/* Profile Icon */}
+           
             <div className="relative" ref={profileRef}>
               <FaUserCircle
                 className="text-2xl cursor-pointer"
@@ -186,7 +186,7 @@ const DoctorLayout: React.FC = () => {
         </header>
   
         <section className="flex justify-center items-center bg-gradient-to-r from-[#5cbba8] via-white to-[#5cbba8]">
-          {/* You can add content here if needed */}
+    
         </section>
   
         <div className="flex-1 p-6 bg-slate-100 overflow-y-auto">

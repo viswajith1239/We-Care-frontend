@@ -39,7 +39,7 @@ function DocorKyc() {
 
   const dispatch = useDispatch<AppDispatch>();
 
-  // Validate form
+
   const validateForm = (): boolean => {
     const errors: { [key: string]: string } = {};
     if (!name) errors.name = "Name is required";
@@ -89,7 +89,7 @@ function DocorKyc() {
     formData.append('email', email);
     formData.append('phone', phone);
   
-    // Append files only if they exist
+    
     if (profileImage) formData.append('profileImage', profileImage);
     if (aadhaarFrontSide) formData.append('aadhaarFrontSide', aadhaarFrontSide);
     if (aadhaarBackSide) formData.append('aadhaarBackSide', aadhaarBackSide);

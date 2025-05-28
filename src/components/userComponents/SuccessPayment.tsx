@@ -50,7 +50,7 @@ function SuccessPayment() {
     }, [sessionId, userId, stripe_session_id]);
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 px-4 relative overflow-hidden">
-        {/* Confetti */}
+       
         <Confetti width={width} height={height} numberOfPieces={300} />
 
         <div className="bg-white shadow-xl rounded-lg p-8 w-full max-w-md text-center z-10">

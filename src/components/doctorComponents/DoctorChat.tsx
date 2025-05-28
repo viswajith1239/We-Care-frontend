@@ -77,7 +77,7 @@ const Chat: React.FC<DoctorChatProps> = ({ userId }) => {
   useEffect(() => {
     if (showPrescription  && selecteduser) {
       setIsModalOpen(true);
-      // Reset the prescription state to false after opening modal
+     
       dispatch(setPrescription(false));
     }
   },[showPrescription , selecteduser, dispatch]);

@@ -5,19 +5,19 @@ import logo_img from "../../assets/wmremove-transformed.png"
 
 function AdminSideBar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const location = useLocation(); // Get current route
+  const location = useLocation(); 
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  // Define a function to check if a link is active
+
   const isActive = (path: string) => location.pathname === path ? "bg-gray-400 bg-opacity-50" : "hover:bg-gray-400 hover:bg-opacity-25";;
 
   return (
     <div className="flex h-screen bg-gray-100">
       
-      {/* Sidebar */}
+     
       <div
         className={`${
           isSidebarOpen ? "w-64" : "w-20"
@@ -38,7 +38,7 @@ function AdminSideBar() {
     )}
         </div>
 
-        {/* Navigation Links */}
+       
         <nav className="flex flex-col space-y-6">
           <Link
             to=""

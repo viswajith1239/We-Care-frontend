@@ -97,7 +97,7 @@ function UserListing() {
           </table>
         )}
 
-        {/* Pagination Controls */}
+       
         {users.length > 0 && (
   <div className="flex justify-between items-center space-x-2 mt-4">
     <button

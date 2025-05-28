@@ -80,7 +80,7 @@ export default function SpecializationTable() {
     }
   };
 
-  // Pagination logic
+
   const totalPages = Math.ceil(specialization.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentSpecializations = specialization.slice(startIndex, startIndex + itemsPerPage);
@@ -96,7 +96,7 @@ export default function SpecializationTable() {
         Add Specialization
       </button>
 
-      {/* Modal */}
+    
       {isModalOpen && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
@@ -146,7 +146,7 @@ export default function SpecializationTable() {
         </div>
       )}
 
-      {/* Table */}
+   
       <div className="w-full flex justify-center mt-6">
         {specialization.length === 0 ? (
           <p className="text-gray-500 text-xl font-medium">No specializations added.</p>
@@ -186,7 +186,7 @@ export default function SpecializationTable() {
               </tbody>
             </table>
 
-            {/* Pagination */}
+            
             <div className="flex justify-between items-center space-x-2 mt-4">
         <button
           className={`px-6 py-2 rounded-lg ${

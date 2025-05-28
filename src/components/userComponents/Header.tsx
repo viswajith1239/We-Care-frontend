@@ -138,7 +138,7 @@ function Header() {
     
     <div className="hidden md:flex items-center space-x-4">
 
-{/* Notification Bell */}
+
 <div className="relative">
   <BsBell 
     className="h-6 w-6 text-[#572c5f] cursor-pointer" 
@@ -148,7 +148,7 @@ function Header() {
     {countUnreadNotificationsUser}
   </span>
 
-  {/* Notification Dropdown */}
+ 
   {isNotificationOpen && (
     <div className="absolute right-0 mt-2 w-[320px] bg-white shadow-lg rounded-md p-4 z-50">
       <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">

@@ -65,7 +65,7 @@ function MessageInputBar({ doctorId, onNewMessage }: MessageInputBarProps) {
 
       onNewMessage(savedMessage);
 
-      // Reset the input fields
+      
       setMessage("");
       setImageUrl(null);
       setPreviewUrl(null);

@@ -6,7 +6,6 @@ import {LineChart,Line,XAxis,YAxis,CartesianGrid,Tooltip,Legend,ResponsiveContai
       year: number;
       month: number;
       doctorRevenue: number;
-      // Optional for future weekly/yearly use
       week?: number;
     }[];
     doctorid: string;

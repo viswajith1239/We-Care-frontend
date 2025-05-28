@@ -127,7 +127,7 @@ const EditDoctorProfile: React.FC = () => {
     updatedData.append("language", formData.language);
     updatedData.append("about", formData.about);  
 
-    // Append profile image only if it's a file
+  
     if (formData.profileImage instanceof File) {
       updatedData.append("profileImage", formData.profileImage);
     }
@@ -166,7 +166,7 @@ const EditDoctorProfile: React.FC = () => {
     <div className="bg-gray-100 min-h-screen flex flex-col items-center bg-white rounded-md overflow-hidden">
     <Toaster />
   
-    {/* Heading and Profile Image - Centered */}
+   
     <div className="w-full max-w-4xl flex flex-col items-center justify-center px-4 mt-10 mb-8">
       <h2 className="text-4xl font-bold text-gray-800 mb-4">Doctor Profile</h2>
       <div className="relative">
@@ -180,7 +180,7 @@ const EditDoctorProfile: React.FC = () => {
           className="w-40 h-40 rounded-full bg-slate-500 object-cover border-4 border-white shadow-lg"
         />
   
-        {/* Camera icon for upload */}
+       
         <div className="absolute bottom-2 right-2 bg-white p-1 rounded-full shadow">
           <label htmlFor="profileImageInput" className="cursor-pointer">
             <FaCamera className="text-gray-600" size={18} />
@@ -196,7 +196,7 @@ const EditDoctorProfile: React.FC = () => {
       </div>
     </div>
   
-    {/* Form Section */}
+ 
     <form onSubmit={handleProfileUpdate} className="w-full max-w-4xl">
       <div className="bg-white rounded-md overflow-hidden">
         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 p-8">

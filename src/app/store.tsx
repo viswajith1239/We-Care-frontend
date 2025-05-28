@@ -14,6 +14,7 @@ const store = configureStore({
         
     }
 })
+console.log("dsss",store);
 
 export default store
 

@@ -101,6 +101,11 @@ const userSlice = createSlice({
         
         state.loading = false;
         state.userInfo = action.payload;
+        // console.log(action.payload);
+        
+        localStorage.setItem("userInfo", JSON.stringify(action.payload))
+        console.log("payload",action.payload);
+        
         state.error = null;
       })
       .addCase(registerForm.rejected, (state, action: PayloadAction<any>) => {

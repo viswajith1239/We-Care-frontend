@@ -21,11 +21,11 @@ function ForgotPasswordOtp() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
-  const doctorData = location.state; // User data from previous page
+  const doctorData = location.state; 
 
   useEffect(() => {
     if (!doctorData) {
-      navigate("/forgotpassword"); // Redirect if no userData
+      navigate("/forgotpassword"); 
     }
   }, [doctorData, navigate]);
 

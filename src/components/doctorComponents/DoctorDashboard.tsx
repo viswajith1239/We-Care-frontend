@@ -44,6 +44,8 @@ function DoctorDashboard() {
         const response = await doctorAxiosInstance.get(
           `${API_URL}/doctor/bookingdetails/${doctorInfo.id}`
         );
+        console.log(",,,,,",response);
+        
         const upcomingAppoinmets = response.data.data.filter(
           (appoinmet: BookingDetail) => new Date(appoinmet.startDate) >= new Date()
         );
@@ -82,7 +84,7 @@ function DoctorDashboard() {
           });
         
        } catch (error: any) {
-      // console.error("Error fetching dashboard data", error);
+ 
         
  
       }
@@ -133,6 +135,7 @@ function DoctorDashboard() {
           <table className="w-full border-collapse rounded-lg overflow-hidden">
             <thead>
               <tr className="bg-gray-50">
+                 <th className="py-2 px-4  bg-[#00897B] text-white"> Patient ID</th>
                 <th className="py-2 px-4  bg-[#00897B] text-white"> Name</th>
                 <th className="py-2 px-4  bg-[#00897B] text-white ">Date</th>
                 <th className="py-2 px-4  bg-[#00897B] text-white">Time</th>
@@ -143,6 +146,7 @@ function DoctorDashboard() {
               {currentAppoinments.length > 0 ? (
                 currentAppoinments.map((appoinment) => (
                   <tr key={appoinment._id} className="border-t">
+                    <td className="py-2 px-4 text-center">{appoinment.userId._id}</td>
                     <td className="py-2 px-4 text-center">{appoinment.userId.name}</td>
                     <td className="py-2 px-4 text-center">
                       {new Date(appoinment.startDate).toLocaleDateString("en-US")}
