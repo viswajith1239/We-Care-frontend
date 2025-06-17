@@ -4,13 +4,14 @@ import logo_img from "../../assets/wmremove-transformed.png"
 import { Link,useNavigate } from 'react-router-dom';
 import Cookies from "js-cookie";
 import profileicon from "../../assets/user.png"
-import { RootState } from '../../app/store';
-import { useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../app/store';
+import { useSelector,useDispatch  } from 'react-redux';
 import userAxiosInstance from '../../axios/userAxiosInstance';
 import API_URL from '../../axios/API_URL';
 import toast from 'react-hot-toast';
 import { useNotification } from "../../context/NotificationContext";
 import { BsBell } from 'react-icons/bs';
+import { logoutUser } from '../../action/userActions';
 
 
 interface INotificationContent {
@@ -38,9 +39,14 @@ function Header() {
   const [isNotificationOpen,setIsNotificationOpen]=useState(false)
   const[notificationsData,setNotificationsData]=useState()
   const { userInfo } = useSelector((state: RootState) => state.user);
+   const dispatch = useDispatch<AppDispatch>();
+   console.log("user ifnfos",userInfo);
+   
 
  
   function handleLogout() {
+     console.log("Clearing notifications... in handleLogout");
+    dispatch(logoutUser());
     Cookies.remove("AccessToken");
     navigate("/login");
   }
@@ -139,78 +145,93 @@ function Header() {
     <div className="hidden md:flex items-center space-x-4">
 
 
-<div className="relative">
-  <BsBell 
-    className="h-6 w-6 text-[#572c5f] cursor-pointer" 
-    onClick={() => setIsNotificationOpen(!isNotificationOpen)} 
-  />
-  <span className="absolute -top-1 -right-1 w-4 h-4 text-[10px] font-bold text-white bg-red-600 rounded-full flex items-center justify-center">
-    {countUnreadNotificationsUser}
-  </span>
+{userInfo && (
+  <div className="relative">
+    <BsBell 
+      className="h-6 w-6 text-[#572c5f] cursor-pointer" 
+      onClick={() => setIsNotificationOpen(!isNotificationOpen)} 
+    />
+    <span className="absolute -top-1 -right-1 w-4 h-4 text-[10px] font-bold text-white bg-red-600 rounded-full flex items-center justify-center">
+      {countUnreadNotificationsUser}
+    </span>
 
- 
-  {isNotificationOpen && (
-    <div className="absolute right-0 mt-2 w-[320px] bg-white shadow-lg rounded-md p-4 z-50">
-      <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
-        Notifications
-      </h3>
-      {userNotifications?.length ? (
-        <>
-          <ul className="space-y-3 mt-2 max-h-64 overflow-y-auto">
-            {userNotifications.map((notification, index) => (
-              <li
-                key={index}
-                className={`text-sm text-gray-700 border-b pb-2 cursor-pointer ${
-                  notification.read ? "opacity-50 bg-gray-100" : "bg-[#dce1d9]"
-                }`}
-              >
-                {typeof notification.message === "string"
-                  ? notification.message
-                  : "Invalid message"}
-              </li>
-            ))}
-          </ul>
-          <div onClick={handleClear} className="flex justify-end mt-2">
-            <button className="text-sm text-gray-800 hover:underline">
-              Clear
-            </button>
-          </div>
-        </>
-      ) : (
-        <p className="text-sm text-gray-500 mt-2">No new notifications</p>
+    {isNotificationOpen && (
+      <div className="absolute right-0 mt-2 w-[320px] bg-white shadow-lg rounded-md p-4 z-50">
+        <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+          Notifications
+        </h3>
+        {userNotifications?.length ? (
+          <>
+            <ul className="space-y-3 mt-2 max-h-64 overflow-y-auto">
+              {userNotifications.map((notification, index) => (
+                <li
+                  key={index}
+                  className={`text-sm text-gray-700 border-b pb-2 cursor-pointer ${
+                    notification.read ? "opacity-50 bg-gray-100" : "bg-[#dce1d9]"
+                  }`}
+                >
+                  {typeof notification.message === "string"
+                    ? notification.message
+                    : "Invalid message"}
+                </li>
+              ))}
+            </ul>
+            <div onClick={handleClear} className="flex justify-end mt-2">
+              <button className="text-sm text-gray-800 hover:underline">
+                Clear
+              </button>
+            </div>
+          </>
+        ) : (
+          <p className="text-sm text-gray-500 mt-2">No new notifications</p>
+        )}
+      </div>
+    )}
+  </div>
+)}
+
+
+     
+     
+
+       <div className="relative" ref={profileMenuRef}>
+  {userInfo ? (
+    <>
+      <img
+        alt="user profile"
+        src={profileicon}
+        className="h-7 w-7 cursor-pointer rounded-full object-cover"
+        onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+      />
+      {isProfileMenuOpen && (
+        <ul
+          role="menu"
+          className="absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white text-gray-800"
+        >
+          <li className="px-4 py-2 hover:bg-gray-100">
+            <Link to="/profile">My Profile</Link>
+          </li>
+          <li
+            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+            onClick={handleLogout}
+          >
+            Logout
+          </li>
+        </ul>
       )}
-    </div>
+    </>
+  ) : (
+    <button
+      onClick={() => navigate("/login")}
+      className="bg-[#5cbba8] text-white px-4 py-2 rounded-md hover:bg-[#5cbba8]"
+    >
+      Login
+    </button>
   )}
 </div>
 
-     
-     
-
-      <div className="relative" ref={profileMenuRef}>
-          <img
-            alt="user profile"
-            src={profileicon}
-            className="h-7 w-7 cursor-pointer rounded-full object-cover"
-            onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-          />
-          {isProfileMenuOpen && (
-            <ul
-              role="menu"
-              className="absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white text-gray-800"
-            >
-              <li className="px-4 py-2 hover:bg-gray-100">
-                <Link to="/profile">My Profile</Link>
-              </li>
-              <li
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                onClick={handleLogout}
-              >
-                Logout
-              </li>
-            </ul>
-          )}
-        </div>
     </div>
+    
 
   
     <div className="md:hidden flex items-center space-x-4">
@@ -235,3 +256,5 @@ function Header() {
 }
 
 export default Header
+
+

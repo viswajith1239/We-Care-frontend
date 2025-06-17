@@ -12,6 +12,7 @@ export interface User {
   }
 
   export interface IReview {
+    _id: Key | null | undefined;
     review_id: string
     comment: string
     rating: number

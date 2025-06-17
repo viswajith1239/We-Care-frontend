@@ -1,13 +1,12 @@
-import { useEffect, useState } from 'react';
-import userAxiosInstance from '../../axios/userAxiosInstance';
-import API_URL from '../../axios/API_URL';
+import { useEffect, useState } from "react";
+import userAxiosInstance from "../../axios/userAxiosInstance";
+import API_URL from "../../axios/API_URL";
 import { Doctor } from "../../types/doctor";
-import { useNavigate } from 'react-router-dom';
-import { useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 function DoctorsList() {
   const [doctorsData, setDoctorsData] = useState<Doctor[]>([]);
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [displayLimit, setDisplayLimit] = useState(6);
   const [sortOption, setSortOption] = useState("a-z");
 
@@ -15,20 +14,18 @@ function DoctorsList() {
   const location = useLocation();
 
   useEffect(() => {
-    console.log("yes in useeffect");
-    async function fetchAllDoctors() {
+    async function fetchDoctors() {
       try {
         const response = await userAxiosInstance.get<Doctor[]>(`${API_URL}/user/doctors`);
-        console.log("ooooo", response);
-        
         const doctors = response.data;
 
         const params = new URLSearchParams(location.search);
         const selectedGender = params.get("gender")?.toLowerCase();
         const selectedLanguage = params.get("language")?.toLowerCase();
         const selectedSpecialization = params.get("specialization");
+        const selectedExperience = params.get("experience"); // String value (e.g., "2", "5", "10")
         const sortType = params.get("sort") || "a-z";
-        
+
         setSortOption(sortType);
 
         const filteredDoctors = doctors.filter((doctor) => {
@@ -42,17 +39,18 @@ function DoctorsList() {
                 )
               : doctor.language?.toLowerCase() === selectedLanguage
             : true;
-
           const matchesSpecialization = selectedSpecialization
-            ? doctor.specializations?.some(
+            ? doctor.specializations.some(
                 (spec) => spec._id === selectedSpecialization
               )
             : true;
-            
-          return matchesGender && matchesLanguage && matchesSpecialization;
+          const matchesExperience = selectedExperience
+            ? parseInt(doctor.yearsOfExperience || "0") >= parseInt(selectedExperience)
+            : true; // Parse yearsOfExperience as number
+
+          return matchesGender && matchesLanguage && matchesSpecialization && matchesExperience;
         });
 
-    
         let sortedDoctors = [...filteredDoctors];
         if (sortType === "a-z") {
           sortedDoctors.sort((a, b) => a.name.localeCompare(b.name));
@@ -61,13 +59,11 @@ function DoctorsList() {
         }
 
         setDoctorsData(sortedDoctors);
-        console.log("Filtered and Sorted Doctors:", sortedDoctors);
-
       } catch (error) {
-        console.log("error in fetching doctors", error);
+        console.error("Error fetching doctors:", error);
       }
     }
-    fetchAllDoctors();
+    fetchDoctors();
   }, [location.search]);
 
   const handleViewProfile = (doctorId: string) => {
@@ -82,14 +78,10 @@ function DoctorsList() {
       )
   );
 
-  console.log("Search Term:", searchTerm);
-  console.log("Doctors Data:", doctorsData);
-  console.log("Sort Option:", sortOption);
-
   const handleLoadMore = () => {
-    setDisplayLimit((prevLimit) => prevLimit + 6); 
+    setDisplayLimit((prevLimit) => prevLimit + 6);
   };
-  
+
   return (
     <div className="bg-gray-100 min-h-screen py-8 px-4">
       <h1 className="text-4xl font-bold text-center mb-8 text-black">
@@ -118,17 +110,18 @@ function DoctorsList() {
               className="w-full h-[200px] object-cover object-top"
             />
             <div className="p-4 text-center">
-              <h1 className="font-semibold text-xl pt-4">Dr. {doctor.name}</h1>
+              <h3 className="font-semibold text-xl pt-4">Dr. {doctor.name}</h3>
+              <p className="text-gray-600">Experience: {doctor.yearsOfExperience} Years</p> {/* Updated to yearsOfExperience */}
               <div className="text-gray-600 flex justify-center mt-3 space-x-2">
                 {doctor.specializations.map((spec) => (
                   <p className="bg-blue-100 rounded-xl text-sm" key={spec._id}>
                     {spec.name}
                   </p>
                 ))}
-              </div>              
-              <button 
-                onClick={() => handleViewProfile(doctor._id)} 
-                className="mt-4 px-4 py-2 bg-[#00897B] text-white font-medium rounded-full hover:bg-[#00897B] transition"
+              </div>
+              <button
+                onClick={() => handleViewProfile(doctor._id)}
+                className="mt-4 px-4 py-2 bg-[#00897B] text-white font-medium rounded-full hover:bg-[#00697C] transition"
               >
                 View Profile
               </button>
@@ -136,11 +129,12 @@ function DoctorsList() {
           </div>
         ))}
       </div>
+
       {filteredDoctors.length > displayLimit && (
         <div className="flex justify-center mt-6">
           <button
             onClick={handleLoadMore}
-            className="bg-[#00897B] hover:bg-[#00897B] text-white py-2 px-6 rounded"
+            className="bg-[#00897B] hover:bg-[#00697C] text-white py-2 px-6 rounded"
           >
             Load More Doctors
           </button>
@@ -150,11 +144,11 @@ function DoctorsList() {
         <div className="flex items-center justify-center col-span-full mt-10">
           <div className="text-center">
             <h1 className="text-xl font-semibold mb-4">
-              Sorry, we couldn't find any doctors that matched your criteria.
+              Sorry, we couldn't find any doctors that match your criteria.
             </h1>
             <p className="text-gray-600">
-              Try removing some of your search filters. <br/>
-              (Helpful tip: You can book different doctors and continue a healthy life)
+              Try adjusting your search or filters. <br />
+              (Helpful tip: Explore different doctors to continue a healthy life)
             </p>
           </div>
         </div>

@@ -4,6 +4,7 @@ import API_URL from "../../axios/API_URL";
 import Swal from "sweetalert2";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
+import { useNavigate } from 'react-router-dom';
 import toast from "react-hot-toast";
 
 interface BookingDetail {
@@ -28,6 +29,8 @@ function Bookings() {
   const [selectedBooking, setSelectedBooking] = useState<BookingDetail | null>(null);
   const { userInfo } = useSelector((state: RootState) => state.user);
   const ITEMS_PER_PAGE = 5;
+
+  const navigate = useNavigate();
   
   const fetchBookingDetails = async () => {
     try {
@@ -122,58 +125,66 @@ function Bookings() {
      
       <div className="overflow-hidden rounded-lg border border-gray-200">
         <table className="w-full border-collapse rounded-lg overflow-hidden">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="py-3 px-4 bg-[#00897B] text-white text-center">Doctor</th>
-              <th className="py-3 px-4 bg-[#00897B] text-white text-center">Date</th>
-              <th className="py-3 px-4 bg-[#00897B] text-white text-center">Time</th>
-              <th className="py-3 px-4 bg-[#00897B] text-white text-center">Payment Status</th>
-              <th className="py-3 px-4 bg-[#00897B] text-white text-center">Appointment Status</th>
-              <th className="py-3 px-4 bg-[#00897B] text-white text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedBookings.length > 0 ? (
-              paginatedBookings.map((booking) => (
-                <tr key={booking._id} className="hover:bg-gray-50">
-                  <td className="py-3 px-4 border-b text-center">{booking.doctorName}</td>
-                  <td className="py-3 px-4 border-b text-center">{new Date(booking.startDate).toLocaleDateString()}</td>
-                  <td className="py-3 px-4 border-b text-center">{booking.startTime} - {booking.endTime}</td>
-                  <td className="py-3 px-4 border-b text-center">
-                    <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(booking.paymentStatus)}`}>
-                      {booking.paymentStatus}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 border-b text-center">
-                    <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(booking.appoinmentStatus || 'pending')}`}>
-                      {booking.appoinmentStatus || 'Not Started'}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 border-b text-center">
-                    <button 
-                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm mr-2"
-                      onClick={() => handleCancel(booking._id, booking.userId, booking.doctorId._id)}
-                    >
-                      Cancel
-                    </button>
-                    <button 
-                      className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
-                      onClick={() => handleViewDetails(booking)}
-                    >
-                      View Details
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={6} className="text-center py-8 bg-gray-50 text-gray-500">
-                  No bookings found. Schedule an appointment with a doctor.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+  <thead>
+    <tr className="bg-gray-100">
+      <th className="py-3 px-4 bg-[#00897B] text-white text-center">Doctor</th>
+      <th className="py-3 px-4 bg-[#00897B] text-white text-center">Date</th>
+      <th className="py-3 px-4 bg-[#00897B] text-white text-center">Time</th>
+      <th className="py-3 px-4 bg-[#00897B] text-white text-center">Payment Status</th>
+      <th className="py-3 px-4 bg-[#00897B] text-white text-center">Appointment Status</th>
+      <th className="py-3 px-4 bg-[#00897B] text-white text-center">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {paginatedBookings.length > 0 ? (
+      paginatedBookings.map((booking) => (
+        <tr key={booking._id} className="hover:bg-gray-50">
+          <td className="py-3 px-4 border-b text-center">{booking.doctorName}</td>
+          <td className="py-3 px-4 border-b text-center">{new Date(booking.startDate).toLocaleDateString()}</td>
+          <td className="py-3 px-4 border-b text-center">{booking.startTime} - {booking.endTime}</td>
+          <td className="py-3 px-4 border-b text-center">
+            <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(booking.paymentStatus)}`}>
+              {booking.paymentStatus}
+            </span>
+          </td>
+          <td className="py-3 px-4 border-b text-center">
+            <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(booking.appoinmentStatus || 'pending')}`}>
+              {booking.appoinmentStatus || 'Not Started'}
+            </span>
+          </td>
+          <td className="py-3 px-4 border-b text-center">
+            <div className="flex gap-1 justify-center items-center flex-wrap">
+              <button 
+                className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs"
+                onClick={() => handleCancel(booking._id, booking.userId, booking.doctorId._id)}
+              >
+                Cancel
+              </button>
+              <button 
+                className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs"
+                onClick={() => handleViewDetails(booking)}
+              >
+                Details
+              </button>
+              <button 
+                className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs"
+                 onClick={() => navigate('/profile/message')}
+              >
+                Chat
+              </button>
+            </div>
+          </td>
+        </tr>
+      ))
+    ) : (
+      <tr>
+        <td colSpan={6} className="text-center py-8 bg-gray-50 text-gray-500">
+          No bookings found. Schedule an appointment with a doctor.
+        </td>
+      </tr>
+    )}
+  </tbody>
+</table>
       </div>
 
     

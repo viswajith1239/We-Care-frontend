@@ -1,15 +1,11 @@
 import React, { useState, useRef } from "react";
-import { BsSend } from "react-icons/bs";
-import { BsImage } from "react-icons/bs";
-import { BsEmojiSmile } from "react-icons/bs";
+import { BsSend, BsImage, BsEmojiSmile } from "react-icons/bs";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import API_URL from "../../axios/API_URL";
 import { useSocketContext } from "../../context/socket";
-
-
-import EmojiPicker, { EmojiClickData, EmojiStyle, Theme } from 'emoji-picker-react';
+import EmojiPicker, { EmojiClickData, EmojiStyle, Theme } from "emoji-picker-react";
 
 interface MessageInputBarProps {
   doctorId?: string;
@@ -19,20 +15,20 @@ interface MessageInputBarProps {
 function MessageInputBar({ doctorId, onNewMessage }: MessageInputBarProps) {
   const [message, setMessage] = useState("");
   const [uploading, setUploading] = useState(false);
-  const [imageUrl, setImageUrl] = useState<string | null>(null); 
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  
+
   const { userInfo } = useSelector((state: RootState) => state.user);
   const { doctorInfo } = useSelector((state: RootState) => state.doctor);
   const { socket } = useSocketContext();
-  
+
   const userId = userInfo?.id;
-  
+
   const handleSendMessage = async (e: React.FormEvent<HTMLElement>) => {
     e.preventDefault();
     if (!message && !imageUrl) return;
@@ -45,18 +41,13 @@ function MessageInputBar({ doctorId, onNewMessage }: MessageInputBarProps) {
       message,
       mediaUrl: imageUrl,
       createdAt: new Date().toISOString(),
+      read: false, // Add read field
     };
 
     try {
-      console.log("Sending message with image:", newMessage);
-      
       const response = await axios.post(`${API_URL}/messages/send`, newMessage);
-      console.log("response",response);
-      
       const savedMessage = response.data.data;
-      
-      console.log("Message saved in backend:", savedMessage.imageUrl);
-      
+
       if (socket) {
         socket.emit("sendMessage", savedMessage);
       } else {
@@ -65,7 +56,6 @@ function MessageInputBar({ doctorId, onNewMessage }: MessageInputBarProps) {
 
       onNewMessage(savedMessage);
 
-      
       setMessage("");
       setImageUrl(null);
       setPreviewUrl(null);
@@ -90,15 +80,14 @@ function MessageInputBar({ doctorId, onNewMessage }: MessageInputBarProps) {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("upload_preset", "wecare"); 
+      formData.append("upload_preset", "wecare");
 
       const response = await axios.post(
-        "https://api.cloudinary.com/v1_1/dxop0bbkp/image/upload", 
+        "https://api.cloudinary.com/v1_1/dxop0bbkp/image/upload",
         formData
       );
 
       const uploadedImageUrl = response.data.secure_url;
-      console.log("Image uploaded successfully:", uploadedImageUrl);
       setImageUrl(uploadedImageUrl);
       setUploading(false);
     } catch (error) {
@@ -111,30 +100,21 @@ function MessageInputBar({ doctorId, onNewMessage }: MessageInputBarProps) {
   const removeMedia = () => {
     setImageUrl(null);
     setPreviewUrl(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleEmojiClick = (emojiData: EmojiClickData, event: MouseEvent) => {
+  const handleEmojiClick = (emojiData: EmojiClickData) => {
     const currentPosition = inputRef.current?.selectionStart || message.length;
     const newMessage = message.slice(0, currentPosition) + emojiData.emoji + message.slice(currentPosition);
     setMessage(newMessage);
-    
-   
-    setTimeout(() => {
-      if (inputRef.current) {
-        inputRef.current.focus();
-        inputRef.current.setSelectionRange(currentPosition + emojiData.emoji.length, currentPosition + emojiData.emoji.length);
-      }
-    }, 0);
+    inputRef.current?.focus();
+    inputRef.current?.setSelectionRange(currentPosition + emojiData.emoji.length, currentPosition + emojiData.emoji.length);
   };
 
   const toggleEmojiPicker = () => {
     setShowEmojiPicker(!showEmojiPicker);
   };
 
-  
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
@@ -142,13 +122,8 @@ function MessageInputBar({ doctorId, onNewMessage }: MessageInputBarProps) {
       }
     };
 
-    if (showEmojiPicker) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    if (showEmojiPicker) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showEmojiPicker]);
 
   return (
@@ -171,12 +146,8 @@ function MessageInputBar({ doctorId, onNewMessage }: MessageInputBarProps) {
         </div>
       )}
 
-     
       {showEmojiPicker && (
-        <div 
-          ref={emojiPickerRef}
-          className="absolute bottom-full mb-2 left-0 z-50"
-        >
+        <div ref={emojiPickerRef} className="absolute bottom-full mb-2 left-0 z-50">
           <EmojiPicker
             onEmojiClick={handleEmojiClick}
             autoFocusSearch={false}
@@ -189,12 +160,12 @@ function MessageInputBar({ doctorId, onNewMessage }: MessageInputBarProps) {
             previewConfig={{
               defaultEmoji: "1f60a",
               defaultCaption: "What's on your mind?",
-              showPreview: true
+              showPreview: true,
             }}
           />
         </div>
       )}
-      
+
       <form onSubmit={handleSendMessage} className="relative w-full flex items-center">
         <input
           ref={fileInputRef}
@@ -203,8 +174,6 @@ function MessageInputBar({ doctorId, onNewMessage }: MessageInputBarProps) {
           onChange={handleFileChange}
           className="hidden"
         />
-        
-       
         <button
           type="button"
           onClick={handleFileInput}
@@ -212,19 +181,15 @@ function MessageInputBar({ doctorId, onNewMessage }: MessageInputBarProps) {
         >
           <BsImage />
         </button>
-
-      
         <button
           type="button"
           onClick={toggleEmojiPicker}
           className={`absolute left-8 z-10 ${
-            showEmojiPicker ? 'text-blue-400' : 'text-gray-400 hover:text-white'
+            showEmojiPicker ? "text-blue-400" : "text-gray-400 hover:text-white"
           }`}
         >
           <BsEmojiSmile />
         </button>
-
-  
         <input
           ref={inputRef}
           onChange={(e) => setMessage(e.target.value)}
@@ -234,10 +199,8 @@ function MessageInputBar({ doctorId, onNewMessage }: MessageInputBarProps) {
           placeholder="Send a message"
           disabled={uploading}
         />
-
-      
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           className="absolute right-3 text-white disabled:text-gray-500"
           disabled={uploading || (!message && !imageUrl)}
         >

@@ -10,79 +10,76 @@ function DoctorListFiterBar() {
   const [selectedSpecializations, setSelectedSpecializations] = useState<string[]>([]);
   const [selectedGender, setSelectedGender] = useState<string[]>([]);
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
+  const [selectedExperience, setSelectedExperience] = useState<string>(""); // New state for experience
   const [displayLimit, setDisplayLimit] = useState(4);
   const [isExpanded, setIsExpanded] = useState(false);
   const [sortOption, setSortOption] = useState("a-z");
-  
+
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    
     const params = new URLSearchParams(location.search);
     const sort = params.get("sort");
-    if (sort) {
-      setSortOption(sort);
-    }
-    
-    const getspecializations = async () => {
+    const experience = params.get("experience"); // Read experience from URL
+    if (sort) setSortOption(sort);
+    if (experience) setSelectedExperience(experience); // Set experience state
+
+    const getSpecializations = async () => {
       try {
         const response = await userAxiosInstance.get(`${API_URL}/user/specializations`);
-        console.log("bbbbb", response);
-        
         setSpecializations(response.data);
       } catch (error) {
-        console.log("error in fetching specialisation:", error);
+        console.log("Error fetching specializations:", error);
       }
     };
-    getspecializations();
+    getSpecializations();
   }, [location.search]);
 
   const handleSelect = (type: string, value: string) => {
-    let updatedSelections: any = [];
+    let updatedSelections: string[] = [];
+    const params = new URLSearchParams(window.location.search);
+
     if (type === "specialization") {
       updatedSelections = selectedSpecializations.includes(value)
         ? selectedSpecializations.filter((id) => id !== value)
         : [...selectedSpecializations, value];
       setSelectedSpecializations(updatedSelections);
+      params.set(type, updatedSelections.join(","));
+      if (updatedSelections.length === 0) params.delete(type);
     } else if (type === "gender") {
       updatedSelections = selectedGender.includes(value)
         ? selectedGender.filter((gender) => gender !== value)
         : [...selectedGender, value];
       setSelectedGender(updatedSelections);
+      params.set(type, updatedSelections.join(","));
+      if (updatedSelections.length === 0) params.delete(type);
     } else if (type === "language") {
       updatedSelections = selectedLanguages.includes(value)
         ? selectedLanguages.filter((language) => language !== value)
         : [...selectedLanguages, value];
       setSelectedLanguages(updatedSelections);
+      params.set(type, updatedSelections.join(","));
+      if (updatedSelections.length === 0) params.delete(type);
+    } else if (type === "experience") {
+      setSelectedExperience(value); // Update experience state
+      params.set("experience", value);
+      if (!value) params.delete("experience"); // Remove if no selection
     }
 
-  
-    const params = new URLSearchParams(window.location.search);
-    if (updatedSelections.length > 0) {
-      params.set(type, updatedSelections.join(","));
-    } else {
-      params.delete(type);
-    }
     navigate(`/doctors?${params.toString()}`);
   };
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     setSortOption(value);
-    
-    
     const params = new URLSearchParams(window.location.search);
     params.set("sort", value);
     navigate(`/doctors?${params.toString()}`);
   };
 
   const handleToggleDisplay = () => {
-    if (isExpanded) {
-      setDisplayLimit(4);
-    } else {
-      setDisplayLimit(specializations.length);
-    }
+    setDisplayLimit(isExpanded ? 4 : specializations.length);
     setIsExpanded(!isExpanded);
   };
 
@@ -90,13 +87,9 @@ function DoctorListFiterBar() {
     setSelectedSpecializations([]);
     setSelectedGender([]);
     setSelectedLanguages([]);
+    setSelectedExperience(""); // Reset experience
     setSortOption("a-z");
-    const params = new URLSearchParams(window.location.search);
-    params.delete("specialization");
-    params.delete("gender");
-    params.delete("language");
-    params.delete("sort");
-    navigate(`/doctors?${params.toString()}`);
+    navigate("/doctors"); // Clear all query params
   };
 
   return (
@@ -112,6 +105,20 @@ function DoctorListFiterBar() {
         >
           <option value="a-z">Name: A to Z</option>
           <option value="z-a">Name: Z to A</option>
+        </select>
+      </div>
+
+      <div className="p-4 border-b border-gray-700">
+        <h3 className="text-lg font-semibold mb-2">Experience</h3>
+        <select
+          value={selectedExperience}
+          onChange={(e) => handleSelect("experience", e.target.value)}
+          className="w-full p-2 bg-white border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">All Experience Levels</option>
+          <option value="2">Above 2 Years</option>
+          <option value="5">Above 5 Years</option>
+          <option value="10">Above 10 Years</option>
         </select>
       </div>
 

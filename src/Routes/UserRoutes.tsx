@@ -26,7 +26,8 @@ import AddReportsPage from '../pages/userPages/AddReportsPage';
 function UserRoutes() {
     return(
     <Routes>
-        <Route path="/"element={<UserProtectRoute><HomePage /></UserProtectRoute>}/>
+        {/* <Route path="/"element={<UserProtectRoute><HomePage /></UserProtectRoute>}/> */}
+        <Route path="/" element={<HomePage />} />
         <Route path="/signup" element={<Signup/>}/>
         <Route path="/verifyotp" element={<Otp/>}/>
         <Route path="/login" element={<Login/>}/>

@@ -5,7 +5,6 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../app/store";
 
 import { useEffect, useRef } from "react";
-
 import { useSocketContext } from "../../context/socket";
 import { setRoomId, setShowVideoCall, setVideoCall,setPrescription } from "../../slice/DoctorSlice";
 
