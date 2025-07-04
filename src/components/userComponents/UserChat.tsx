@@ -13,7 +13,7 @@ interface Message {
   message: string;
   imageUrl?: string;
   createdAt: string;
-  read: boolean; // Added
+  read: boolean;
 }
 
 interface Doctor {
@@ -23,7 +23,7 @@ interface Doctor {
 }
 
 interface DoctorChatProps {
-  doctorId?: string; // Made optional to match usage
+  doctorId?: string;
 }
 
 const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
@@ -35,6 +35,7 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
+  const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
 
   const processedMessages = useRef(new Set<string>());
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -56,7 +57,6 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
           withCredentials: true,
         });
         setDoctors(response.data);
-        // Auto-select doctor if doctorId is provided
         if (doctorId) {
           const doctor = response.data.find((d: Doctor) => d._id === doctorId);
           if (doctor) setSelectedDoctor(doctor);
@@ -120,17 +120,43 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
       );
     };
 
+    const handleMessageDeleted = ({ messageId }: { messageId: string }) => {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg._id === messageId
+            ? { ...msg, message: "this message was deleted", imageUrl: "", read: msg.read }
+            : msg
+        )
+      );
+    };
+
     socket.on("messageUpdate", handleSocketMessage);
     socket.on("messageRead", handleMessageRead);
+    socket.on("messageDeleted", handleMessageDeleted);
 
     return () => {
       socket.off("messageUpdate", handleSocketMessage);
       socket.off("messageRead", handleMessageRead);
+      socket.off("messageDeleted", handleMessageDeleted);
     };
   }, [socket, doctorInfo?.id, userInfo?.id, selectedDoctor]);
 
+  // Handle click outside to deselect message
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.message-container')) {
+        setSelectedMessage(null);
+      }
+      if (dropdownOpen) setDropdownOpen(null);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [dropdownOpen, selectedMessage]);
+
   const handleSelectDoctor = (doctor: Doctor) => {
     setSelectedDoctor(doctor);
+    setSelectedMessage(null); // Clear selected message when switching doctors
   };
 
   const handleNewMessage = (newMessage: Message) => {
@@ -148,17 +174,34 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
       });
 
       if (response.status === 200) {
+        // Update local state
         setMessages((prev) =>
           prev.map((msg) =>
             msg._id === messageId
-              ? { ...msg, message: "Your message was deleted", imageUrl: "", read: msg.read }
+              ? { ...msg, message: "this message was deleted", imageUrl: "", read: msg.read }
               : msg
           )
         );
-        setDropdownOpen(null);
+        setSelectedMessage(null);
+
+        // Emit socket event for real-time deletion
+        if (socket && selectedDoctor) {
+          socket.emit("messageDeleted", {
+            messageId: messageId,
+            senderId: userInfo?.id,
+            receiverId: selectedDoctor._id,
+          });
+        }
       }
     } catch (error) {
       console.error("Failed to delete message:", error);
+    }
+  };
+
+  const handleMessageDoubleClick = (messageId: string, isUserMessage: boolean) => {
+    // Only allow selection of user's own messages
+    if (isUserMessage) {
+      setSelectedMessage(selectedMessage === messageId ? null : messageId);
     }
   };
 
@@ -172,14 +215,6 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
     }
     return doctor.profileImage.startsWith("/") ? `${API_URL}${doctor.profileImage}` : doctor.profileImage;
   };
-
-  useEffect(() => {
-    const handleClickOutside = () => {
-      if (dropdownOpen) setDropdownOpen(null);
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [dropdownOpen]);
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -224,9 +259,15 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
 
       <div className="flex-1 flex flex-col">
         {selectedDoctor ? (
-          <div className="p-4 bg-[#00897B] text-white text-lg font-semibold rounded-lg">
-            Chat with Dr. {selectedDoctor.name}
-          </div>
+          <div className="p-4 bg-[#00897B] text-white text-lg font-semibold flex items-center rounded-lg">
+          <img
+            className="h-10 w-10 rounded-full mr-3"
+            src={selectedDoctor.profileImage }
+            alt="Doctor"
+          />
+       <span className="flex-1">Chat with DR. {selectedDoctor.name}</span>
+        </div>
+
         ) : (
           <div className="p-4">
             <h2 className="text-1xl font-semibold text-black">
@@ -242,11 +283,12 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
             messages.map((msg, index) => {
               const isUserMessage = msg.senderId === userInfo?.id;
               const imgSrc = selectedDoctor && !isUserMessage ? getImageSource(selectedDoctor) : "https://via.placeholder.com/32";
+              const isSelected = selectedMessage === msg._id;
 
               return (
                 <div
                   key={msg._id || index}
-                  className={`flex items-end mb-4 ${isUserMessage ? "justify-end" : "justify-start"} group relative`}
+                  className={`flex items-end mb-4 ${isUserMessage ? "justify-end" : "justify-start"} group relative message-container`}
                 >
                   {!isUserMessage && (
                     <img
@@ -258,9 +300,12 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
                   )}
                   <div className="flex flex-col relative">
                     <div
-                      className={`p-3 rounded-lg max-w-xs ${
+                      className={`p-3 rounded-lg max-w-xs relative ${
                         isUserMessage ? "bg-[#00897B] text-white" : "bg-gray-300 text-black"
+                      } ${isSelected ? "ring-2 ring-blue-500" : ""} ${
+                        isUserMessage ? "cursor-pointer" : ""
                       }`}
+                      onDoubleClick={() => handleMessageDoubleClick(msg._id, isUserMessage)}
                     >
                       {msg.message && <p>{msg.message}</p>}
                       {msg.imageUrl && (
@@ -270,6 +315,32 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
                           className="rounded-lg max-w-full max-h-64 mt-1"
                           onError={(e) => (e.currentTarget.style.display = "none")}
                         />
+                      )}
+                      
+                      {/* Delete button - only show when message is selected and it's user's message */}
+                      {isSelected && isUserMessage && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteMessage(msg._id);
+                          }}
+                          className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-lg transition-colors duration-200"
+                          title="Delete message"
+                        >
+                          <svg 
+                            className="w-4 h-4" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                          >
+                            <path 
+                              strokeLinecap="round" 
+                              strokeLinejoin="round" 
+                              strokeWidth={2} 
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" 
+                            />
+                          </svg>
+                        </button>
                       )}
                     </div>
 
@@ -303,34 +374,6 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
                         </span>
                       )}
                     </div>
-
-                    {isUserMessage && (
-                      <div className="absolute -top-2 -right-2 group relative">
-                        <button
-                          className="text-gray-500 text-sm opacity-0 group-hover:opacity-100 transition"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setDropdownOpen(dropdownOpen === msg._id ? null : msg._id);
-                          }}
-                        >
-                          ⋮
-                        </button>
-
-                        {dropdownOpen === msg._id && (
-                          <div
-                            className="absolute right-0 mt-1 w-24 bg-white shadow-md rounded z-10"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <button
-                              onClick={() => handleDeleteMessage(msg._id)}
-                              className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    )}
                   </div>
                 </div>
               );

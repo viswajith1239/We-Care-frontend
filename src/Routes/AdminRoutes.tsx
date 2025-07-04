@@ -1,4 +1,5 @@
-import {Route,Routes} from "react-router-dom"
+import { Route, Routes } from "react-router-dom"
+import { ADMIN_ROUTES } from "../constants/routeConstants"
 
 import Login from "../pages/adminPages/Login"
 
@@ -9,17 +10,17 @@ import VerificatonPage from "../pages/adminPages/VerificatonPage"
 import DoctorVerifyPage from "../pages/adminPages/DoctorVerifyPage"
 import AdminDashboardPage from "../pages/adminPages/AdminDashboardPage"
 
-function AdminRoutes(){
-    return(
+function AdminRoutes() {
+    return (
         <Routes>
-            <Route path="/login"element={<Login/>}/>
-            <Route path="/" element={<AdminLayout />}>
-            <Route index element={<AdminDashboardPage/>}/>
-            <Route path="/specialisations" element={<SpecializationsPage />} />
-            <Route path="/user-listing" element={<UserListingPage />} />
-            <Route path="/verification" element={<VerificatonPage />} />
-            <Route path="/doctor-view/:doctorId" element={<DoctorVerifyPage />} />
-            
+            <Route path={ADMIN_ROUTES.LOGIN} element={<Login />} />
+            <Route path={ADMIN_ROUTES.BASE} element={<AdminLayout />}>
+                <Route index element={<AdminDashboardPage />} />
+                <Route path={ADMIN_ROUTES.SPECIALIZATIONS} element={<SpecializationsPage />} />
+                <Route path={ADMIN_ROUTES.USER_LISTING} element={<UserListingPage />} />
+                <Route path={ADMIN_ROUTES.VERIFICATION} element={<VerificatonPage />} />
+                <Route path="/doctor-view/:doctorId" element={<DoctorVerifyPage />} />
+
 
             </Route>
         </Routes>

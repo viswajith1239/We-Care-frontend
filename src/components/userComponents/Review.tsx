@@ -17,7 +17,7 @@ function Review({ doctorId, reload, currentUser, onReviewCheck }: ReviewProps) {
   const [reviews, setReviews] = useState<IReview[]>([]);
   const [currentCard, setCurrentCard] = useState(1);
 
-  const reviewShows = 3;
+  const reviewShows = 2;
   const indexOfLastCard = currentCard * reviewShows;
   const indexOfFirstCard = indexOfLastCard - reviewShows;
   const currentReviewCards = reviews.slice(indexOfFirstCard, indexOfLastCard);
@@ -61,8 +61,8 @@ function Review({ doctorId, reload, currentUser, onReviewCheck }: ReviewProps) {
       </div>
 
       {currentReviewCards.length > 0 && (
-        <div className="flex justify-center gap-10 mb-6">
-          <FaArrowLeft className="h-7 w-7 text-gray-500 cursor-pointer" onClick={arrowLeft} />
+        <div className="flex justify-center gap-10 mb-6  -mt-7">
+          <FaArrowLeft className="h-7 w-7 text-gray-500 cursor-pointer " onClick={arrowLeft} />
           <FaArrowRight className="h-7 w-7 text-gray-500 cursor-pointer" onClick={arrowRight} />
         </div>
       )}

@@ -80,80 +80,89 @@ const DoctorPrescription: React.FC = () => {
 
   return (
     <div className="p-6">
-      <Toaster />
+  <Toaster />
 
-      <div className="mt-10">
-        <h2 className="text-xl font-semibold mb-4">Medication history</h2>
-        {paginatedPrescription.length === 0 ? (
-          <p className="text-gray-600">No prescriptions found.</p>
-        ) : (
-          <div className="overflow-x-auto rounded-lg border border-gray-200">
-            <table className="w-full border-collapse rounded-lg">
-              <thead>
-                <tr className="bg-gray-50">
-                  <th className="py-2 px-4 bg-[#00897B] text-white">Patient Name</th>
-                  <th className="py-2 px-4 bg-[#00897B] text-white">Medicine</th>
-                  <th className="py-2 px-4 bg-[#00897B] text-white">Dosage</th>
-                  <th className="py-2 px-4 bg-[#00897B] text-white">Frequency</th>
-                  <th className="py-2 px-4 bg-[#00897B] text-white">Duration</th>
-                  <th className="py-2 px-4 bg-[#00897B] text-white">Instruction</th>
-                  <th className="py-2 px-4 bg-[#00897B] text-white">Date</th>
-                  <th className="py-2 px-4 bg-[#00897B] text-white">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedPrescription.map((prescription: Prescription) =>
-                  prescription.prescriptions.map((med: Medicine, index: number) => (
-                    <tr key={`${prescription._id}-${index}`} className="border-t">
-                      <td className="py-2 px-4 text-center">{prescription.userId?.name || 'Unknown'}</td>
-                      <td className="py-2 px-4 text-center">{med.medicineName}</td>
-                      <td className="py-2 px-4 text-center">{med.dosage}</td>
-                      <td className="py-2 px-4 text-center">{med.frequency}</td>
-                      <td className="py-2 px-4 text-center">{med.duration}</td>
-                      <td className="py-2 px-4 text-center">{med.instruction}</td>
-                      <td className="py-2 px-4 text-center">
-                        {new Date(prescription.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="py-2 px-4 text-center">
-                        {index === 0 && ( 
-                          <button
-                            onClick={() => handleViewClick(prescription)}
-                            className="bg-[#00897B] hover:bg-[#00897B] text-white px-3 py-1 rounded-md text-sm transition-colors duration-200"
-                          >
-                            View
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
+  <div className="mt-10">
+    <h2 className="text-xl font-semibold mb-4">Medication history</h2>
+    {paginatedPrescription.length === 0 ? (
+      <div className="text-center py-12">
+        <div className="mx-auto h-12 w-12 text-gray-400">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+        <h3 className="mt-2 text-sm font-medium text-gray-900">No prescriptions found</h3>
+        <p className="mt-1 text-sm text-gray-500">No medical prescriptions have been created yet.</p>
       </div>
-
-      <div className="flex justify-between items-center space-x-2 mt-4">
-        <button
-          className={`px-6 py-2 rounded-lg ${
-            currentPage === 1 ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#00897B] text-white'
-          }`}
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-        >
-          Prev
-        </button>
-        <span className="px-6 py-2 text-black font-bold">{`Page ${currentPage} of ${totalPages}`}</span>
-        <button
-          className={`px-4 py-2 rounded-lg ${
-            currentPage === totalPages ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#00897B] text-white'
-          }`}
-          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-          disabled={currentPage === totalPages}
-        >
-          Next
-        </button>
-      </div>
+    ) : (
+      <>
+        <div className="overflow-x-auto rounded-lg border border-gray-200">
+          <table className="w-full border-collapse rounded-lg">
+            <thead>
+              <tr className="bg-gray-50">
+                <th className="py-2 px-4 bg-[#00897B] text-white">Patient Name</th>
+                <th className="py-2 px-4 bg-[#00897B] text-white">Medicine</th>
+                <th className="py-2 px-4 bg-[#00897B] text-white">Dosage</th>
+                <th className="py-2 px-4 bg-[#00897B] text-white">Frequency</th>
+                <th className="py-2 px-4 bg-[#00897B] text-white">Duration</th>
+                <th className="py-2 px-4 bg-[#00897B] text-white">Instruction</th>
+                <th className="py-2 px-4 bg-[#00897B] text-white">Date</th>
+                <th className="py-2 px-4 bg-[#00897B] text-white">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedPrescription.map((prescription: Prescription) =>
+                prescription.prescriptions.map((med: Medicine, index: number) => (
+                  <tr key={`${prescription._id}-${index}`} className="border-t">
+                    <td className="py-2 px-4 text-center">{prescription.userId?.name || 'Unknown'}</td>
+                    <td className="py-2 px-4 text-center">{med.medicineName}</td>
+                    <td className="py-2 px-4 text-center">{med.dosage}</td>
+                    <td className="py-2 px-4 text-center">{med.frequency}</td>
+                    <td className="py-2 px-4 text-center">{med.duration}</td>
+                    <td className="py-2 px-4 text-center">{med.instruction}</td>
+                    <td className="py-2 px-4 text-center">
+                      {new Date(prescription.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="py-2 px-4 text-center">
+                      {index === 0 && (
+                        <button
+                          onClick={() => handleViewClick(prescription)}
+                          className="bg-[#00897B] hover:bg-[#00897B] text-white px-3 py-1 rounded-md text-sm transition-colors duration-200"
+                        >
+                          View
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        <div className="flex justify-between items-center space-x-2 mt-4">
+          <button
+            className={`px-6 py-2 rounded-lg ${
+              currentPage === 1 ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#00897B] text-white'
+            }`}
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Prev
+          </button>
+          <span className="px-6 py-2 text-black font-bold">{`Page ${currentPage} of ${totalPages}`}</span>
+          <button
+            className={`px-4 py-2 rounded-lg ${
+              currentPage === totalPages ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#00897B] text-white'
+            }`}
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+        </div>
+      </>
+    )}
+  </div>
 
 
       {isModalOpen && selectedPrescription && (

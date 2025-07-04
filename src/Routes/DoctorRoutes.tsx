@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router-dom";
+import { DOCTOR_ROUTES } from "../constants/routeConstants";
 import DoctorSignUpPage from "../pages/doctorPages/DoctorSignup";
 import DoctorOtpPage from "../pages/doctorPages/DoctorOtp";
 import DoctorLoginPage from "../pages/doctorPages/DoctorLogin";
@@ -22,25 +23,25 @@ function DoctorRoutes() {
   return (
     <Routes>
      
-      <Route path="/signup" element={<DoctorSignUpPage />} />
-      <Route path="/otp" element={<DoctorOtpPage />} />
-      <Route path="/login" element={<DoctorLoginPage />} />
-      <Route path='/doctor-forgot-password' element={<ForgotPasswordPage/>}/>
-      <Route path='/doctor-forgot-passwordotp' element={<ForgotPasswordOtpPage/>}/>
-      <Route path='/doctor-resetpassword' element={<ResetPasswordPage/>}/>
+      <Route path={DOCTOR_ROUTES.SIGNUP} element={<DoctorSignUpPage />} />
+      <Route path={DOCTOR_ROUTES.OTP}element={<DoctorOtpPage />} />
+      <Route path={DOCTOR_ROUTES.LOGIN} element={<DoctorLoginPage />} />
+      <Route path={DOCTOR_ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage/>}/>
+      <Route path={DOCTOR_ROUTES.FORGOT_PASSWORD_OTP} element={<ForgotPasswordOtpPage/>}/>
+      <Route path={DOCTOR_ROUTES.RESET_PASSWORD} element={<ResetPasswordPage/>}/>
 
       
-      <Route path="/" element={<DoctorLayout />} >
+      <Route path={DOCTOR_ROUTES.BASE}element={<DoctorLayout />} >
       <Route index element={<ProtectRoute><DoctorDashboard /></ProtectRoute> } />
-      <Route  path="/doctor" element={<ProtectRoute> <DoctorKyc /></ProtectRoute> } />
-      <Route path="profile" element={<ProtectRoute><DoctorProfilePage /></ProtectRoute>} />
-      <Route path="editProfile" element={<ProtectRoute><DoctorProfileEditPage /></ProtectRoute>} />
-      <Route path="scheduleappoinments" element={<ProtectRoute><ScheduleAppoinments/></ProtectRoute>} />
-      <Route path="wallet" element={<ProtectRoute><WalletPage /></ProtectRoute>} />
-      <Route path="messages" element={<DoctorChat doctorId={''} bookingId={null} userId={""}/>}/>
-      <Route path="bookings" element={<BookingsPage/>}/>
-       <Route path="reports" element={<ReportPage/>}/>
-      <Route path="prescriptions" element={<PrescriptionsPage/>}/>
+      <Route  path={DOCTOR_ROUTES.KYC} element={<ProtectRoute> <DoctorKyc /></ProtectRoute> } />
+      <Route path={DOCTOR_ROUTES.PROFILE} element={<ProtectRoute><DoctorProfilePage /></ProtectRoute>} />
+      <Route path={DOCTOR_ROUTES.EDIT_PROFILE}element={<ProtectRoute><DoctorProfileEditPage /></ProtectRoute>} />
+      <Route path={DOCTOR_ROUTES.SCHEDULE_APPOINTMENTS} element={<ProtectRoute><ScheduleAppoinments/></ProtectRoute>} />
+      <Route path={DOCTOR_ROUTES.WALLET}element={<ProtectRoute><WalletPage /></ProtectRoute>} />
+      <Route path={DOCTOR_ROUTES.MESSAGES} element={<DoctorChat doctorId={''} bookingId={null} userId={""}/>}/>
+      <Route path={DOCTOR_ROUTES.BOOKINGS}element={<BookingsPage/>}/>
+       <Route path={DOCTOR_ROUTES.REPORTS} element={<ReportPage/>}/>
+      <Route path={DOCTOR_ROUTES.PRESCRIPTIONS} element={<PrescriptionsPage/>}/>
 
        
       </Route>

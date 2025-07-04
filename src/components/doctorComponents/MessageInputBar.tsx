@@ -7,7 +7,6 @@ import { RootState } from "../../app/store";
 import API_URL from "../../axios/API_URL";
 import { useSocketContext } from "../../context/socket";
 
-
 import EmojiPicker, { EmojiClickData, EmojiStyle, Theme } from 'emoji-picker-react';
 
 interface MessageInputBarProps {
@@ -38,7 +37,6 @@ function MessageInputBar({ userId, onNewMessage }: MessageInputBarProps) {
   const handleSendMessage = async (e: React.FormEvent<HTMLElement>) => {
     e.preventDefault();
     
-   
     if (!message.trim() && !imageUrl) {
       console.warn("Cannot send an empty message with no image.");
       return;
@@ -58,8 +56,9 @@ function MessageInputBar({ userId, onNewMessage }: MessageInputBarProps) {
       senderId: doctorId,
       receiverId: userId,
       message: message.trim(), 
-      mediaUrl: imageUrl, 
+      imageUrl: imageUrl,
       createdAt: new Date().toISOString(),
+      read: false, // Add read field for consistency
     };
 
     console.log("Sending message:", newMessage);
@@ -68,20 +67,23 @@ function MessageInputBar({ userId, onNewMessage }: MessageInputBarProps) {
       const response = await axios.post(`${API_URL}/messages/send`, newMessage);
       console.log("Message sent successfully:", response.data);
       
+      // Use the actual saved message from the server response
+      const savedMessage = response.data.data || response.data.message || response.data;
+      
+      console.log("Saved message from server:", savedMessage);
+
+      // Emit socket message with the saved message
       if (socket) {
-        socket.emit("sendMessage", newMessage);
-        console.log("Socket message emitted:", newMessage);
+        socket.emit("sendMessage", savedMessage);
+        console.log("Socket message emitted:", savedMessage);
       } else {
         console.error("Socket is not initialized");
       }
 
-      
-      if (response.data && response.data.message) {
-        onNewMessage(response.data.message);
-      } else {
-        onNewMessage(newMessage);
-      }
-     
+      // Add the saved message to UI (with real ID from server)
+      onNewMessage(savedMessage);
+
+      // Clear input fields
       setMessage("");
       setImageUrl(null);
       setPreviewUrl(null);
@@ -99,26 +101,21 @@ function MessageInputBar({ userId, onNewMessage }: MessageInputBarProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-   
     const objectUrl = URL.createObjectURL(file);
     setPreviewUrl(objectUrl);
-
 
     setUploading(true);
 
     try {
-    
       const formData = new FormData();
       formData.append("file", file);
       formData.append("upload_preset", "wecare"); 
 
-      
       const response = await axios.post(
         "https://api.cloudinary.com/v1_1/dxop0bbkp/image/upload", 
         formData
       );
 
-     
       const uploadedImageUrl = response.data.secure_url;
       console.log("Image uploaded successfully:", uploadedImageUrl);
       setImageUrl(uploadedImageUrl);
@@ -143,7 +140,6 @@ function MessageInputBar({ userId, onNewMessage }: MessageInputBarProps) {
     const newMessage = message.slice(0, currentPosition) + emojiData.emoji + message.slice(currentPosition);
     setMessage(newMessage);
     
-   
     setTimeout(() => {
       if (inputRef.current) {
         inputRef.current.focus();
@@ -156,7 +152,6 @@ function MessageInputBar({ userId, onNewMessage }: MessageInputBarProps) {
     setShowEmojiPicker(!showEmojiPicker);
   };
 
- 
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
@@ -193,7 +188,6 @@ function MessageInputBar({ userId, onNewMessage }: MessageInputBarProps) {
         </div>
       )}
 
-   
       {showEmojiPicker && (
         <div 
           ref={emojiPickerRef}
@@ -226,7 +220,6 @@ function MessageInputBar({ userId, onNewMessage }: MessageInputBarProps) {
           className="hidden"
         />
         
-       
         <button
           type="button"
           onClick={handleFileInput}
@@ -236,7 +229,6 @@ function MessageInputBar({ userId, onNewMessage }: MessageInputBarProps) {
           <BsImage />
         </button>
 
-        
         <button
           type="button"
           onClick={toggleEmojiPicker}
@@ -248,7 +240,6 @@ function MessageInputBar({ userId, onNewMessage }: MessageInputBarProps) {
           <BsEmojiSmile />
         </button>
 
-
         <input
           ref={inputRef}
           onChange={(e) => setMessage(e.target.value)}
@@ -259,7 +250,6 @@ function MessageInputBar({ userId, onNewMessage }: MessageInputBarProps) {
           disabled={uploading}
         />
 
-   
         <button 
           type="submit" 
           className={`absolute inset-y-0 right-0 flex items-center pr-3 ${

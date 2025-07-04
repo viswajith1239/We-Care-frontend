@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import adminService from "../../service/adminService";
+import { Toaster, toast } from "react-hot-toast";
 
 interface Specialization {
   _id: string;
@@ -58,27 +59,74 @@ export default function SpecializationTable() {
   };
 
   const handleSaveSpecialization = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = { name, description };
+  e.preventDefault();
 
-    try {
-      if (editingSpecialization) {
-        const response = await adminService.updateSpecialization(editingSpecialization._id, formData);
-        const updatedSpecialization = response?.data.specialization;
-        setSpecialization((prev) =>
-          prev.map((spec) =>
-            spec._id === editingSpecialization._id ? updatedSpecialization : spec
-          )
-        );
-      } else {
-        const response = await adminService.addSpecialization(formData);
-        setSpecialization((prev) => [...prev, response?.data.specializationresponse]);
-      }
-      closeModal();
-    } catch (error) {
-      console.error('Failed to save specialization:', error);
+  const trimmedName = name.trim();
+  const trimmedDescription = description.trim();
+
+  // Name validation: only letters and spaces
+  const nameRegex = /^[A-Za-z\s]+$/;
+
+  if (!trimmedName) {
+    toast.error("Specialization name is required!");
+    return;
+  }
+
+  if (!nameRegex.test(trimmedName)) {
+    toast.error("Specialization name should only contain letters and spaces!");
+    return;
+  }
+
+  if (trimmedName.length < 3) {
+    toast.error("Specialization name must be at least 3 characters long!");
+    return;
+  }
+
+  if (!trimmedDescription) {
+    toast.error("Description is required!");
+    return;
+  }
+
+  if (trimmedDescription.length < 3) {
+    toast.error("Description must be at least 3 characters long!");
+    return;
+  }
+
+  const lowerCasedName = trimmedName.toLowerCase();
+
+  const isDuplicate = specialization.some(
+    (spec) =>
+      spec.name.trim().toLowerCase() === lowerCasedName &&
+      (!editingSpecialization || spec._id !== editingSpecialization._id)
+  );
+
+  if (isDuplicate) {
+    toast.error("Specialization with this name already exists!");
+    return;
+  }
+
+  const formData = { name: trimmedName, description: trimmedDescription };
+
+  try {
+    if (editingSpecialization) {
+      const response = await adminService.updateSpecialization(editingSpecialization._id, formData);
+      const updatedSpecialization = response?.data.specialization;
+      setSpecialization((prev) =>
+        prev.map((spec) =>
+          spec._id === editingSpecialization._id ? updatedSpecialization : spec
+        )
+      );
+    } else {
+      const response = await adminService.addSpecialization(formData);
+      setSpecialization((prev) => [...prev, response?.data.specializationresponse]);
     }
-  };
+    closeModal();
+  } catch (error) {
+    console.error('Failed to save specialization:', error);
+  }
+};
+
+
 
 
   const totalPages = Math.ceil(specialization.length / itemsPerPage);
@@ -89,6 +137,7 @@ export default function SpecializationTable() {
 
   return (
     <div className="p-4">
+        <Toaster/>
       <button
         onClick={openModal}
         className="text-white bg-[#00897B] font-medium rounded-lg text-lg leading-8 px-8 py-3 cursor-pointer text-center mr-2 inline-flex items-center hover:bg-[#00766a]"

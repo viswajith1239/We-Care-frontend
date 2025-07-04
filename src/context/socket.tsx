@@ -75,6 +75,8 @@ console.log('userInfos',loggedUser)
               console.warn("Socket instance is null; skipping event listener setup.");
               return;
             }
+
+            // VIDEO CALL EVENTS
             socket.on("incoming-video-call", (data: any) => {
               console.log('DATA context',data)
               console.log("DATA received in context:", data);
@@ -151,7 +153,8 @@ console.log('userInfos',loggedUser)
                 dispatch(setVideoCall(null));
               }
             });
-          
+
+            // NOTIFICATION EVENTS
             socket.on('receiveNewBooking', (data: string) => {
               addDoctorNotification(data);
             });
@@ -160,22 +163,49 @@ console.log('userInfos',loggedUser)
               addDoctorNotification(data);
             });
 
+            socket.on('receiveCancelNotificationForUser', (data: string) => {
+              addUserNotification(data);
+            });
+
+            // MESSAGE EVENTS - ADD THESE!
+            socket.on("messageUpdate", (data: any) => {
+              console.log("Message received in context:", data);
+              // Let the chat component handle this
+            });
+
+            socket.on("messageDeleted", (data: any) => {
+              console.log("Message deleted in context:", data);
+              // Let the chat component handle this
+            });
+
+            socket.on("messageRead", (data: any) => {
+              console.log("Message read in context:", data);
+              // Let the chat component handle this
+            });
 
             
         
             // Cleanup event listeners
             return () => {
-              
+              // Video call events
               socket.off("incoming-video-call");
               socket.off("accepted-call");
-              // socket.off("doctor-accept");
+              socket.off("doctor-accept");
               socket.off("call-rejected");
               socket.off("user-left");
-              socket.off('receiveCancelNotificationForDoctor')
-              socket.off('receiveCancelNotificationForUser')
+              
+              // Notification events
+              socket.off('receiveNewBooking');
+              socket.off('receiveCancelNotificationForDoctor');
+              socket.off('receiveCancelNotificationForUser');
+              
+              // Message events
+              socket.off("messageUpdate");
+              socket.off("messageDeleted");
+              socket.off("messageRead");
             
             };
-        },[socket, dispatch,addUserNotification,addDoctorNotification])
+        },[socket, dispatch, addUserNotification, addDoctorNotification])
 
 
         

@@ -13,7 +13,7 @@ function DoctorsPage() {
         
   
        
-        <div className="flex flex-1 bg-gray-100">
+        <div className="flex flex-1 bg-white">
          
           <div className="w-80 bg-white shadow-lg p-4 md:w-72 lg:w-64">
             <DoctorsListFilterBar onFilterChange={function (filters: { specialization: string; gender: string; priceRange: [number, number]; language: string; }): void {

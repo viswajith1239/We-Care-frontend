@@ -1,4 +1,3 @@
-
 import {useEffect,useRef,useState} from 'react'
 import logo_img from "../../assets/wmremove-transformed.png"
 import { Link,useNavigate } from 'react-router-dom';
@@ -12,6 +11,7 @@ import toast from 'react-hot-toast';
 import { useNotification } from "../../context/NotificationContext";
 import { BsBell } from 'react-icons/bs';
 import { logoutUser } from '../../action/userActions';
+import { User, UserCircle, UserCheck } from 'lucide-react'
 
 
 interface INotificationContent {
@@ -38,9 +38,34 @@ function Header() {
   const {addUserNotification,clearUserNotifications, userNotifications, updateUserNotificationReadStatus, countUnreadNotificationsUser} = useNotification();
   const [isNotificationOpen,setIsNotificationOpen]=useState(false)
   const[notificationsData,setNotificationsData]=useState()
+  const [userProfileImage, setUserProfileImage] = useState<string | null>(null);
   const { userInfo } = useSelector((state: RootState) => state.user);
    const dispatch = useDispatch<AppDispatch>();
    console.log("user ifnfos",userInfo);
+   const userId = userInfo?.id;
+
+   useEffect(() => {
+       if (!userId) return;
+   
+       const fetchUserDetails = async () => {
+         console.log("ppp");
+         
+         try {
+           console.log("hhhhh");
+           
+           const response = await userAxiosInstance.get(`${API_URL}/user/users/${userId}`);
+           console.log("*************",response);
+           
+          
+           if (response.data.response.profileImage) {
+             setUserProfileImage(response.data.response.profileImage);
+           }
+         } catch (error) {
+           console.error("Failed to fetch user details", error);
+         }
+       };
+       fetchUserDetails();
+     }, [userId]);
    
 
  
@@ -197,19 +222,29 @@ function Header() {
        <div className="relative" ref={profileMenuRef}>
   {userInfo ? (
     <>
-      <img
-        alt="user profile"
-        src={profileicon}
-        className="h-7 w-7 cursor-pointer rounded-full object-cover"
+      {/* Profile Image with fallback */}
+      <div
+        className="h-8 w-8 cursor-pointer hover:opacity-80 transition-opacity"
         onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-      />
+      >
+        <img
+          src={userProfileImage || profileicon}
+          alt="User Profile"
+          className="h-8 w-8 rounded-full object-top border-2 border-[#572c5f]"
+          onError={(e) => {
+            // Fallback to default icon if image fails to load
+            e.currentTarget.src = profileicon;
+          }}
+        />
+      </div>
+      
       {isProfileMenuOpen && (
         <ul
           role="menu"
           className="absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white text-gray-800"
         >
           <li className="px-4 py-2 hover:bg-gray-100">
-            <Link to="/profile">My Profile</Link>
+            <Link to="/profile">{userInfo.name}</Link>
           </li>
           <li
             className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
@@ -256,5 +291,3 @@ function Header() {
 }
 
 export default Header
-
-

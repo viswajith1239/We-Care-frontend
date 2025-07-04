@@ -25,6 +25,7 @@ import userAxiosInstance from "../../axios/userAxiosInstance";
 import { useNavigate } from "react-router-dom";
 import { AvgRatingAndReviews } from "../../types/user";
 
+
 interface ISessionSchedule {
   _id: any;
   price: any;
@@ -43,6 +44,7 @@ interface DoctorProfile {
   name: string;
   profileImage: string;
  specializations: { name: string }[];
+ yearsOfExperience:string
 }
 
 
@@ -64,7 +66,7 @@ function DoctorsProfileView() {
   const [selectedRating, setSelectedRating] = useState<number>(0);
   const [hasUserReviewed, setHasUserReviewed] = useState<boolean>(false);
   const [reviewComment, setReviewComment] = useState<string | null>(null);
-  const [userReviewId, setUserReviewId] = useState<string | null>(null);
+  const [reviewId, setreviewId] = useState<string | null>(null);
   const [reload, setReload] = useState(false);
   // const [showDateInput, setShowDateInput] = useState(false);
   const datePickerRef = useRef(null);
@@ -283,8 +285,10 @@ function DoctorsProfileView() {
     };
   
     const response = await userAxiosInstance.post(`${API_URL}/user/review`, data);
+    console.log(",,,,",response.data.reviewId);
+    
   
-    setUserReviewId(response.data.reviewId);
+    setreviewId(response.data.reviewId);
     setIsReviewModalOpen(false);
     setReviewComment(null);
     setSelectedRating(0);
@@ -299,9 +303,13 @@ function DoctorsProfileView() {
     const data = {
       reviewComment,
       selectedRating,
-      userReviewId,
+      reviewId,
     
     };
+    console.log("oooo",reviewComment,
+      selectedRating,
+      reviewId);
+    
     const response = await userAxiosInstance.patch(
       `${API_URL}/user/edit-review`,
       data
@@ -329,164 +337,183 @@ function DoctorsProfileView() {
   }, [doctorId]);
   return (
     
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-10 flex flex-col justify-center items-center">
+   <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-4 lg:p-10">
       <Toaster />
-      <div className="max-w-xl w-full bg-white shadow-xl rounded-lg text-gray-900 overflow-hidden">
-       
-        <div className="rounded-t-lg h-32 overflow-hidden relative bg-[#00897B] bg-opacity-50"></div>
-
       
-        <div className="mx-auto w-32 h-32 relative -mt-16 border-4 border-white rounded-full overflow-hidden">
-          <img
-            className="object-cover object-top h-full w-full"
-            src={doctor?.profileImage}
-            alt="Doctor"
-          />
+      {/* Main Container with Left-Right Layout */}
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        {/* LEFT SIDE - Doctor Profile & Booking */}
+        <div className="space-y-6">
+          {/* Doctor Profile Card */}
+          <div className="bg-white shadow-xl rounded-lg text-gray-900 overflow-hidden">
+            {/* Header Background */}
+            <div className="rounded-t-lg h-32 overflow-hidden relative bg-[#00897B] bg-opacity-50"></div>
 
-          
-        </div>
-         <div className="text-right">
+            {/* Doctor Image */}
+            <div className="mx-auto w-32 h-32 relative -mt-16 border-4 border-white rounded-full overflow-hidden">
+              <img
+                className="object-cover object-top h-full w-full"
+                src={doctor?.profileImage}
+                alt="Doctor"
+              />
+            </div>
+
+            {/* Rating Display */}
+            <div className="text-right">
               {avgRatingAndTotalReviews.length > 0 && (
-                  <div className="p-4 mt-0   rounded-lg mx-8">
+                <div className="p-4 mt-0 rounded-lg mx-8">
                   <p className="text-yellow-500 font-semibold text-lg">
-                    <FaStar className="inline-block text-yellow-500" /> {avgRatingAndTotalReviews[0]?.averageRating?.toFixed(1) || 0}
+                    <FaStar className="inline-block text-yellow-500" /> 
+                    {avgRatingAndTotalReviews[0]?.averageRating?.toFixed(1) || 0}
                   </p>
                   <p className="text-sm text-gray-600">
                     ({avgRatingAndTotalReviews[0]?.totalReviews || 0} reviews)
                   </p>
-                 </div>
+                </div>
               )}
             </div>
 
-      
-        <div className="text-center mt-2 p-4">
-          <h2 className="text-xl font-semibold">Dr. {doctor?.name}</h2>
-          <p className="text-gray-700">
-            <strong>Specialization: </strong>
-            {doctor?.specializations[0]?.name || "N/A"}
-          </p>
-          
-        </div>
+            {/* Doctor Info */}
+            <div className="text-center mt-2 p-4">
+              <h2 className="text-xl font-semibold">Dr. {doctor?.name}</h2>
+              <p className="text-gray-700">
+                <strong>Specialization: </strong>
+                {doctor?.specializations[0]?.name || "N/A"}
+              </p>
+              <p className="text-gray-700">
+                <strong>years of experience: </strong>
+                {doctor?.yearsOfExperience || "N/A"}
+              </p>
+            </div>
 
-       
-         
-        
+            {/* Description */}
+            <p className="text-gray-700 mt-4 px-4">
+              <strong>Dr. {doctor?.name}</strong> has {doctor?.yearsOfExperience}{" "}years of experience and is a highly skilled and compassionate medical 
+              professional specializing in{" "}
+              <strong>{doctor?.specializations[0]?.name || "general medicine"}</strong>.  
+              They are dedicated to providing exceptional patient care and personalized treatment plans.
+            </p>
 
-        
-        <p className="text-gray-700 mt-4 px-4">
-          <strong>Dr. {doctor?.name}</strong> is a highly skilled and compassionate medical 
-          professional specializing in{" "}
-          <strong>{doctor?.specializations[0]?.name || "general medicine"}</strong>.  
-          They are dedicated to providing exceptional patient care and personalized treatment plans.
-        </p>
 
-        
-        <div className="p-4 border-t mx-8 mt-2 text-center">
-          <button
-            onClick={() => setShowDateSection(true)}
-            className="px-6 py-2 bg-[#00897B] text-white font-semibold rounded-lg shadow hover:bg-[#00796B] transition transform hover:scale-105"
-          >
-            Book Appointment
-          </button>
-        </div>
-      </div>
-
-      
-      {showDateSection && (
-        <div className="mt-4 w-full max-w-xl p-4 bg-white shadow-md rounded-lg">
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">Choose Available Date</h3>
-
-          
-          <div className="relative w-48 mx-auto">
-            <DatePicker
-              ref={datePickerRef}
-              selected={selectedDate}
-              onChange={handleDateChange}
-              includeDates={availableSlots.map(date => new Date(date))}
-              minDate={new Date()} 
-              dateFormat="MM/dd/yyyy"
-              placeholderText="Select a date"
-              popperPlacement="bottom-start"
-              className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md text-gray-700 shadow-sm cursor-pointer"
-            />
-            <FaCalendarAlt 
-              onClick={openCalendar} 
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer"
-            />
+            {/* Book Appointment Button */}
+            <div className="p-4 border-t mx-8 mt-2 text-center">
+              <button
+                onClick={() => setShowDateSection(true)}
+                className="px-6 py-2 bg-[#00897B] text-white font-semibold rounded-lg shadow hover:bg-[#00796B] transition transform hover:scale-105"
+              >
+                Book Appointment
+              </button>
+            </div>
           </div>
 
-         
-          {selectedDate && availableSlots.length > 0 ? (
-  <div className="mt-4 p-4 bg-white shadow-md rounded-lg w-full max-w-xl">
-    <h3 className="text-lg font-semibold text-gray-800 mb-2">Available Slots</h3>
-    <div className="grid grid-cols-2 gap-4">
-      {availableSlots.map((slot,index) => (
-        <button
-          key={index}
-          onClick={() => handlepayment(slot)}
-          className="px-4 py-2 bg-[#00897B] text-white font-semibold rounded-lg shadow hover:bg-[#00796B] transition transform hover:scale-105"
-        >
-          {slot.time} - ₹{slot.price}
-        </button>
-      ))}
-    </div>
-  </div>
-) : selectedDate && (
-  <p className="text-gray-600 mt-2">No slots available for this date.</p>
-)}
-        </div>
-      )}
-       <div className="flex justify-center mt-8">
-  <h1 className="text-2xl mt-5 font-md sm:text-xl sm:mt-3">
-  {bookingStatus === "Confirmed" ? "Hear from Our Clients" : ""}
-</h1>
+          {/* Date Selection Section */}
+          {showDateSection && (
+            <div className="w-full p-4 bg-white shadow-md rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Choose Available Date</h3>
 
-      </div>
+              {/* Date Picker */}
+              <div className="relative w-48 mx-auto mb-4">
+                <DatePicker
+                  ref={datePickerRef}
+                  selected={selectedDate}
+                  onChange={handleDateChange}
+                  includeDates={availableSlots.map(date => new Date(date))}
+                  minDate={new Date()} 
+                  dateFormat="MM/dd/yyyy"
+                  placeholderText="Select a date"
+                  popperPlacement="bottom-start"
+                  className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md text-gray-700 shadow-sm cursor-pointer"
+                />
+                <FaCalendarAlt 
+                  onClick={openCalendar} 
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer"
+                />
+              </div>
 
-{bookingStatus === "Confirmed" ? (
-        <div className="flex justify-end mr-10 sm:mr-4">
-          {hasUserReviewed ? (
-            
-             <button
-             onClick={handleEditReview}
-             className="bg-[#00897B] text-white  sm:px-2 sm:py-1 sm:text-sm"
-           >
-             Edit Review
-           </button>
-          ) : (
-            <button
-            onClick={handleAddReview}
-            className="bg-[#00897B] text-white  rounded-lg px-4 py-1 text-sm mt-5"
-            >
-            Add review
-          </button>
+              {/* Available Slots */}
+              {selectedDate && availableSlots.length > 0 ? (
+                <div className="mt-4">
+                  <h4 className="text-md font-semibold text-gray-800 mb-2">Available Slots</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {availableSlots.map((slot, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handlepayment(slot)}
+                        className="px-4 py-2 bg-[#00897B] text-white font-semibold rounded-lg shadow hover:bg-[#00796B] transition transform hover:scale-105 text-sm"
+                      >
+                        {slot.time} - ₹{slot.price}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : selectedDate && (
+                <p className="text-gray-600 mt-2 text-center">No slots available for this date.</p>
+              )}
+            </div>
           )}
         </div>
-      ) : (
-        ""
-      )}
-      <Review
-        doctorId={doctorId}
-        reload={reload}
-        currentUser={userInfo?.id}
-        onReviewCheck={(hasReview) => setHasUserReviewed(hasReview)}
-      />
-      
+
+        {/* RIGHT SIDE - Reviews Section */}
+        <div className="space-y-6">
+          {/* Reviews Header and Add Review Button */}
+          <div className="bg-white shadow-md rounded-lg p-6 px-4 py-1">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-semibold text-gray-800">
+                {bookingStatus === "Confirmed" ? "Patient Reviews" : "Reviews"}
+              </h2>
+              
+              {bookingStatus === "Confirmed" && ( 
+                <div>
+                  {hasUserReviewed ? (
+                    <button
+                      onClick={handleEditReview}
+                      className="bg-[#00897B] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#00796B] transition"
+                    >
+                      Edit Review
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleAddReview}
+                      className="bg-[#00897B] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#00796B] transition"
+                    >
+                      Add Review
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Reviews Component */}
+            <Review
+              doctorId={doctorId}
+              reload={reload}
+              currentUser={userInfo?.id}
+              onReviewCheck={(hasReview) => setHasUserReviewed(hasReview)}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Review Modal */}
       {isReviewModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg p-6 md:p-8 w-full max-w-2xl shadow-lg h-[55vh] overflow-y-auto relative sm:p-4 sm:h-auto">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+          <div className="bg-white rounded-lg p-6 md:p-8 w-full max-w-2xl shadow-lg max-h-[90vh] overflow-y-auto relative">
             <h1 className="font-bold text-2xl sm:text-xl">
               {hasUserReviewed ? "Edit Review" : "Write a Review"}
             </h1>
-            <h1 className="font-medium mt-3 sm:text-base">Select Your Rating</h1>
+            <h2 className="font-medium mt-3 sm:text-base">Select Your Rating</h2>
+            
+            {/* Star Rating */}
             <div className="text-yellow-600 text-lg sm:text-base">
               <div className="flex items-center mt-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <svg
                     key={star}
                     onClick={() => handleStarClick(star)}
-                    className={`w-7 h-7 ms-1 cursor-pointer sm:w-5 sm:h-5 ${star <= selectedRating ? "text-yellow-600" : "text-gray-300"
-                      }`}
+                    className={`w-7 h-7 ms-1 cursor-pointer sm:w-5 sm:h-5 ${
+                      star <= selectedRating ? "text-yellow-600" : "text-gray-300"
+                    }`}
                     xmlns="http://www.w3.org/2000/svg"
                     fill="currentColor"
                     viewBox="0 0 22 20"
@@ -496,40 +523,42 @@ function DoctorsProfileView() {
                   </svg>
                 ))}
               </div>
+              
+              {/* Review Text Area */}
               <div className="mt-3">
                 <textarea
                   onChange={(e) => setReviewComment(e.target.value)}
                   className="w-full border rounded-md p-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
                   placeholder="Write your review here..."
                   rows={6}
+                  value={reviewComment || ""}
                 />
               </div>
             </div>
+            
+            {/* Modal Buttons */}
             <div className="flex justify-end gap-4 sm:gap-2 mt-4">
               <button
-                className="bg-red-500 px-3 py-2 rounded-md text-white sm:px-2 sm:py-1 sm:text-sm"
+                className="bg-red-500 px-3 py-2 rounded-md text-white sm:px-2 sm:py-1 sm:text-sm hover:bg-red-600 transition"
                 onClick={() => setIsReviewModalOpen(false)}
               >
                 Close
               </button>
               {!hasUserReviewed ? (
-                
-                
-               <button
-                onClick={handleReviewSubmit}
-                className="bg-[#00897B] px-3 py-2 rounded-md text-white sm:px-2 sm:py-1 sm:text-sm"
-              >
-                Submit
-              </button>
-              ): (
-                 <button
-                 onClick={handleReviewEdit}
-                 className="bg-blue-500 px-3 py-2 rounded-md text-white sm:px-2 sm:py-1 sm:text-sm"
-               >
-                 Submit
-               </button>
-            )}
-               
+                <button
+                  onClick={handleReviewSubmit}
+                  className="bg-[#00897B] px-3 py-2 rounded-md text-white sm:px-2 sm:py-1 sm:text-sm hover:bg-[#00796B] transition"
+                >
+                  Submit
+                </button>
+              ) : (
+                <button
+                  onClick={handleReviewEdit}
+                  className="bg-blue-500 px-3 py-2 rounded-md text-white sm:px-2 sm:py-1 sm:text-sm hover:bg-blue-600 transition"
+                >
+                  Update
+                </button>
+              )}
             </div>
           </div>
         </div>
