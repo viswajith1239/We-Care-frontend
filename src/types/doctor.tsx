@@ -53,6 +53,8 @@ export interface DoctorListFilterBarProps {
   }) => void;
 }
 export interface Specialization {
+  id: number;
+  doctorCount: number;
   // image: string | undefined;
   _id: string;
   name: string;

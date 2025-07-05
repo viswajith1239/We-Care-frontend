@@ -7,6 +7,7 @@ export const USER_ROUTES = {
     FORGOT_PASSWORD_OTP: '/forgot-passwordotp',
     RESET_PASSWORD: '/resetpassword',
     DOCTORS: '/doctors',
+    About:'/about',
     DOCTOR_PROFILE_VIEW: (doctorId = ':doctorId') => `/doctorsprofileview/${doctorId}`,
     PAYMENT_SUCCESS: '/paymentSuccess',
     PROFILE: '/profile',
@@ -14,6 +15,7 @@ export const USER_ROUTES = {
     PROFILE_MESSAGE: '/profile/message',
     PROFILE_PRESCRIPTIONS: '/profile/prescriptions',
     PROFILE_REPORTS: '/profile/reports',
+
 };
 
 
