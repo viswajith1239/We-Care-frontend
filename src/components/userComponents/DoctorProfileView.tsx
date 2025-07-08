@@ -1,30 +1,20 @@
-import { useState, useEffect,useRef } from "react";
-// import axios from "axios";
-// import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-// import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-// import {Typography,Button,Paper, TextField,} from "@mui/material";
+import { useState, useEffect, useRef } from "react";
 import dayjs from "dayjs";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css"
 import { FaCalendarAlt, FaStar } from "react-icons/fa"; 
-// import Cookies from "js-cookie";
 
 import { RootState } from "../../app/store";
 import { loadStripe } from "@stripe/stripe-js";
 import toast, { Toaster } from "react-hot-toast";
 import Review from "./Review";
 
-
-
 import API_URL from "../../axios/API_URL";
-// // import {loadStripe} from '@stripe/stripe-js';
 import userAxiosInstance from "../../axios/userAxiosInstance";
 import { useNavigate } from "react-router-dom";
 import { AvgRatingAndReviews } from "../../types/user";
-
 
 interface ISessionSchedule {
   _id: any;
@@ -36,30 +26,29 @@ interface ISessionSchedule {
   type: string;
   doctorId: string;
   isBooked: boolean;
-
 }
 
 interface DoctorProfile {
   _id: string;
   name: string;
   profileImage: string;
- specializations: { name: string }[];
- yearsOfExperience:string
+  specializations: { name: string }[];
+  yearsOfExperience: string;
 }
 
-
+interface TimeSlot {
+  id: string;
+  time: string;
+  price: number;
+}
 
 function DoctorsProfileView() {
-  // const [selectedDate, setSelectedDate] = useState<Dayjs | undefined>(undefined);
-
-  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
-  // const [isSingleSession, setIsSingleSession] = useState(false);
-  // const [isPackageSession, setIsPackageSession] = useState(false);
+  const [availableDates, setAvailableDates] = useState<string[]>([]);
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<TimeSlot[]>([]);
   const [sessionSchedules, setSessionSchedules] = useState<ISessionSchedule[]>([]);
   const [doctor, setDoctor] = useState<DoctorProfile | null>(null);
-  // const [showSelectionBox, setShowSelectionBox] = useState(false);
   const [showDateSection, setShowDateSection] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(null)
+  const [selectedDate, setSelectedDate] = useState(null);
   const [bookingStatus, setBookingStatus] = useState<string | null>(null);
   const [avgRatingAndTotalReviews, setAvgRatingAndTotalReviews] = useState<AvgRatingAndReviews[]>([]);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
@@ -68,26 +57,22 @@ function DoctorsProfileView() {
   const [reviewComment, setReviewComment] = useState<string | null>(null);
   const [reviewId, setreviewId] = useState<string | null>(null);
   const [reload, setReload] = useState(false);
-  // const [showDateInput, setShowDateInput] = useState(false);
+  const [refreshSchedules, setRefreshSchedules] = useState(false); // Add this to trigger refresh
+
   const datePickerRef = useRef(null);
- 
-
   const { doctorId } = useParams<{ doctorId: string }>();
-
-  
   const { userInfo } = useSelector((state: RootState) => state.user);
-  const userId=userInfo?.id
- 
-  const navigate=useNavigate()
+  const userId = userInfo?.id;
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDoctor = async () => { 
       try {
         const response = await userAxiosInstance.get(`${API_URL}/user/doctors/${doctorId}`);
-        console.log("hhhh",response.data);
+        console.log("Doctor data:", response.data);
         
         if (response.data && response.data.length > 0) {
-            setDoctor(response.data[0]);
+          setDoctor(response.data[0]);
         }
       } catch (error) {
         console.error("Error fetching doctor:", error);
@@ -97,6 +82,7 @@ function DoctorsProfileView() {
     fetchDoctor();
   }, [doctorId]);
 
+  // Fetch and update available dates
   useEffect(() => {
     const fetchSessionSchedules = async () => {
       try {
@@ -104,122 +90,57 @@ function DoctorsProfileView() {
         const schedules = response.data;
         
         console.log("Fetched Schedules:", schedules);
-  
-        
-        const date: string[] = Array.from(
-          new Set(
-            schedules
-              .filter(
-                (schedule: { doctorId: string; isBooked: boolean }) =>
-                  !schedule.isBooked && schedule.doctorId === doctorId
-              )
-              .map((schedule: { selectedDate: string }) =>
-                dayjs(schedule.selectedDate).format("YYYY-MM-DD")
-              )
-          )
-        );
-  
-        console.log("Available Dates:", date);
-  
         setSessionSchedules(schedules);
-        setAvailableSlots(date);
+
+        // Get unique dates that have at least one available slot
+        const datesWithAvailableSlots = schedules
+          .filter((schedule: ISessionSchedule) => 
+            !schedule.isBooked && schedule.doctorId === doctorId
+          )
+          .map((schedule: ISessionSchedule) => 
+            dayjs(schedule.selectedDate || schedule.startDate).format("YYYY-MM-DD")
+          );
+
+        // Remove duplicates and filter out dates where ALL slots are booked
+        const uniqueDates = Array.from(new Set(datesWithAvailableSlots));
+        
+        // Double check each date to ensure it has at least one available slot
+        const validDates = uniqueDates.filter(date => {
+          const slotsForDate = schedules.filter((schedule: ISessionSchedule) => 
+            dayjs(schedule.selectedDate || schedule.startDate).format("YYYY-MM-DD") === date &&
+            schedule.doctorId === doctorId &&
+            !schedule.isBooked
+          );
+          return slotsForDate.length > 0;
+        });
+
+        console.log("Available Dates:", validDates);
+        setAvailableDates(validDates);
+
+        // Reset selected date if it's no longer available
+        if (selectedDate) {
+          const selectedDateStr = dayjs(selectedDate).format("YYYY-MM-DD");
+          if (!validDates.includes(selectedDateStr)) {
+            setSelectedDate(null);
+            setAvailableTimeSlots([]);
+          }
+        }
       } catch (error) {
         console.error("Error fetching schedules:", error);
       }
     };
-  
+
     fetchSessionSchedules();
-  }, [doctorId]);
-  ;
-
-
-  // const handleDateChange = (date: any | null) => {
-  //   setSelectedDate(date);
-  //   if (date) {
-  //     const formattedDate = date.format("YYYY-MM-DD");
-  //     const slots:any = sessionSchedules
-  //       .filter((schedule) => {
-  //         const scheduleDate = dayjs(schedule.selectedDate || schedule.startDate).format(
-  //           "YYYY-MM-DD"
-  //         );
-  //         return (
-  //           scheduleDate === formattedDate &&
-  //           schedule.doctorId.toString() === doctorId?._id.toString() &&
-  //           !schedule.isBooked &&
-  //           ((isSingleSession && schedule.type === "single") ||
-  //             (isPackageSession && schedule.type === "package"))
-  //         );
-  //       })
-  //       .map((schedule) => ({
-  //         time: `${schedule.startTime} - ${schedule.endTime}`,
-  //         price: schedule.price,
-  //         id:schedule._id
-  //       }));
-        
-  //     setAvailableSlots(slots);
-  //   } else {
-  //     setAvailableSlots([]);
-  //   }
-  // };
-
-  // const handleBookSession = (sessionType: string) => {
-  //   setIsSingleSession(sessionType === "single");
-
-  //   setIsPackageSession(sessionType === "package");
-  //   setSelectedDate(dayjs());
-  //   setAvailableSlots([]);
-  // };
-
-// //   const handleConfirmBooking = (slot: string, id: any) => {
-// //     if (selectedDate) {
-// //       alert(`Session booked for ${slot} on ${selectedDate.toDate().toLocaleDateString()}`);
-// //     }
-// //     setSelectedDate(dayjs());
-// //     setAvailableSlots([]);
-// //     setIsSingleSession(false);
-// //     setIsPackageSession(false);
-// //   };
-
-//   const availableDates = Array.from(
-//     new Set(
-//       sessionSchedules
-//         .filter(
-//           (schedule) =>
-//             !schedule.isBooked &&
-//             ((isSingleSession && schedule.type === "single") ||
-//               (isPackageSession && schedule.type === "package"))
-//         )
-//         // .map((schedule) =>
-//         //   dayjs(schedule.selectedDate || schedule.startDate).format("YYYY-MM-DD")
-//         // )
-//     )
-//   );
-
-  const handlepayment=async (appoinmentId: any)=>{
-    
-    try {
-      const response=await userAxiosInstance.post(`${API_URL}/user/payment/${appoinmentId.id}`,{ userData: userInfo })
-      console.log("response for fetch is..........",response)
-      const stripe=await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
-      if(stripe){
-        await stripe.redirectToCheckout({sessionId:response.data.id})
-      }else{
-        navigate("/login")
-      }
-    } catch (error) {
-      console.log("error in payment",error)
-    }
-
-  }
+  }, [doctorId, refreshSchedules]); // Add refreshSchedules as dependency
 
   const handleDateChange = (date: any | null) => {
     setSelectedDate(date);
     
     if (date) {
       const formattedDate = dayjs(date).format("YYYY-MM-DD");
-  
       
-      const slotsForDate:any = sessionSchedules
+      // Get available slots for the selected date
+      const slotsForDate: TimeSlot[] = sessionSchedules
         .filter(schedule => 
           dayjs(schedule.selectedDate || schedule.startDate).format("YYYY-MM-DD") === formattedDate &&
           schedule.doctorId === doctorId &&
@@ -230,52 +151,86 @@ function DoctorsProfileView() {
           time: `${schedule.startTime} - ${schedule.endTime}`,
           price: schedule.price
         }));
-  
-      setAvailableSlots(slotsForDate);
+
+      setAvailableTimeSlots(slotsForDate);
     } else {
-      setAvailableSlots([]); 
+      setAvailableTimeSlots([]);
     }
-  
-  
-    (datePickerRef.current as any)?.setOpen(true);
-
   };
-  
-  
-
- 
 
   const openCalendar = () => {
     (datePickerRef.current as any)?.setOpen(true);
-
   };
 
+  const handlepayment = async (appointment: TimeSlot) => {
+    try {
+      const response = await userAxiosInstance.post(
+        `${API_URL}/user/payment/${appointment.id}`,
+        { userData: userInfo }
+      );
+      console.log("Payment response:", response);
+      
+      const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+      if (stripe) {
+        await stripe.redirectToCheckout({ sessionId: response.data.id });
+        
+        // Refresh the schedules after payment initiation
+        // Note: You might want to do this after successful payment instead
+        setRefreshSchedules(prev => !prev);
+      } else {
+        navigate("/login");
+      }
+    } catch (error) {
+      console.log("Error in payment:", error);
+      toast.error("Payment failed. Please try again.");
+    }
+  };
 
   useEffect(() => {
     const findBooking = async () => {
-      const response = await userAxiosInstance.get(
-        `${API_URL}/user/bookings/${userId}/${doctorId}`
-      );
-      console.log("nnnn",response);
-      
-    
-      setBookingStatus(response.data);
+      try {
+        const response = await userAxiosInstance.get(
+          `${API_URL}/user/bookings/${userId}/${doctorId}`
+        );
+        console.log("Booking status:", response);
+        setBookingStatus(response.data);
+      } catch (error) {
+        console.error("Error fetching booking status:", error);
+      }
     };
 
-    findBooking();
-  }, []);
+    if (userId && doctorId) {
+      findBooking();
+    }
+  }, [userId, doctorId]);
 
+  // Add effect to refresh schedules when coming back from payment
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // Refresh schedules when user comes back to the page
+        setRefreshSchedules(prev => !prev);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   const handleAddReview = () => {
     setIsReviewModalOpen(true);
-  }
+  };
+
   const handleEditReview = () => {
     setIsReviewModalOpen(true);
   };
   
   const handleStarClick = (rating: any) => {
     setSelectedRating(rating);
-  }
+  };
+
   const handleReviewSubmit = async () => {
     const data = {
       reviewComment,
@@ -283,61 +238,74 @@ function DoctorsProfileView() {
       userId,
       doctorId,
     };
-  
-    const response = await userAxiosInstance.post(`${API_URL}/user/review`, data);
-    console.log(",,,,",response.data.reviewId);
-    
-  
-    setreviewId(response.data.reviewId);
-    setIsReviewModalOpen(false);
-    setReviewComment(null);
-    setSelectedRating(0);
-    setHasUserReviewed(true);
-    setReload((prev) => !prev);
-    if (response.data.message) {
-      toast.success(response.data.message);
+
+    try {
+      const response = await userAxiosInstance.post(`${API_URL}/user/review`, data);
+      console.log("Review submitted:", response.data.reviewId);
+      
+      setreviewId(response.data.reviewId);
+      setIsReviewModalOpen(false);
+      setReviewComment(null);
+      setSelectedRating(0);
+      setHasUserReviewed(true);
+      setReload((prev) => !prev);
+      
+      if (response.data.message) {
+        toast.success(response.data.message);
+      }
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      toast.error("Failed to submit review. Please try again.");
     }
   };
+
   const handleReviewEdit = async () => {
-    
     const data = {
       reviewComment,
       selectedRating,
       reviewId,
-    
     };
-    console.log("oooo",reviewComment,
-      selectedRating,
-      reviewId);
-    
-    const response = await userAxiosInstance.patch(
-      `${API_URL}/user/edit-review`,
-      data
-    );
-    console.log("uuuuuu",response)
-    setIsReviewModalOpen(false);
-    setReviewComment(null);
-    setSelectedRating(0);
-    setReload((prev) => !prev);
-    if (response.data.message) {
-      toast.success(response.data.message);
+
+    try {
+      const response = await userAxiosInstance.patch(
+        `${API_URL}/user/edit-review`,
+        data
+      );
+      console.log("Review updated:", response);
+      
+      setIsReviewModalOpen(false);
+      setReviewComment(null);
+      setSelectedRating(0);
+      setReload((prev) => !prev);
+      
+      if (response.data.message) {
+        toast.success(response.data.message);
+      }
+    } catch (error) {
+      console.error("Error updating review:", error);
+      toast.error("Failed to update review. Please try again.");
     }
   };
 
-  console.log("pppp",hasUserReviewed);
-  
   useEffect(() => {
     const getAvgRatingAndTotalReviews = async () => {
-      const response = await userAxiosInstance.get(
-        `${API_URL}/user/reviews-summary/${doctorId}`
-      );
-      setAvgRatingAndTotalReviews(response.data);
+      try {
+        const response = await userAxiosInstance.get(
+          `${API_URL}/user/reviews-summary/${doctorId}`
+        );
+        setAvgRatingAndTotalReviews(response.data);
+      } catch (error) {
+        console.error("Error fetching reviews summary:", error);
+      }
     };
-    getAvgRatingAndTotalReviews();
+
+    if (doctorId) {
+      getAvgRatingAndTotalReviews();
+    }
   }, [doctorId]);
+
   return (
-    
-   <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-4 lg:p-10">
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-4 lg:p-10">
       <Toaster />
       
       {/* Main Container with Left-Right Layout */}
@@ -382,19 +350,18 @@ function DoctorsProfileView() {
                 {doctor?.specializations[0]?.name || "N/A"}
               </p>
               <p className="text-gray-700">
-                <strong>years of experience: </strong>
+                <strong>Years of experience: </strong>
                 {doctor?.yearsOfExperience || "N/A"}
               </p>
             </div>
 
             {/* Description */}
             <p className="text-gray-700 mt-4 px-4">
-              <strong>Dr. {doctor?.name}</strong> has {doctor?.yearsOfExperience}{" "}years of experience and is a highly skilled and compassionate medical 
+              <strong>Dr. {doctor?.name}</strong> has {doctor?.yearsOfExperience} years of experience and is a highly skilled and compassionate medical 
               professional specializing in{" "}
               <strong>{doctor?.specializations[0]?.name || "general medicine"}</strong>.  
               They are dedicated to providing exceptional patient care and personalized treatment plans.
             </p>
-
 
             {/* Book Appointment Button */}
             <div className="p-4 border-t mx-8 mt-2 text-center">
@@ -418,7 +385,7 @@ function DoctorsProfileView() {
                   ref={datePickerRef}
                   selected={selectedDate}
                   onChange={handleDateChange}
-                  includeDates={availableSlots.map(date => new Date(date))}
+                  includeDates={availableDates.map(date => new Date(date))}
                   minDate={new Date()} 
                   dateFormat="MM/dd/yyyy"
                   placeholderText="Select a date"
@@ -431,12 +398,12 @@ function DoctorsProfileView() {
                 />
               </div>
 
-              {/* Available Slots */}
-              {selectedDate && availableSlots.length > 0 ? (
+              {/* Available Time Slots */}
+              {selectedDate && availableTimeSlots.length > 0 ? (
                 <div className="mt-4">
                   <h4 className="text-md font-semibold text-gray-800 mb-2">Available Slots</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {availableSlots.map((slot, index) => (
+                    {availableTimeSlots.map((slot, index) => (
                       <button
                         key={index}
                         onClick={() => handlepayment(slot)}
@@ -447,8 +414,13 @@ function DoctorsProfileView() {
                     ))}
                   </div>
                 </div>
-              ) : selectedDate && (
+              ) : selectedDate && availableTimeSlots.length === 0 ? (
                 <p className="text-gray-600 mt-2 text-center">No slots available for this date.</p>
+              ) : null}
+
+              {/* Show message if no dates are available */}
+              {availableDates.length === 0 && (
+                <p className="text-gray-600 mt-2 text-center">No available dates at the moment.</p>
               )}
             </div>
           )}
@@ -564,16 +536,7 @@ function DoctorsProfileView() {
         </div>
       )}
     </div>
-  
-   
-    
-
-//    
-
   );
- 
 }
 
 export default DoctorsProfileView;
-
-

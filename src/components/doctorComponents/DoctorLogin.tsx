@@ -7,21 +7,67 @@ import {loginDoctor} from "../../action/doctorActions"
 // import {GoogleLogin,CredentialResponse} from "@react-oauth/google"
 import bgimage from "../../assets/young-handsome-physician-medical-robe-with-stethoscope.jpg"
 
-
-
-
+interface Errors {
+  email?: string;
+  password?: string;
+}
 
 function DoctorLogin(){
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
+    const [errors, setErrors] = useState<Errors>({});
 
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
 
+    const validate = (): Errors => {
+      const newErrors: Errors = {};
+      
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email.trim()) {
+        newErrors.email = "Please fill the email field";
+      } else if (!emailRegex.test(email)) {
+        newErrors.email = "Valid email is required";
+      }
+      
+      if (!password.trim()) {
+        newErrors.password = "Please fill the password field";
+      } else if (password.length < 6) {
+        newErrors.password = "Password must be at least 6 characters";
+      }
+      
+      return newErrors;
+    };
+
+    const handleInputChange = (field: string, value: string) => {
+      if (field === 'email') {
+        setEmail(value);
+      } else if (field === 'password') {
+        setPassword(value);
+      }
+      
+      // Clear error when user starts typing
+      if (errors[field as keyof Errors]) {
+        setErrors(prev => ({
+          ...prev,
+          [field]: undefined
+        }));
+      }
+    };
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-    
         
+        const validationErrors = validate();
+        setErrors(validationErrors);
+        
+        if (Object.keys(validationErrors).length > 0) {
+          // Clear errors after 3 seconds
+          setTimeout(() => {
+            setErrors({});
+          }, 3000);
+          return;
+        }
     
         try {
           const loginData = { email, password };
@@ -89,14 +135,18 @@ function DoctorLogin(){
                         </label>
                         <input
                           value={email}
-                          onChange={(e) => setEmail(e.target.value)}
+                          onChange={(e) => handleInputChange('email', e.target.value)}
                           type="email"
                           name="username"
                           id="username"
-                          className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:bg-gray-700 dark:border-gray-600 dark:placeholder-black dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                          className={`bg-gray-50 border text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:bg-gray-700 dark:border-gray-600 dark:placeholder-black dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ${
+                            errors.email ? 'border-red-500' : 'border-gray-300'
+                          }`}
                           placeholder="Enter email"
-                          required
                         />
+                        {errors.email && (
+                          <div className="mt-1 text-red-500 text-sm">{errors.email}</div>
+                        )}
                       </div>
                      
                      
@@ -107,14 +157,18 @@ function DoctorLogin(){
                         </label>
                         <input
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={(e) => handleInputChange('password', e.target.value)}
                           type="password"
                           name="password"
                           id="password"
                           placeholder="Enter password"
-                          className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:bg-gray-700 dark:border-gray-600 dark:placeholder-black dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                          required
+                          className={`bg-gray-50 border text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:bg-gray-700 dark:border-gray-600 dark:placeholder-black dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ${
+                            errors.password ? 'border-red-500' : 'border-gray-300'
+                          }`}
                         />
+                        {errors.password && (
+                          <div className="mt-1 text-red-500 text-sm">{errors.password}</div>
+                        )}
                       </div>
                       <button
                         type="submit"

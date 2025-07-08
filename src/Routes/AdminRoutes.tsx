@@ -9,6 +9,7 @@ import UserListingPage from "../pages/adminPages/UserListingPage"
 import VerificatonPage from "../pages/adminPages/VerificatonPage"
 import DoctorVerifyPage from "../pages/adminPages/DoctorVerifyPage"
 import AdminDashboardPage from "../pages/adminPages/AdminDashboardPage"
+import EnquiresPage from "../pages/adminPages/EnquiresPage"
 
 function AdminRoutes() {
     return (
@@ -19,6 +20,7 @@ function AdminRoutes() {
                 <Route path={ADMIN_ROUTES.SPECIALIZATIONS} element={<SpecializationsPage />} />
                 <Route path={ADMIN_ROUTES.USER_LISTING} element={<UserListingPage />} />
                 <Route path={ADMIN_ROUTES.VERIFICATION} element={<VerificatonPage />} />
+                <Route path={ADMIN_ROUTES.ENQUIRY} element={<EnquiresPage />} />
                 <Route path="/doctor-view/:doctorId" element={<DoctorVerifyPage />} />
 
 

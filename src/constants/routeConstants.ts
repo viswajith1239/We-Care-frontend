@@ -8,6 +8,7 @@ export const USER_ROUTES = {
     RESET_PASSWORD: '/resetpassword',
     DOCTORS: '/doctors',
     About:'/about',
+    Contact:'/contact',
     DOCTOR_PROFILE_VIEW: (doctorId = ':doctorId') => `/doctorsprofileview/${doctorId}`,
     PAYMENT_SUCCESS: '/paymentSuccess',
     PROFILE: '/profile',
@@ -15,6 +16,7 @@ export const USER_ROUTES = {
     PROFILE_MESSAGE: '/profile/message',
     PROFILE_PRESCRIPTIONS: '/profile/prescriptions',
     PROFILE_REPORTS: '/profile/reports',
+   
 
 };
 
@@ -55,4 +57,5 @@ export const ADMIN_ROUTES = {
     USER_LISTING: '/user-listing',
     VERIFICATION: '/verification',
     DOCTOR_VIEW: (doctorId = ':doctorId') => `/doctor-view/${doctorId}`,
+    ENQUIRY:'/enquiry',
 };

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaBars, FaChartPie, FaListAlt, FaCheckCircle, FaUsers, FaSignOutAlt } from "react-icons/fa";
+import { FaBars, FaChartPie, FaListAlt, FaCheckCircle, FaUsers, FaSignOutAlt, FaRegCommentDots } from "react-icons/fa";
 import logo_img from "../../assets/wmremove-transformed.png"
 
 function AdminSideBar() {
@@ -71,6 +71,14 @@ function AdminSideBar() {
             <FaUsers size={22} />
             <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Users</span>
           </Link>
+
+                  <Link
+          to="/admin/enquiry"
+          className={`flex items-center px-4 py-2 text-gray-100 rounded-2xl hover:bg-gray-400 hover:bg-opacity-25 ${isActive("/admin/enquiry")}`}
+        >
+          <FaRegCommentDots size={22} />
+          <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Enquiries</span>
+        </Link>
 
           <Link
             to="/admin/login"

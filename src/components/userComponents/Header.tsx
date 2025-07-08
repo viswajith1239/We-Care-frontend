@@ -119,11 +119,10 @@ function Header() {
         console.log("tttt", response);
 
         const serverNotifications = response.data?.notifications ?? [];
-        
-        // Clear existing notifications first to avoid duplicates
+       
         clearUserNotifications();
         
-        // Add new notifications from server
+     
         serverNotifications.forEach((notif: any) => {
           if (notif && notif.content) {
             addUserNotification(notif.content);
@@ -182,9 +181,9 @@ function Header() {
             </Link>
           </h1>
           <h1 className="text-1xl font-bold text-white">
-            <a href="#" className="hover:text-yellow-400 transition">
+            <Link to="/contact" className="hover:text-yellow-400 transition">
               Contact
-            </a>
+            </Link>
           </h1>
         </nav>
 

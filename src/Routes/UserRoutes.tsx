@@ -23,6 +23,7 @@ import UserChat from "../components/userComponents/UserChat"
 import PrescriptionPage from '../pages/userPages/PrescriptionPage';
 import AddReportsPage from '../pages/userPages/AddReportsPage';
 import AboutPage from '../pages/userPages/AboutPage';
+import ContactPage from '../pages/userPages/ContactPage';
 
 
 
@@ -36,6 +37,7 @@ function UserRoutes() {
             <Route path={USER_ROUTES.VERIFY_OTP} element={<Otp />} />
             <Route path={USER_ROUTES.LOGIN} element={<Login />} />
              <Route path={USER_ROUTES.About} element={<AboutPage />} />
+              <Route path={USER_ROUTES.Contact} element={<ContactPage />} />
             <Route path={USER_ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
             <Route path={USER_ROUTES.FORGOT_PASSWORD_OTP} element={<ForgotPasswordOtpPage />} />
             <Route path={USER_ROUTES.RESET_PASSWORD} element={<ResetPasswordPage />} />
