@@ -2,13 +2,14 @@ import { Key } from "react";
 
 export interface User {
     status: string;
-    id: Key | null | undefined;
+    id: string
     _id: string;
     image: string
     name: string;
     email: string;
     phone: number;
     isBlocked: boolean;
+  
   }
 
   export interface IReview {

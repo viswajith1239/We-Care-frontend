@@ -5,6 +5,7 @@ import { RootState } from "../../app/store";
 import MessageInputBar from "./MessageInputBar";
 import API_URL from "../../axios/API_URL";
 import { useSocketContext } from "../../context/socket";
+import { useSearchParams } from "react-router-dom";
 
 interface Message {
   _id: string;
@@ -29,6 +30,7 @@ interface DoctorChatProps {
 const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
   const { userInfo } = useSelector((state: RootState) => state.user);
   const { doctorInfo } = useSelector((state: RootState) => state.doctor);
+  const [searchParams] = useSearchParams();
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
@@ -57,8 +59,9 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
           withCredentials: true,
         });
         setDoctors(response.data);
-        if (doctorId) {
-          const doctor = response.data.find((d: Doctor) => d._id === doctorId);
+        const targetDoctorId = searchParams.get('doctorId') || doctorId;
+        if (targetDoctorId) {
+          const doctor = response.data.find((d: Doctor) => d._id === targetDoctorId);
           if (doctor) setSelectedDoctor(doctor);
         }
       } catch (error) {
@@ -101,7 +104,7 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
       const isRelevantConversation =
         selectedDoctor &&
         ((newMessage.senderId === selectedDoctor._id && newMessage.receiverId === userInfo?.id) ||
-         (newMessage.senderId === userInfo?.id && newMessage.receiverId === selectedDoctor._id));
+          (newMessage.senderId === userInfo?.id && newMessage.receiverId === selectedDoctor._id));
 
       if (!isRelevantConversation) return;
 
@@ -141,7 +144,7 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
     };
   }, [socket, doctorInfo?.id, userInfo?.id, selectedDoctor]);
 
-  // Handle click outside to deselect message
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
@@ -156,7 +159,7 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
 
   const handleSelectDoctor = (doctor: Doctor) => {
     setSelectedDoctor(doctor);
-    setSelectedMessage(null); // Clear selected message when switching doctors
+    setSelectedMessage(null);
   };
 
   const handleNewMessage = (newMessage: Message) => {
@@ -174,7 +177,7 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
       });
 
       if (response.status === 200) {
-        // Update local state
+
         setMessages((prev) =>
           prev.map((msg) =>
             msg._id === messageId
@@ -184,7 +187,7 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
         );
         setSelectedMessage(null);
 
-        // Emit socket event for real-time deletion
+
         if (socket && selectedDoctor) {
           socket.emit("messageDeleted", {
             messageId: messageId,
@@ -199,7 +202,7 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
   };
 
   const handleMessageDoubleClick = (messageId: string, isUserMessage: boolean) => {
-    // Only allow selection of user's own messages
+
     if (isUserMessage) {
       setSelectedMessage(selectedMessage === messageId ? null : messageId);
     }
@@ -232,9 +235,8 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
                 <div
                   key={doctor._id}
                   onClick={() => handleSelectDoctor(doctor)}
-                  className={`flex items-center p-2 rounded-lg cursor-pointer ${
-                    selectedDoctor?._id === doctor._id ? "bg-[#00897B] text-white" : "hover:bg-gray-200"
-                  }`}
+                  className={`flex items-center p-2 rounded-lg cursor-pointer ${selectedDoctor?._id === doctor._id ? "bg-[#00897B] text-white" : "hover:bg-gray-200"
+                    }`}
                 >
                   <div className="relative mr-3">
                     <img
@@ -244,9 +246,8 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
                       onError={() => handleImageError(doctor._id)}
                     />
                     <span
-                      className={`absolute bottom-0 right-0 w-3 h-3 ${
-                        isDoctorOnline ? "bg-green-500" : "bg-gray-400"
-                      } border-2 border-white rounded-full`}
+                      className={`absolute bottom-0 right-0 w-3 h-3 ${isDoctorOnline ? "bg-green-500" : "bg-gray-400"
+                        } border-2 border-white rounded-full`}
                     ></span>
                   </div>
                   <span>{doctor.name}</span>
@@ -260,13 +261,13 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
       <div className="flex-1 flex flex-col">
         {selectedDoctor ? (
           <div className="p-4 bg-[#00897B] text-white text-lg font-semibold flex items-center rounded-lg">
-          <img
-            className="h-10 w-10 rounded-full mr-3"
-            src={selectedDoctor.profileImage }
-            alt="Doctor"
-          />
-       <span className="flex-1">Chat with DR. {selectedDoctor.name}</span>
-        </div>
+            <img
+              className="h-10 w-10 rounded-full mr-3"
+              src={selectedDoctor.profileImage}
+              alt="Doctor"
+            />
+            <span className="flex-1">Chat with DR. {selectedDoctor.name}</span>
+          </div>
 
         ) : (
           <div className="p-4">
@@ -300,11 +301,9 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
                   )}
                   <div className="flex flex-col relative">
                     <div
-                      className={`p-3 rounded-lg max-w-xs relative ${
-                        isUserMessage ? "bg-[#00897B] text-white" : "bg-gray-300 text-black"
-                      } ${isSelected ? "ring-2 ring-blue-500" : ""} ${
-                        isUserMessage ? "cursor-pointer" : ""
-                      }`}
+                      className={`p-3 rounded-lg max-w-xs relative ${isUserMessage ? "bg-[#00897B] text-white" : "bg-gray-300 text-black"
+                        } ${isSelected ? "ring-2 ring-blue-500" : ""} ${isUserMessage ? "cursor-pointer" : ""
+                        }`}
                       onDoubleClick={() => handleMessageDoubleClick(msg._id, isUserMessage)}
                     >
                       {msg.message && <p>{msg.message}</p>}
@@ -316,7 +315,7 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
                           onError={(e) => (e.currentTarget.style.display = "none")}
                         />
                       )}
-                      
+
                       {/* Delete button - only show when message is selected and it's user's message */}
                       {isSelected && isUserMessage && (
                         <button
@@ -327,17 +326,17 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
                           className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-lg transition-colors duration-200"
                           title="Delete message"
                         >
-                          <svg 
-                            className="w-4 h-4" 
-                            fill="none" 
-                            stroke="currentColor" 
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
                             viewBox="0 0 24 24"
                           >
-                            <path 
-                              strokeLinecap="round" 
-                              strokeLinejoin="round" 
-                              strokeWidth={2} 
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" 
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                             />
                           </svg>
                         </button>

@@ -7,6 +7,7 @@ import Swal from "sweetalert2";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import toast from "react-hot-toast";
+import { getDoctorBookings } from "../../service/doctorService";
 
 interface BookingDetail {
   startDate: string | number | Date;
@@ -30,7 +31,7 @@ function Bookings() {
     try {
       setLoading(true);
       if (doctorInfo && doctorInfo.id) {
-        const response = await doctorAxiosInstance.get( `${API_URL}/doctor/bookings/${doctorInfo.id}` );
+        const response = await getDoctorBookings(doctorInfo.id);
         setBookingDetails(response.data || []);
       } else {
         console.log("Doctor ID not available");
@@ -100,7 +101,7 @@ function Bookings() {
               <th className="py-3 px-4 bg-[#00897B] text-white text-center">
                 Email
               </th>
-             
+
               <th className="py-3 px-4 bg-[#00897B] text-white text-center">
                 Date
               </th>
@@ -128,32 +129,30 @@ function Bookings() {
                   <td className="py-3 px-4 border-b">
                     {booking.userId.email}
                   </td>
-                 
+
                   <td className="py-3 px-4 border-b">
-                  {new Date(booking.startDate).toLocaleDateString()}
+                    {new Date(booking.startDate).toLocaleDateString()}
                   </td>
                   <td className="py-3 px-4 border-b">
                     {booking.startTime} - {booking.endTime}
                   </td>
                   <td className="py-3 px-4 border-b">
-                  <span className={`px-2 py-1 rounded-full text-xs ${
-            booking.paymentStatus?.toLowerCase() === 'completed' ? 'bg-green-100 text-green-800' :
-            booking.paymentStatus?.toLowerCase() === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-            booking.paymentStatus?.toLowerCase() === 'confirmed' ? 'bg-green-100 text-white-800' :
-            'bg-red-100 text-red-800'
-          }`}>
-            {booking.paymentStatus}
-          </span>
+                    <span className={`px-2 py-1 rounded-full text-xs ${booking.paymentStatus?.toLowerCase() === 'completed' ? 'bg-green-100 text-green-800' :
+                        booking.paymentStatus?.toLowerCase() === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                          booking.paymentStatus?.toLowerCase() === 'confirmed' ? 'bg-green-100 text-white-800' :
+                            'bg-red-100 text-red-800'
+                      }`}>
+                      {booking.paymentStatus}
+                    </span>
                   </td>
                   <td className="py-3 px-4 border-b">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs ${
-                        booking.appoinmentStatus === "completed"
+                      className={`px-2 py-1 rounded-full text-xs ${booking.appoinmentStatus === "completed"
                           ? "bg-green-100 text-green-800"
                           : booking.appoinmentStatus === "scheduled"
-                          ? "bg-blue-100 text-blue-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
+                            ? "bg-blue-100 text-blue-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
                     >
                       {booking.appoinmentStatus || "Not Started"}
                     </span>
@@ -183,11 +182,10 @@ function Bookings() {
 
       <div className="flex justify-between items-center space-x-2 mt-4">
         <button
-          className={`px-6 py-2 rounded-lg ${
-            currentPage === 1
+          className={`px-6 py-2 rounded-lg ${currentPage === 1
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-[#00897B] text-white"
-          }`}
+            }`}
           onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
           disabled={currentPage === 1}
         >
@@ -195,11 +193,10 @@ function Bookings() {
         </button>
         <span className="px-6 py-2 text-black font-bold">{`Page ${currentPage} of ${totalPages}`}</span>
         <button
-          className={`px-4 py-2 rounded-lg ${
-            currentPage === totalPages
+          className={`px-4 py-2 rounded-lg ${currentPage === totalPages
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-[#00897B] text-white"
-          }`}
+            }`}
           onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
           disabled={currentPage === totalPages}
         >

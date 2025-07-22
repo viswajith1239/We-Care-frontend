@@ -12,7 +12,7 @@ function DocorKyc() {
   const [aadhaarFrontSide, setAadhaarFrontSide] = useState<File | null>(null);
   const [aadhaarBackSide, setAadhaarBackSide] = useState<File | null>(null);
   const [certificate, setCertificate] = useState<File | null>(null);
-  
+
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
   const [imagePreviews, setImagePreviews] = useState<{
     profileImage: string | null;
@@ -26,16 +26,16 @@ function DocorKyc() {
     certificate: null,
   });
 
-  const { doctorInfo,loading} = useSelector(
+  const { doctorInfo, loading } = useSelector(
     (state: RootState) => state.doctor
   );
 
   console.log("doctorInfo in selector:", doctorInfo);
 
   const doctor_id = doctorInfo?.id;
-  console.log("doc",doctor_id);
-  
- 
+  console.log("doc", doctor_id);
+
+
 
   const dispatch = useDispatch<AppDispatch>();
 
@@ -58,18 +58,18 @@ function DocorKyc() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-  
+
     if (!validateForm()) {
       return;
     }
-  
+
     const isValidImage = (file: File | null) => {
       if (file && !allowedTypes.includes(file.type)) {
         return false;
       }
       return true;
     };
-  
+
     if (
       !isValidImage(profileImage) ||
       !isValidImage(aadhaarFrontSide) ||
@@ -79,26 +79,26 @@ function DocorKyc() {
       // toast.error("Invalid file type. Only JPEG, PNG, and GIF are allowed.");
       return;
     }
-  
+
     const formData = new FormData();
     formData.append('doctor_id', doctor_id!);
-  
-    
-  
+
+
+
     formData.append('name', name);
     formData.append('email', email);
     formData.append('phone', phone);
-  
-    
+
+
     if (profileImage) formData.append('profileImage', profileImage);
     if (aadhaarFrontSide) formData.append('aadhaarFrontSide', aadhaarFrontSide);
     if (aadhaarBackSide) formData.append('aadhaarBackSide', aadhaarBackSide);
     if (certificate) formData.append('certificate', certificate);
-  
+
     try {
       await dispatch(submitKyc({ formData }));
     } catch (error) {
-    
+
     }
   };
 
@@ -179,12 +179,12 @@ function DocorKyc() {
               )}
             </label>
           </div>
-       
 
-       
+
+
           <h2 className="text-xl font-semibold mb-4">KYC Document Upload</h2>
 
-          
+
           <div className="flex items-center mb-4 space-x-4">
             <h2 className="w-1/4">Profile Image</h2>
             <input
@@ -207,7 +207,7 @@ function DocorKyc() {
             </div>
           )}
 
-         
+
           <div className="flex items-center mb-4 space-x-4">
             <h2 className="w-1/4"> Aadhaar Front Side</h2>
             <input
@@ -230,7 +230,7 @@ function DocorKyc() {
             </div>
           )}
 
-         
+
           <div className="flex items-center mb-4 space-x-4">
             <h2 className="w-1/4"> Aadhaar Back Side</h2>
             <input
@@ -253,7 +253,7 @@ function DocorKyc() {
             </div>
           )}
 
-        
+
           <div className="flex items-center mb-4 space-x-4">
             <h2 className="w-1/4">Certificate</h2>
             <input
@@ -275,12 +275,12 @@ function DocorKyc() {
               />
             </div>
           )}
-        
+
         </div>
 
         <button
           type="submit"
-         
+
 
           className="w-full bg-[#00897B] text-white font-bold py-2 rounded-md shadow hover:bg-[#00897B]"
         >

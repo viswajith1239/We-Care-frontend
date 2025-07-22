@@ -29,7 +29,7 @@ const UserDoctorChart: React.FC<UserDoctorChartProps> = ({ data }) => {
         (currentYear - item.year) * 12 + (currentMonth - item.month);
       return monthsDiff >= 0 && monthsDiff < 12;
     })
-    .filter(item => item.users !== 0 || item.doctor !== 0) 
+    .filter(item => item.users !== 0 || item.doctor !== 0)
     .map((item) => ({
       ...item,
       name: `${item.month}/${item.year}`,
@@ -42,7 +42,7 @@ const UserDoctorChart: React.FC<UserDoctorChartProps> = ({ data }) => {
 
   return (
     <div className="flex flex-col items-center w-full">
-   
+
       <div className="w-full h-96">
         <ResponsiveContainer width="95%" height="100%">
           <BarChart
@@ -66,7 +66,7 @@ const UserDoctorChart: React.FC<UserDoctorChartProps> = ({ data }) => {
       </div>
 
 
-      
+
     </div>
   );
 };

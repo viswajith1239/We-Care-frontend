@@ -5,7 +5,7 @@ import Banner_img3 from "../../assets/doctor-nurses-special-equipment.jpg";
 
 function Banner() {
   const navigate = useNavigate();
-  
+
 
   const bannerSlides = [
     {
@@ -19,10 +19,10 @@ function Banner() {
       description: "Our team of dedicated doctors and nurses provide personalized care with the latest medical technology. We're committed to delivering the highest quality healthcare services to improve your quality of life."
     }
   ];
-  
+
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
 
-  
+
   function doctorLogin(event: React.MouseEvent<HTMLButtonElement>): void {
     navigate("/doctor/login");
   }
@@ -32,25 +32,25 @@ function Banner() {
     setCurrentSlideIndex(index);
   };
 
- 
+
   const nextSlide = () => {
-    setCurrentSlideIndex((prevIndex) => 
+    setCurrentSlideIndex((prevIndex) =>
       prevIndex === bannerSlides.length - 1 ? 0 : prevIndex + 1
     );
   };
 
-  
+
   useEffect(() => {
     const interval = setInterval(() => {
       nextSlide();
     }, 5000);
-    
+
     return () => clearInterval(interval);
   }, []);
 
   return (
     <div className="h-[900px] relative overflow-hidden">
-     
+
       <div className="h-full w-full relative">
         {bannerSlides.map((slide, index) => (
           <div
@@ -64,10 +64,10 @@ function Banner() {
               zIndex: currentSlideIndex === index ? 1 : 0
             }}
           >
-            
+
             <div className="absolute inset-0 bg-[#00897B] bg-opacity-30"></div>
-            
-      
+
+
             <div className="absolute inset-0 flex items-start justify-center">
               <div className="relative w-[90%] mx-auto flex items-center justify-between flex-col h-full">
                 <div className="lg:w-fit mr-[35.2rem] mt-20">
@@ -94,23 +94,22 @@ function Banner() {
         ))}
       </div>
 
-     
+
       <div className="absolute bottom-8 left-0 right-0 flex justify-center space-x-2 z-10">
         {bannerSlides.map((_, index) => (
           <button
             key={index}
             onClick={() => goToSlide(index)}
-            className={`h-2 w-2 rounded-full ${
-              currentSlideIndex === index ? 'bg-white' : 'bg-white bg-opacity-50'
-            } transition-all duration-300 hover:bg-white`}
+            className={`h-2 w-2 rounded-full ${currentSlideIndex === index ? 'bg-white' : 'bg-white bg-opacity-50'
+              } transition-all duration-300 hover:bg-white`}
             aria-label={`Go to slide ${index + 1}`}
           />
         ))}
       </div>
 
-     
+
       <div className="absolute inset-y-0 left-0 flex items-center z-10">
-        <button 
+        <button
           onClick={() => setCurrentSlideIndex(prev => prev === 0 ? bannerSlides.length - 1 : prev - 1)}
           className="bg-black bg-opacity-30 text-white p-2 rounded-r-lg hover:bg-opacity-50 transition-all"
           aria-label="Previous slide"
@@ -121,7 +120,7 @@ function Banner() {
         </button>
       </div>
       <div className="absolute inset-y-0 right-0 flex items-center z-10">
-        <button 
+        <button
           onClick={nextSlide}
           className="bg-black bg-opacity-30 text-white p-2 rounded-l-lg hover:bg-opacity-50 transition-all"
           aria-label="Next slide"

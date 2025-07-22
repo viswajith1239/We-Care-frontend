@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import { verifyOtp } from "../../action/userActions";
 import axios from "axios";
 import API_URL from "../../axios/API_URL";
-import {Toaster,toast} from "react-hot-toast"
+import { Toaster, toast } from "react-hot-toast"
 
 interface Errors {
   otp?: string;
@@ -63,7 +63,7 @@ const Otp: React.FC = () => {
       newOtp[index] = value;
       setOtp(newOtp);
 
-      
+
       if (value && index < otp.length - 1) {
         const nextInput = document.getElementById(`otp-${index + 1}`);
         nextInput?.focus();
@@ -82,10 +82,10 @@ const Otp: React.FC = () => {
       return;
     }
 
-    const otpString = otp.join(""); 
+    const otpString = otp.join("");
     if (userData) {
-     dispatch(verifyOtp({ userData, otp: otpString })).then((res) => {
-    
+      dispatch(verifyOtp({ userData, otp: otpString })).then((res) => {
+
         if (res.meta.requestStatus === "fulfilled") {
           toast.success("OTP verified successfully!");
           setOtpVerified(true);
@@ -102,72 +102,71 @@ const Otp: React.FC = () => {
       const response = await axios.post(`${API_URL}/user/resend-otp`, {
         email: userData?.email,
       });
-  
+
       if (response.status === 200) {
         toast.success("OTP resent successfully!");
         startCountdown();
       } else {
         toast.error(response.data?.message || "An error occurred. Please try again.");
       }
-    } catch (error: any) { 
+    } catch (error: any) {
       console.error("Error resending OTP:", error);
       toast.error(error.response?.data?.message || "An error occurred. Please try again.");
     }
   };
-  
+
 
   useEffect(() => {
     if (otpVerified) {
-      navigate("/login",{replace:true});
+      navigate("/login", { replace: true });
     }
   }, [otpVerified, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-    <div className="w-full max-w-md px-8 py-10 bg-white rounded-lg shadow-md dark:bg-gray-950 dark:text-gray-200">
-         <Toaster />
-      <h1 className="text-2xl font-semibold text-center mb-6">Enter OTP</h1>
+      <div className="w-full max-w-md px-8 py-10 bg-white rounded-lg shadow-md dark:bg-gray-950 dark:text-gray-200">
+        <Toaster />
+        <h1 className="text-2xl font-semibold text-center mb-6">Enter OTP</h1>
 
-      <div className="grid grid-cols-4 gap-x-4 my-2">
-        {otp.map((digit, index) => (
-          <input
-            key={index}
-            id={`otp-${index}`}
-            type="text"
-            maxLength={1}
-            value={digit}
-            onChange={(e) => handleChange(e.target.value, index)}
-            className="rounded-lg bg-gray-100 dark:bg-gray-800 w-14 aspect-square text-center text-gray-700 dark:text-gray-400"
-          />
-        ))}
-      </div>
-      {errors.otp && <p className="text-red-500 text-sm mt-1">{errors.otp}</p>}
-
-      <div className="flex items-center flex-col justify-between mb-6">
-        <p className="text-gray-600 text-sm">Didn't receive code?</p>
-        <div className="flex items-center space-x-2">
-          
-          
+        <div className="grid grid-cols-4 gap-x-4 my-2">
+          {otp.map((digit, index) => (
+            <input
+              key={index}
+              id={`otp-${index}`}
+              type="text"
+              maxLength={1}
+              value={digit}
+              onChange={(e) => handleChange(e.target.value, index)}
+              className="rounded-lg bg-gray-100 dark:bg-gray-800 w-14 aspect-square text-center text-gray-700 dark:text-gray-400"
+            />
+          ))}
         </div>
-      </div>
+        {errors.otp && <p className="text-red-500 text-sm mt-1">{errors.otp}</p>}
 
-      <button
-        onClick={handleClick}
-        type="submit"
-        className="w-full text-white bg-[#00897B] focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#00897B]"
-      >
-        Verify
-      </button>
-      <button
+        <div className="flex items-center flex-col justify-between mb-6">
+          <p className="text-gray-600 text-sm">Didn't receive code?</p>
+          <div className="flex items-center space-x-2">
+
+
+          </div>
+        </div>
+
+        <button
+          onClick={handleClick}
+          type="submit"
+          className="w-full text-white bg-[#00897B] focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#00897B]"
+        >
+          Verify
+        </button>
+        <button
           onClick={resendOtp}
           disabled={isDisabled}
-          className={`w-full mt-4 py-2 px-4 ${
-            isDisabled ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
-          } text-white rounded-md transition duration-200`}
+          className={`w-full mt-4 py-2 px-4 ${isDisabled ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
+            } text-white rounded-md transition duration-200`}
         >
           {isDisabled ? `Resend OTP in ${seconds}s` : "Resend OTP"}
         </button>
-    </div>
+      </div>
     </div>
   );
 };

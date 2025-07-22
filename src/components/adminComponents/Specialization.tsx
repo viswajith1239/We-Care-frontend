@@ -14,6 +14,15 @@ interface Errors {
   description?: string;
 }
 
+interface PaginationInfo {
+  currentPage: number;
+  totalPages: number;
+  totalCount: number;
+  itemsPerPage: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
 export default function SpecializationTable() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [name, setName] = useState("");
@@ -21,29 +30,82 @@ export default function SpecializationTable() {
   const [specialization, setSpecialization] = useState<Specialization[]>([]);
   const [editingSpecialization, setEditingSpecialization] = useState<Specialization | null>(null);
   const [errors, setErrors] = useState<Errors>({});
+  const [loading, setLoading] = useState(false);
+
+  const [paginationInfo, setPaginationInfo] = useState<PaginationInfo>({
+    currentPage: 1,
+    totalPages: 1,
+    totalCount: 0,
+    hasNextPage: false,
+    hasPreviousPage: false,
+    itemsPerPage: 5
+  });
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
   useEffect(() => {
-    const fetchSpecializations = async () => {
-      try {
-        const response = await adminService.getSpecializations();
-        setSpecialization(response?.data || []);
-      } catch (error) {
-        console.error('Failed to fetch specializations:', error);
+    fetchSpecializations(currentPage);
+  }, [currentPage]);
+
+  const fetchSpecializations = async (page: number = 1) => {
+    setLoading(true);
+    try {
+
+      const response = await adminService.getSpecializations(itemsPerPage, page);
+
+      console.log("API Response:", response.data);
+
+      if (response.data && response.data.specializations) {
+
+        setSpecialization(response.data.specializations);
+
+
+        if (response.data.pagination) {
+          setPaginationInfo({
+            currentPage: response.data.pagination.currentPage,
+            totalPages: response.data.pagination.totalPages,
+            totalCount: response.data.pagination.totalCount,
+            itemsPerPage: response.data.pagination.itemsPerPage,
+            hasNextPage: response.data.pagination.hasNextPage,
+            hasPreviousPage: response.data.pagination.hasPreviousPage
+          });
+        }
+      } else {
+
+        setSpecialization([]);
+        setPaginationInfo({
+          currentPage: 1,
+          totalPages: 1,
+          totalCount: 0,
+          hasNextPage: false,
+          hasPreviousPage: false,
+          itemsPerPage: itemsPerPage
+        });
       }
-    };
-    fetchSpecializations();
-  }, []);
+    } catch (error) {
+      console.error('Failed to fetch specializations:', error);
+      toast.error('Failed to fetch specializations');
+      setSpecialization([]);
+      setPaginationInfo({
+        currentPage: 1,
+        totalPages: 1,
+        totalCount: 0,
+        hasNextPage: false,
+        hasPreviousPage: false,
+        itemsPerPage: itemsPerPage
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const validate = (): { errors: Errors; isDuplicate: boolean } => {
     const newErrors: Errors = {};
     let isDuplicate = false;
-    
+
     const trimmedName = name.trim();
     const trimmedDescription = description.trim();
-    
 
     if (!trimmedName) {
       newErrors.name = "Please fill the specialization name field";
@@ -54,7 +116,6 @@ export default function SpecializationTable() {
       } else if (trimmedName.length < 3) {
         newErrors.name = "Specialization name must be at least 3 characters long";
       } else {
-   
         const lowerCasedName = trimmedName.toLowerCase();
         const duplicateExists = specialization.some(
           (spec) =>
@@ -66,14 +127,13 @@ export default function SpecializationTable() {
         }
       }
     }
-    
- 
+
     if (!trimmedDescription) {
       newErrors.description = "Please fill the description field";
     } else if (trimmedDescription.length < 3) {
       newErrors.description = "Description must be at least 3 characters long";
     }
-    
+
     return { errors: newErrors, isDuplicate };
   };
 
@@ -100,12 +160,14 @@ export default function SpecializationTable() {
   const handleDeleteSpecialization = async (id: string) => {
     try {
       await adminService.deleteSpecialization(id);
-      setSpecialization((prev) => prev.filter((spec) => spec._id !== id));
+
+      fetchSpecializations(currentPage);
+      toast.success("Specialization deleted successfully!");
     } catch (error) {
       console.error("Failed to delete specialization:", error);
+      toast.error("Failed to delete specialization");
     }
   };
-
 
   const handleInputChange = (field: keyof Errors, value: string, setter: React.Dispatch<React.SetStateAction<string>>) => {
     setter(value);
@@ -119,16 +181,14 @@ export default function SpecializationTable() {
 
   const handleSaveSpecialization = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     const validationResult = validate();
     setErrors(validationResult.errors);
-    
 
     if (validationResult.isDuplicate) {
       toast.error("Specialization with this name already exists");
       return;
     }
-    
 
     if (Object.keys(validationResult.errors).length > 0) {
       setTimeout(() => {
@@ -143,33 +203,39 @@ export default function SpecializationTable() {
 
     try {
       if (editingSpecialization) {
-        const response = await adminService.updateSpecialization(editingSpecialization._id, formData);
-        const updatedSpecialization = response?.data.specialization;
-        setSpecialization((prev) =>
-          prev.map((spec) =>
-            spec._id === editingSpecialization._id ? updatedSpecialization : spec
-          )
-        );
+        await adminService.updateSpecialization(editingSpecialization._id, formData);
         toast.success("Specialization updated successfully!");
       } else {
-        const response = await adminService.addSpecialization(formData);
-        setSpecialization((prev) => [...prev, response?.data.specializationresponse]);
+        await adminService.addSpecialization(formData);
         toast.success("Specialization added successfully!");
       }
+
       closeModal();
+
+      fetchSpecializations(currentPage);
     } catch (error) {
       console.error('Failed to save specialization:', error);
       toast.error("Failed to save specialization. Please try again.");
     }
   };
 
-  const totalPages = Math.ceil(specialization.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentSpecializations = specialization.slice(startIndex, startIndex + itemsPerPage);
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= paginationInfo.totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="p-4 flex justify-center items-center">
+        <div className="text-lg">Loading specializations...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4">
-      <Toaster/>
+      <Toaster />
       <button
         onClick={openModal}
         className="text-white bg-[#00897B] font-medium rounded-lg text-lg leading-8 px-8 py-3 cursor-pointer text-center mr-2 inline-flex items-center hover:bg-[#00766a]"
@@ -177,7 +243,7 @@ export default function SpecializationTable() {
         Add Specialization
       </button>
 
-   
+
       {isModalOpen && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
@@ -191,24 +257,22 @@ export default function SpecializationTable() {
                   value={name || ""}
                   type="text"
                   onChange={(e) => handleInputChange('name', e.target.value, setName)}
-                  className={`w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#00897B] ${
-                    errors.name ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#00897B] ${errors.name ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'
+                    }`}
                   placeholder="Enter specialization name"
                 />
                 {errors.name && (
                   <div className="text-red-500 text-sm mt-1">{errors.name}</div>
                 )}
               </div>
-              
+
               <div className="mb-4">
                 <label className="block text-gray-700 font-medium mb-2">Specialization Description</label>
                 <textarea
                   value={description || ""}
                   onChange={(e) => handleInputChange('description', e.target.value, setDescription)}
-                  className={`w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#00897B] ${
-                    errors.description ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#00897B] ${errors.description ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'
+                    }`}
                   placeholder="Enter specialization description"
                   rows={3}
                 />
@@ -216,7 +280,7 @@ export default function SpecializationTable() {
                   <div className="text-red-500 text-sm mt-1">{errors.description}</div>
                 )}
               </div>
-              
+
               <div className="flex justify-end space-x-4">
                 <button
                   type="button"
@@ -252,20 +316,22 @@ export default function SpecializationTable() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {currentSpecializations.map((specialization, index) => (
-                  <tr key={specialization._id}>
-                    <td className="px-6 py-4 whitespace-nowrap">{startIndex + index + 1}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{specialization.name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{specialization.description}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                {specialization.map((spec, index) => (
+                  <tr key={spec._id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      {((paginationInfo.currentPage - 1) * paginationInfo.itemsPerPage) + index + 1}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">{spec.name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">{spec.description}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
                       <button
-                        onClick={() => handleEditSpecialization(specialization)}
+                        onClick={() => handleEditSpecialization(spec)}
                         className="px-4 py-2 font-medium text-white bg-blue-600 rounded-md hover:bg-blue-500"
                       >
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDeleteSpecialization(specialization._id)}
+                        onClick={() => handleDeleteSpecialization(spec._id)}
                         className="ml-2 px-4 py-2 font-medium text-white bg-red-600 rounded-md hover:bg-red-500"
                       >
                         Delete
@@ -276,28 +342,28 @@ export default function SpecializationTable() {
               </tbody>
             </table>
 
-           
+
             <div className="flex justify-between items-center space-x-2 mt-4">
               <button
-                className={`px-6 py-2 rounded-lg ${
-                  currentPage === 1
+                className={`px-6 py-2 rounded-lg ${!paginationInfo.hasPreviousPage
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#00897B] text-white"
-                }`}
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
+                  }`}
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={!paginationInfo.hasPreviousPage}
               >
                 Prev
               </button>
-              <span className="px-6 py-2 text-black font-bold">{`Page ${currentPage} of ${totalPages}`}</span>
+              <span className="px-6 py-2 text-black font-bold">
+                Page {paginationInfo.currentPage} of {paginationInfo.totalPages}
+              </span>
               <button
-                className={`px-4 py-2 rounded-lg ${
-                  currentPage === totalPages
+                className={`px-4 py-2 rounded-lg ${!paginationInfo.hasNextPage
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#00897B] text-white"
-                }`}
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}
+                  }`}
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={!paginationInfo.hasNextPage}
               >
                 Next
               </button>

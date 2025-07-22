@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
-import userAxiosInstance from '../../axios/userAxiosInstance';
-import API_URL from '../../axios/API_URL';
 import Swal from 'sweetalert2';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../app/store';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import ReusableTable from '../../components/userComponents/ResuableTable'; // Adjust the import path as needed
+import ReusableTable from '../../components/userComponents/ResuableTable';
+import { cancelAppointment, getBookingDetails } from '../../service/userService';
 
 interface BookingDetail {
   startDate: string;
@@ -23,23 +22,48 @@ interface BookingDetail {
   amount?: number;
 }
 
+interface PaginationInfo {
+  currentPage: number;
+  totalPages: number;
+  totalBookings: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  limit: number;
+}
+
 function Bookings() {
   const [bookingDetails, setBookingDetails] = useState<BookingDetail[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [paginationInfo, setPaginationInfo] = useState<PaginationInfo>({
+    currentPage: 1,
+    totalPages: 1,
+    totalBookings: 0,
+    hasNextPage: false,
+    hasPreviousPage: false,
+    limit: 5
+  });
   const [showDetailsModal, setShowDetailsModal] = useState<boolean>(false);
   const [selectedBooking, setSelectedBooking] = useState<BookingDetail | null>(null);
   const { userInfo } = useSelector((state: RootState) => state.user);
   const ITEMS_PER_PAGE = 5;
   const navigate = useNavigate();
 
-  const fetchBookingDetails = async () => {
+  const fetchBookingDetails = async (page: number = 1) => {
     try {
       setLoading(true);
       if (userInfo && userInfo.id) {
-        const response = await userAxiosInstance.get(`${API_URL}/user/bookings-details/${userInfo.id}`);
+        const response = await getBookingDetails(userInfo.id, page, ITEMS_PER_PAGE);
+
         console.log('Booking data:', response.data);
-        setBookingDetails(response.data || []);
+
+        if (response.data.bookings) {
+          setBookingDetails(response.data.bookings);
+          setPaginationInfo(response.data.pagination);
+        } else {
+
+          setBookingDetails(response.data || []);
+        }
       } else {
         console.log('User ID not available');
       }
@@ -52,8 +76,8 @@ function Bookings() {
   };
 
   useEffect(() => {
-    fetchBookingDetails();
-  }, [userInfo]);
+    fetchBookingDetails(currentPage);
+  }, [userInfo, currentPage]);
 
   const handleCancel = async (appoinmentId: string, userId: string, doctorId: string) => {
     const result = await Swal.fire({
@@ -67,18 +91,14 @@ function Bookings() {
 
     if (result.isConfirmed) {
       try {
-        const response = await userAxiosInstance.post(`${API_URL}/user/cancel-appoinment`, {
-          appoinmentId,
-          userId,
-          doctorId,
-        });
+        const response = await cancelAppointment(appoinmentId, userId, doctorId);
         const refundAmount = response.data.amount || 0;
         if (refundAmount > 0) {
           toast.success(`Appointment cancelled successfully! Refund amount: ₹${refundAmount}`);
         } else {
           toast.success('Appointment cancelled successfully! No refund applicable.');
         }
-        fetchBookingDetails();
+        fetchBookingDetails(currentPage);
       } catch (error) {
         console.error('Error cancelling appointment:', error);
         toast.error('Failed to cancel appointment');
@@ -111,9 +131,13 @@ function Bookings() {
     }
   };
 
-  const totalPages = Math.ceil(bookingDetails.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedBookings = bookingDetails.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  const handleChatNavigation = (doctorId: string) => {
+    navigate(`/profile/message?doctorId=${doctorId}`);
+  };
 
   const headers = ['Doctor', 'Date', 'Time', 'Payment Status', 'Appointment Status', 'Refund', 'Actions'];
 
@@ -155,7 +179,7 @@ function Bookings() {
           </button>
           <button
             className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs"
-            onClick={() => navigate('/profile/message')}
+            onClick={() => handleChatNavigation(booking.doctorId._id)}
           >
             Chat
           </button>
@@ -177,27 +201,35 @@ function Bookings() {
       <h2 className="text-2xl font-bold mb-6">Your Bookings</h2>
       <ReusableTable
         headers={headers}
-        data={paginatedBookings}
+        data={bookingDetails}
         renderRow={renderRow}
         headerClassName="bg-[#00897B] text-white"
         emptyMessage="No bookings found. Schedule an appointment with a doctor."
       />
-      <div className="flex justify-between mt-4">
-        <button
-          className="px-4 py-2 bg-gray-300 rounded mr-2 disabled:opacity-50"
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-        >
-          Previous
-        </button>
-        <span className="px-4 py-2 text-black font-bold">Page {currentPage} of {totalPages}</span>
-        <button
-          className="px-4 py-2 bg-gray-300 rounded ml-2 disabled:opacity-50"
-          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-          disabled={currentPage === totalPages}
-        >
-          Next
-        </button>
+      <div className="flex justify-center items-center mt-4">
+
+        <div className="flex items-center space-x-2">
+          <button
+            className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={!paginationInfo.hasPreviousPage}
+          >
+            Previous
+          </button>
+          <span className="px-4 py-2 text-black font-bold text-center">
+            Page {paginationInfo.currentPage} of {paginationInfo.totalPages}
+          </span>
+          <div className='flex'>
+            <button
+              className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={!paginationInfo.hasNextPage}
+            >
+              Next
+            </button>
+          </div>
+
+        </div>
       </div>
       {showDetailsModal && selectedBooking && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">

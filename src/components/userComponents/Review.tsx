@@ -1,8 +1,7 @@
 import { useEffect, useState, lazy, Suspense } from "react";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
-import userAxiosInstance from "../../axios/userAxiosInstance";
 import { IReview } from "../../types/user";
-import API_URL from "../../axios/API_URL";
+import { getDoctorReview } from "../../service/userService";
 
 const ReviewCard = lazy(() => import("./ReviewCard"));
 
@@ -35,9 +34,12 @@ function Review({ doctorId, reload, currentUser, onReviewCheck }: ReviewProps) {
   };
 
   useEffect(() => {
-    const fetchDoctorReviews = async () => {
-      const response = await userAxiosInstance.get(`${API_URL}/user/reviews/${doctorId}`);
+    if (!doctorId) return;
+
+    const fetchDoctorReviews = async (doctorId: string) => {
+      const response = await getDoctorReview(doctorId);
       setReviews(response.data);
+
       const userHasReviewed = response.data.some((review: IReview) => {
         if (typeof review.userId === "string") {
           return review.userId === currentUser;
@@ -45,10 +47,13 @@ function Review({ doctorId, reload, currentUser, onReviewCheck }: ReviewProps) {
           return review.userId._id === currentUser;
         }
       });
+
       onReviewCheck(userHasReviewed);
     };
-    fetchDoctorReviews();
+
+    fetchDoctorReviews(doctorId);
   }, [reload, doctorId, currentUser, onReviewCheck]);
+
 
   return (
     <>

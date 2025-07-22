@@ -20,20 +20,20 @@ function Login() {
 
   const validate = (): Errors => {
     const newErrors: Errors = {};
-    
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email.trim()) {
       newErrors.email = "Please fill the email field";
     } else if (!emailRegex.test(email)) {
       newErrors.email = "Valid email is required";
     }
-    
+
     if (!password.trim()) {
       newErrors.password = "Please fill the password field";
     } else if (password.length < 6) {
       newErrors.password = "Password must be at least 6 characters";
     }
-    
+
     return newErrors;
   };
 
@@ -43,8 +43,8 @@ function Login() {
     } else if (field === 'password') {
       setPassword(value);
     }
-    
-    // Clear error when user starts typing
+
+
     if (errors[field as keyof Errors]) {
       setErrors(prev => ({
         ...prev,
@@ -55,12 +55,12 @@ function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const validationErrors = validate();
     setErrors(validationErrors);
-    
+
     if (Object.keys(validationErrors).length > 0) {
-        setTimeout(() => {
+      setTimeout(() => {
         setErrors({});
       }, 3000);
       return;
@@ -77,7 +77,7 @@ function Login() {
       console.log("actionnnnnnnnnn", action);
       if (adminLogin.fulfilled.match(action)) {
         console.log("action keri");
-        
+
         toast.success("Successfully logged in!");
         setTimeout(() => {
           navigate("/admin", { replace: true });
@@ -108,9 +108,8 @@ function Login() {
               id="email"
               value={email}
               onChange={(e) => handleInputChange('email', e.target.value)}
-              className={`shadow-sm rounded-md w-full px-3 py-2 border focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 ${
-                errors.email ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`shadow-sm rounded-md w-full px-3 py-2 border focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 ${errors.email ? 'border-red-500' : 'border-gray-300'
+                }`}
               placeholder="Enter your email"
             />
             {errors.email && (
@@ -129,9 +128,8 @@ function Login() {
               id="password"
               value={password}
               onChange={(e) => handleInputChange('password', e.target.value)}
-              className={`shadow-sm rounded-md w-full px-3 py-2 border focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 ${
-                errors.password ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`shadow-sm rounded-md w-full px-3 py-2 border focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 ${errors.password ? 'border-red-500' : 'border-gray-300'
+                }`}
               placeholder="Enter your password"
             />
             {errors.password && (

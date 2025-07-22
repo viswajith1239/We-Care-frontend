@@ -1,16 +1,15 @@
 
 import { useEffect, useState } from "react";
-import API_URL from "../../axios/API_URL";
 import { Specialization } from "../../types/doctor";
 import { useNavigate, useLocation } from "react-router-dom";
-import userAxiosInstance from "../../axios/userAxiosInstance";
+import { getspecializations } from "../../service/userService";
 
 function DoctorListFiterBar() {
   const [specializations, setSpecializations] = useState<Specialization[]>([]);
   const [selectedSpecializations, setSelectedSpecializations] = useState<string[]>([]);
   const [selectedGender, setSelectedGender] = useState<string[]>([]);
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
-  const [selectedExperience, setSelectedExperience] = useState<string>(""); // New state for experience
+  const [selectedExperience, setSelectedExperience] = useState<string>("");
   const [displayLimit, setDisplayLimit] = useState(4);
   const [isExpanded, setIsExpanded] = useState(false);
   const [sortOption, setSortOption] = useState("a-z");
@@ -21,13 +20,13 @@ function DoctorListFiterBar() {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const sort = params.get("sort");
-    const experience = params.get("experience"); // Read experience from URL
+    const experience = params.get("experience");
     if (sort) setSortOption(sort);
-    if (experience) setSelectedExperience(experience); // Set experience state
+    if (experience) setSelectedExperience(experience);
 
     const getSpecializations = async () => {
       try {
-        const response = await userAxiosInstance.get(`${API_URL}/user/specializations`);
+        const response = await getspecializations()
         setSpecializations(response.data);
       } catch (error) {
         console.log("Error fetching specializations:", error);
@@ -62,9 +61,9 @@ function DoctorListFiterBar() {
       params.set(type, updatedSelections.join(","));
       if (updatedSelections.length === 0) params.delete(type);
     } else if (type === "experience") {
-      setSelectedExperience(value); // Update experience state
+      setSelectedExperience(value);
       params.set("experience", value);
-      if (!value) params.delete("experience"); // Remove if no selection
+      if (!value) params.delete("experience");
     }
 
     navigate(`/doctors?${params.toString()}`);
@@ -87,9 +86,9 @@ function DoctorListFiterBar() {
     setSelectedSpecializations([]);
     setSelectedGender([]);
     setSelectedLanguages([]);
-    setSelectedExperience(""); // Reset experience
+    setSelectedExperience("");
     setSortOption("a-z");
-    navigate("/doctors"); // Clear all query params
+    navigate("/doctors");
   };
 
   return (

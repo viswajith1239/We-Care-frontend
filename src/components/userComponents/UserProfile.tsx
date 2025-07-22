@@ -5,35 +5,36 @@ import { User } from "../../features/userTyepes";
 import userAxiosInstance from "../../axios/userAxiosInstance";
 import toast, { Toaster } from "react-hot-toast";
 import API_URL from "../../axios/API_URL";
+import { getuser } from "../../service/userService";
 
 function UserProfile() {
   const { userInfo } = useSelector((state: RootState) => state.user);
   const [currentPassword, setCurrentPassword] = useState<string>('')
   const [newPassword, setNewPassword] = useState<string>('')
   const [confirmPassword, setConfirmPassword] = useState<string>('')
-  const [formData, setFormData] = useState<User>({ id: "", name: "", phone: "", email: "", password: "", dob: "", gender: "",profileImage:""});
-  const [passwordVisibility, setPasswordVisibility] = useState({current: false, new: false, confirm: false,});
+  const [formData, setFormData] = useState<User>({ id: "", name: "", phone: "", email: "", password: "", dob: "", gender: "", profileImage: "" });
+  const [passwordVisibility, setPasswordVisibility] = useState({ current: false, new: false, confirm: false, });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const [editOpen, setEditOpen] = useState(false);
   const userId = userInfo?.id;
-  console.log("iii",userId);
-  
+  console.log("iii", userId);
+
 
   useEffect(() => {
     if (!userId) return;
 
-    const fetchUserDetails = async () => {
+    const fetchUserDetails = async (userId: string) => {
       console.log("ppp");
-      
+
       try {
         console.log("hhhhh");
-        
-        const response = await userAxiosInstance.get(`${API_URL}/user/users/${userId}`);
-        console.log("yyy",response);
-        
+
+        const response = await getuser(userId);
+        console.log("yyy", response);
+
         setFormData(response.data.response);
         if (response.data.response.profileImage) {
           setPreviewUrl(response.data.response.profileImage);
@@ -42,7 +43,7 @@ function UserProfile() {
         console.error("Failed to fetch user details", error);
       }
     };
-    fetchUserDetails();
+    fetchUserDetails(userId);
   }, [userId]);
 
   const handleEdit = () => {
@@ -62,22 +63,22 @@ function UserProfile() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validate file type
+
       const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
       if (!allowedTypes.includes(file.type)) {
         toast.error('Please select a valid image file (JPEG, JPG, PNG, or GIF)');
         return;
       }
 
-      // Validate file size (5MB limit)
+
       if (file.size > 5 * 1024 * 1024) {
         toast.error('File size must be less than 5MB');
         return;
       }
 
       setSelectedFile(file);
-      
-      // Create preview URL
+
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewUrl(reader.result as string);
@@ -89,12 +90,12 @@ function UserProfile() {
   const uploadImageToCloudinary = async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('upload_preset', 'wecare'); 
-    formData.append('cloud_name', 'dxop0bbkp'); 
+    formData.append('upload_preset', 'wecare');
+    formData.append('cloud_name', 'dxop0bbkp');
 
     try {
       const response = await fetch(
-        `https://api.cloudinary.com/v1_1/dxop0bbkp/image/upload`, 
+        `https://api.cloudinary.com/v1_1/dxop0bbkp/image/upload`,
         {
           method: 'POST',
           body: formData,
@@ -120,7 +121,7 @@ function UserProfile() {
     try {
       let updatedFormData = { ...formData };
 
-      // If there's a new image selected, upload it first
+
       if (selectedFile) {
         try {
           const imageUrl = await uploadImageToCloudinary(selectedFile);
@@ -134,12 +135,12 @@ function UserProfile() {
 
       const response = await userAxiosInstance.patch(`${API_URL}/user/update-user`, updatedFormData);
       console.log("/////", response);
-      
+
       setEditOpen(false);
       setSelectedFile(null);
       if (response.status === 200) {
         toast.success(response.data.message || 'Profile updated successfully!');
-        // Update local state with new data
+
         setFormData(updatedFormData);
         if (updatedFormData.profileImage) {
           setPreviewUrl(updatedFormData.profileImage);
@@ -156,29 +157,29 @@ function UserProfile() {
   const handleResetPassword = async (e: React.FormEvent) => {
     try {
       e.preventDefault();
-  
+
       if (confirmPassword !== newPassword) {
         toast.error('New password and confirm password do not match!');
         return;
       }
-  
+
       if (newPassword.trim() === '') {
         toast.error('Password cannot be empty or contain only spaces.');
         return;
       }
-  
+
       if (newPassword.length < 6) {
         toast.error('Password must be at least 6 characters long.');
         return;
       }
-  
+
       const data = {
         currentPassword,
         newPassword,
       };
-  
+
       const response = await userAxiosInstance.patch(`${API_URL}/user/reset-password/${userInfo?.id}`, data);
-  
+
       if (response.status === 200) {
         toast.success(response.data.message || 'Password reset successfully!');
         setCurrentPassword('');
@@ -187,7 +188,7 @@ function UserProfile() {
       }
     } catch (error: any) {
       console.error(error);
-  
+
       const errorMessage = error?.response?.data?.message || error?.message || 'Something went wrong. Please try again.';
       toast.error(errorMessage);
     }
@@ -213,15 +214,15 @@ function UserProfile() {
         {!editOpen ? (
           <div className="h-[75vh] bg-white w-[75%] shadow-md rounded-md overflow-y-auto">
             <h1 className="p-5 font-bold text-2xl">Personal Information</h1>
-            
-            {/* Profile Image Section */}
+
+
             <div className="flex justify-center mb-6">
               <div className="relative">
                 <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-300 bg-gray-100 flex items-center justify-center">
                   {formData.profileImage ? (
-                    <img 
-                      src={formData.profileImage} 
-                      alt="Profile" 
+                    <img
+                      src={formData.profileImage}
+                      alt="Profile"
                       className="w-full h-full object-top"
                     />
                   ) : (
@@ -301,15 +302,15 @@ function UserProfile() {
             <h1 className="p-5 font-bold text-2xl">
               Edit Personal Information
             </h1>
-            
-            {/* Profile Image Edit Section */}
+
+
             <div className="flex justify-center mb-6">
               <div className="relative">
                 <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-300 bg-gray-100 flex items-center justify-center">
                   {previewUrl ? (
-                    <img 
-                      src={previewUrl} 
-                      alt="Profile Preview" 
+                    <img
+                      src={previewUrl}
+                      alt="Profile Preview"
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -433,7 +434,7 @@ function UserProfile() {
           </div>
         )}
       </div>
-      
+
       <div className="flex justify-center mt-5">
         <div className="h-[55vh] bg-white w-[75%] shadow-md rounded-md p-8">
           <h1 className="p-0 font-bold text-2xl">Reset Password</h1>

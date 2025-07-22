@@ -17,15 +17,15 @@ function ForgotPasswordOtp() {
   const [seconds, setSeconds] = useState<number>(60);
   const [errors, setErrors] = useState<Errors>({});
   const [otpVerified, setOtpVerified] = useState(false);
-  
+
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
-  const userData = location.state; // User data from previous page
+  const userData = location.state;
 
   useEffect(() => {
     if (!userData) {
-      navigate("/forgotpassword"); // Redirect if no userData
+      navigate("/forgotpassword");
     }
   }, [userData, navigate]);
 
@@ -85,7 +85,7 @@ function ForgotPasswordOtp() {
       dispatch(verifyForgotOtp({ userData, otp: otpString })).then((res) => {
         if (res.meta.requestStatus === "fulfilled") {
           toast.success("OTP verified successfully!");
-          localStorage.setItem("resetUserData", JSON.stringify(userData)); 
+          localStorage.setItem("resetUserData", JSON.stringify(userData));
           setOtpVerified(true);
         } else {
           toast.error(res.payload?.message || "Invalid OTP. Please try again.");
@@ -152,19 +152,19 @@ function ForgotPasswordOtp() {
         >
           Verify
         </button>
-                    <button
-                        onClick={resendOtp}
-                        disabled={isDisabled}
-                        className={`w-full mt-4 py-2 px-4 ${isDisabled ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
-                            } text-white rounded-md transition duration-200`}
-                    >
-                        {isDisabled ? `Resend OTP in ${seconds}s` : "Resend OTP"}
-                    </button>
-                </div>
-            </div>
+        <button
+          onClick={resendOtp}
+          disabled={isDisabled}
+          className={`w-full mt-4 py-2 px-4 ${isDisabled ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
+            } text-white rounded-md transition duration-200`}
+        >
+          {isDisabled ? `Resend OTP in ${seconds}s` : "Resend OTP"}
+        </button>
+      </div>
+    </div>
 
-        
-    )
+
+  )
 }
 
 export default ForgotPasswordOtp

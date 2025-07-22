@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Heart, Shield, Clock, Users, Award, Phone, Mail, MapPin,  Headphones, Eye, User } from 'lucide-react';
-import API_URL from '../../axios/API_URL';
-import userAxiosInstance from '../../axios/userAxiosInstance';
-import {  Specialization } from '../../types/doctor';
-import {useNavigate} from "react-router-dom"
+import { Heart, Shield, Clock, Users, Award, Phone, Mail, MapPin, Headphones, Eye, User } from 'lucide-react';
+import { Specialization } from '../../types/doctor';
+import { useNavigate } from "react-router-dom"
+import { getdoctors, getspecializations, getusers } from '../../service/userService';
 
 
 interface FeatureCardProps {
@@ -38,15 +37,15 @@ const About: React.FC = () => {
   const [specializations, setSpecializations] = useState<Specialization[]>([]);
   const [showAllSpecializations, setShowAllSpecializations] = useState(false);
   const [doctorsData, setDoctorsData] = useState(0);
-  const [users,setUsers]=useState([])
-    const navigate = useNavigate();
+  const [users, setUsers] = useState([])
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getSpecializations = async () => {
       try {
-        const response = await userAxiosInstance.get(`${API_URL}/user/specializations`);
+        const response = await getspecializations()
         console.log("nnn", response);
-        
+
         setSpecializations(response.data);
       } catch (error) {
         console.log("Error fetching specializations:", error);
@@ -59,15 +58,15 @@ const About: React.FC = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await userAxiosInstance.get(`${API_URL}/user/users`); 
-        console.log("reee",response);
-        
+        const response = await getusers()
+        console.log("reee", response);
+
         setUsers(response.data.response.length);
-       
+
       } catch (err: any) {
-        console.log("errro fetching user",err);
-        
-     
+        console.log("errro fetching user", err);
+
+
       }
     };
 
@@ -79,9 +78,9 @@ const About: React.FC = () => {
   useEffect(() => {
     async function fetchDoctors() {
       try {
-        const response = await userAxiosInstance.get(`${API_URL}/user/doctors`);
+        const response = await getdoctors()
         const doctors = response.data;
-        console.log("vvvv",doctors)
+        console.log("vvvv", doctors)
 
 
         setDoctorsData(doctors.length);
@@ -103,22 +102,22 @@ const About: React.FC = () => {
       'skin specialist': <User className="w-6 h-6 text-white" />,
       'ophthalmologist': <Eye className="w-6 h-6 text-white" />,
     };
-    
+
     const key = name.toLowerCase();
     return iconMap[key] || <Heart className="w-6 h-6 text-white" />;
   };
 
-  
+
   const getCardColor = (index: number) => {
     return index % 2 === 0 ? 'bg-[#5cbba8]' : 'bg-black';
   };
 
- 
-  const displayedSpecializations = showAllSpecializations 
-    ? specializations 
+
+  const displayedSpecializations = showAllSpecializations
+    ? specializations
     : specializations.slice(0, 4);
 
-     const handleFindDoctor = () => {
+  const handleFindDoctor = () => {
     navigate('/doctors');
   };
   return (
@@ -133,7 +132,7 @@ const About: React.FC = () => {
               Connecting you with quality healthcare, anytime, anywhere
             </p>
             <p className="text-lg text-black max-w-3xl mx-auto">
-              We're revolutionizing healthcare access by making it simple, secure, and efficient 
+              We're revolutionizing healthcare access by making it simple, secure, and efficient
               to find and book appointments with trusted medical professionals.
             </p>
           </div>
@@ -149,11 +148,11 @@ const About: React.FC = () => {
             <p className="text-lg text-gray-600 text-center mb-12">
               Discover our comprehensive range of medical specialties
             </p>
-            
+
             {specializations.length > 0 ? (
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {displayedSpecializations.map((specialization, index) => (
-                  <div 
+                  <div
                     key={specialization.id || index}
                     className={`${getCardColor(index)} rounded-lg p-6 text-white shadow-lg hover:shadow-xl transition-shadow duration-300`}
                   >
@@ -175,11 +174,11 @@ const About: React.FC = () => {
                 <p className="text-gray-600">Loading specializations...</p>
               </div>
             )}
-            
-           
+
+
             {specializations.length > 4 && (
               <div className="text-center mt-12">
-                <button 
+                <button
                   onClick={() => setShowAllSpecializations(!showAllSpecializations)}
                   className="bg-[#5cbba8] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#4a9d8e] transition-colors"
                 >
@@ -196,19 +195,19 @@ const About: React.FC = () => {
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-bold text-gray-800 mb-8">Our Mission</h2>
             <p className="text-lg text-gray-600 leading-relaxed mb-8">
-              At WeCare, we believe that everyone deserves easy access to quality healthcare. 
-              Our mission is to bridge the gap between patients and healthcare providers by offering 
+              At WeCare, we believe that everyone deserves easy access to quality healthcare.
+              Our mission is to bridge the gap between patients and healthcare providers by offering
               a seamless, user-friendly platform that simplifies the appointment booking process.
             </p>
             <div className="grid md:grid-cols-2 gap-0">
               <StatCard number={`${users}+`} label="Happy Patients" />
-              <StatCard number={`${doctorsData}+`}label="Medical Specialties" />
+              <StatCard number={`${doctorsData}+`} label="Medical Specialties" />
             </div>
           </div>
         </div>
       </section>
 
-     
+
       <section className="py-16 bg-white">
         <div className="container mx-auto px-6">
           <h2 className="text-3xl font-bold text-gray-800 text-center mb-12">
@@ -249,7 +248,7 @@ const About: React.FC = () => {
         </div>
       </section>
 
-   
+
       <section className="py-16 bg-gray-100">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto">
@@ -258,28 +257,28 @@ const About: React.FC = () => {
               <div className="bg-white rounded-lg p-8 shadow-sm">
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Patient-Centered</h3>
                 <p className="text-gray-600">
-                  Every decision we make is guided by what's best for patients. We prioritize 
+                  Every decision we make is guided by what's best for patients. We prioritize
                   accessibility, convenience, and quality care above all else.
                 </p>
               </div>
               <div className="bg-white rounded-lg p-8 shadow-sm">
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Innovation</h3>
                 <p className="text-gray-600">
-                  We continuously evolve our platform using the latest technology to improve 
+                  We continuously evolve our platform using the latest technology to improve
                   healthcare delivery and patient experience.
                 </p>
               </div>
               <div className="bg-white rounded-lg p-8 shadow-sm">
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Transparency</h3>
                 <p className="text-gray-600">
-                  We believe in clear communication, honest pricing, and transparent processes 
+                  We believe in clear communication, honest pricing, and transparent processes
                   that build trust between patients and providers.
                 </p>
               </div>
               <div className="bg-white rounded-lg p-8 shadow-sm">
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Reliability</h3>
                 <p className="text-gray-600">
-                  You can count on us to provide consistent, dependable service when you need 
+                  You can count on us to provide consistent, dependable service when you need
                   healthcare most.
                 </p>
               </div>
@@ -288,7 +287,7 @@ const About: React.FC = () => {
         </div>
       </section>
 
-   
+
       <section className="py-16 bg-white">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center">
@@ -326,7 +325,7 @@ const About: React.FC = () => {
         </div>
       </section>
 
-  
+
       <section className="py-16  text-black">
         <div className="container mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold mb-4 text-black">Ready to Get Started?</h2>
@@ -337,7 +336,7 @@ const About: React.FC = () => {
             <button onClick={handleFindDoctor} className="bg-[#5cbba8] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#5cbba8] transition-colors">
               Find a Doctor
             </button>
-           
+
           </div>
         </div>
       </section>

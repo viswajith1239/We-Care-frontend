@@ -25,9 +25,9 @@ const RevenueChart: React.FC<RevenueChartProps> = ({ data }) => {
   const oneYearAgo = new Date(currentYear, currentMonth - 12, 1);
 
   const last12MonthsData = (data || [])
-   .filter(
-    (item) => item.doctorRevenue > 0 || item.adminRevenue > 0 
-  )
+    .filter(
+      (item) => item.doctorRevenue > 0 || item.adminRevenue > 0
+    )
     .map((item) => ({
       name: `${item.month}/${item.year}`,
       doctorRevenue: item.doctorRevenue,
@@ -46,7 +46,7 @@ const RevenueChart: React.FC<RevenueChartProps> = ({ data }) => {
 
   return (
     <div className="flex flex-col items-center w-full">
-     
+
       <div className="w-full h-96">
         <ResponsiveContainer width="95%" height="100%">
           <LineChart
@@ -66,31 +66,31 @@ const RevenueChart: React.FC<RevenueChartProps> = ({ data }) => {
 
       {/* Report Table */}
       <div className="w-full mt-8">
-  <div className="w-full overflow-x-auto">
-    <table className="w-full border-collapse rounded-lg overflow-hidden">
-      <thead>
-        <tr className="bg-gray-100">
-          <th className="py-2 px-4 border bg-[#00897B] text-white min-w-[200px]">Month/Year</th>
-          <th className="py-2 px-4 border bg-[#00897B] text-white min-w-[200px]">Doctor Revenue</th>
-          <th className="py-2 px-4 border bg-[#00897B] text-white min-w-[200px]">Admin Revenue</th>
-          <th className="py-2 px-4 border bg-[#00897B] text-white min-w-[200px]">Total Revenue</th>
-        </tr>
-      </thead>
-      <tbody>
-        {last12MonthsData.map((item, index) => (
-          <tr key={index} className="hover:bg-gray-50">
-            <td className="py-2 px-4 border">{item.name}</td>
-            <td className="py-2 px-4 border">₹{item.doctorRevenue.toFixed(2)}</td>
-            <td className="py-2 px-4 border">₹{item.adminRevenue.toFixed(2)}</td>
-            <td className="py-2 px-4 border">
-              ₹{(item.doctorRevenue + item.adminRevenue).toFixed(2)}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-</div>
+        <div className="w-full overflow-x-auto">
+          <table className="w-full border-collapse rounded-lg overflow-hidden">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="py-2 px-4 border bg-[#00897B] text-white min-w-[200px]">Month/Year</th>
+                <th className="py-2 px-4 border bg-[#00897B] text-white min-w-[200px]">Doctor Revenue</th>
+                <th className="py-2 px-4 border bg-[#00897B] text-white min-w-[200px]">Admin Revenue</th>
+                <th className="py-2 px-4 border bg-[#00897B] text-white min-w-[200px]">Total Revenue</th>
+              </tr>
+            </thead>
+            <tbody>
+              {last12MonthsData.map((item, index) => (
+                <tr key={index} className="hover:bg-gray-50">
+                  <td className="py-2 px-4 border">{item.name}</td>
+                  <td className="py-2 px-4 border">₹{item.doctorRevenue.toFixed(2)}</td>
+                  <td className="py-2 px-4 border">₹{item.adminRevenue.toFixed(2)}</td>
+                  <td className="py-2 px-4 border">
+                    ₹{(item.doctorRevenue + item.adminRevenue).toFixed(2)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
     </div>
   );

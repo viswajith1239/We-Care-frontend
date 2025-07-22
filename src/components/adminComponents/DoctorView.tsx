@@ -1,13 +1,12 @@
 // import axios from "axios";
 import React, { useEffect, useState } from "react";
-import {  FaCheck, FaTimes } from "react-icons/fa";
+import { FaCheck, FaTimes } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
-import adminAxiosInstance from "../../axios/adminAxiosInstance";
 import Swal from "sweetalert2";
-import API_URL from "../../axios/API_URL";
 // import { useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../app/store";
 import { useDispatch } from "react-redux";
+import { getDoctorDetails, updateDoctorKYCStatus, updateDoctorStatusWithReason } from "../../service/adminService";
 
 interface Errors {
   rejectionReason?: string;
@@ -37,11 +36,12 @@ function DoctorView() {
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
-    const fetchDoctorDetails = async () => {
+    if (!doctorId) return
+    const fetchDoctorDetails = async (doctorId: string) => {
       try {
-        const response = await adminAxiosInstance.get(
-          `${API_URL}/admin/doctors/kyc/${doctorId}`
-        );
+        const response = await getDoctorDetails(doctorId)
+        console.log("ooo", response);
+
         const doctorData = response.data?.kycData;
         if (doctorData) {
           const specializations = doctorData.specializationId
@@ -70,7 +70,7 @@ function DoctorView() {
       }
     };
 
-    fetchDoctorDetails();
+    fetchDoctorDetails(doctorId);
   }, [doctorId]);
 
   const handleApproveStatusChange = async (newStatus: string) => {
@@ -83,14 +83,11 @@ function DoctorView() {
         cancelButtonColor: "#3085d6",
         confirmButtonText: "Yes",
       }).then(async (result: { isConfirmed: any }) => {
-        if (result.isConfirmed) {
+        if (result.isConfirmed && doctorId) {
           try {
-            await adminAxiosInstance.patch(
-              `${API_URL}/admin/kyc-status-update/${doctorId}`,
-              { status: newStatus }
-            );
+            await updateDoctorKYCStatus(doctorId, newStatus);
             setDoctor((prevDoctor) =>
-                prevDoctor ? { ...prevDoctor, kycStatus: newStatus } : null
+              prevDoctor ? { ...prevDoctor, kycStatus: newStatus } : null
             );
             navigate("/admin/verification");
             Swal.fire("OK!", "Doctor Approved.", "success");
@@ -114,7 +111,7 @@ function DoctorView() {
     setRejectionReason("");
   };
 
-  const validate = (): boolean => { 
+  const validate = (): boolean => {
     let isValid = true;
     const newErrors: Errors = {};
     if (!rejectionReason.trim()) {
@@ -133,18 +130,12 @@ function DoctorView() {
   const handleReasonSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validate()) {
+    if (!validate() || !doctorId) {
       return;
     }
 
     try {
-      await adminAxiosInstance.patch(
-        `${API_URL}/admin/kyc-status-update/${doctorId}`,
-        {
-          status: "rejected",
-          rejectionReason,
-        }
-      );
+      await updateDoctorStatusWithReason(doctorId, rejectionReason);
       setDoctor((prevDoctor) =>
         prevDoctor ? { ...prevDoctor, kycStatus: "rejected" } : null
       );

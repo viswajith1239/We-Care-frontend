@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import API_URL from '../../axios/API_URL';
 import axiosInstance from "../../axios/userAxiosInstance";
 import toast, { Toaster } from 'react-hot-toast';
+import { getreports } from '../../service/userService';
 
 interface ImageFile {
   file: File;
@@ -18,20 +19,21 @@ interface ReportData {
 const AddReports: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<ImageFile | null>(null);
   const [previewImage, setPreviewImage] = useState<ImageFile | null>(null);
-    const { userInfo } = useSelector((state: RootState) => state.user);
-      const [reports, setReports] = useState<ReportData[]>([]); 
+  const { userInfo } = useSelector((state: RootState) => state.user);
+  const [reports, setReports] = useState<ReportData[]>([]);
   const [isLoadingReports, setIsLoadingReports] = useState<boolean>(false);
-    const { doctorInfo } = useSelector((state: RootState) => state.doctor);
-    console.log("usere ",userInfo);
-    
+  const { doctorInfo } = useSelector((state: RootState) => state.doctor);
+  console.log("usere ", userInfo);
 
-    console.log("pppssss",userInfo);
 
-    const fetchReports = async () => {
+
+  console.log("pppssss", userInfo);
+
+  const fetchReports = async () => {
     if (!userInfo || !userInfo.id) return;
     try {
       setIsLoadingReports(true);
-      const response = await axiosInstance.get(`${API_URL}/user/reports/${userInfo.id}`);
+      const response = await getreports(userInfo.id)
       setReports(response.data.reports);
     } catch (error) {
       toast.error("Failed to load reports");
@@ -44,16 +46,16 @@ const AddReports: React.FC = () => {
   useEffect(() => {
     fetchReports();
   }, [userInfo]);
-    
-  
+
+
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    
+
     if (file && file.type.startsWith('image/')) {
       const url = URL.createObjectURL(file);
       setSelectedImage({ file, url });
-      
+
       setPreviewImage(null);
     }
   };
@@ -64,7 +66,7 @@ const AddReports: React.FC = () => {
   const handleSubmit = async () => {
     if (!selectedImage) return;
 
-   
+
     if (!userInfo || !userInfo.id) {
       alert('Please log in to upload medical reports.');
       return;
@@ -76,11 +78,11 @@ const AddReports: React.FC = () => {
     try {
       const formData = new FormData();
       formData.append('image', selectedImage.file);
-      formData.append('userId', userInfo.id); 
-      formData.append('doctorId', doctorInfo.id); 
+      formData.append('userId', userInfo.id);
+      formData.append('doctorId', doctorInfo.id);
 
-      
-     
+
+
       if (userInfo.name) {
         formData.append('userName', userInfo.name);
       }
@@ -99,21 +101,21 @@ const AddReports: React.FC = () => {
       );
 
 
-     const { cloudinaryUrl, documentId } = response.data;
+      const { cloudinaryUrl, documentId } = response.data;
       setUploadedUrl(cloudinaryUrl);
 
-       toast.success('Medical report uploaded successfully!');
+      toast.success('Medical report uploaded successfully!');
 
 
-        handleClear();
+      handleClear();
 
-  
+
       fetchReports();
 
-      console.log('Image uploaded successfully:',cloudinaryUrl);
+      console.log('Image uploaded successfully:', cloudinaryUrl);
       console.log('MongoDB document ID:', documentId);
       console.log('User ID:', userInfo.id);
-      
+
     } catch (error) {
       console.error('Error uploading image:', error);
       toast.error('Failed to upload image. Please try again.');
@@ -126,7 +128,7 @@ const AddReports: React.FC = () => {
     setSelectedImage(null);
     setPreviewImage(null);
     setUploadedUrl(null);
-   
+
     const fileInput = document.getElementById('file-input') as HTMLInputElement;
     if (fileInput) {
       fileInput.value = '';
@@ -134,17 +136,17 @@ const AddReports: React.FC = () => {
   };
 
   return (
-  
+
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-          <Toaster/> 
+      <Toaster />
       <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
         Add your previous medical reports here
       </h1>
-      
-     
+
+
       <div className="mb-6 flex  flex-col justify-center items-center">
-        <label 
-          htmlFor="file-input" 
+        <label
+          htmlFor="file-input"
           className="block text-sm font-medium text-gray-700 mb-2"
         >
           Select your reports
@@ -164,9 +166,9 @@ const AddReports: React.FC = () => {
         />
       </div>
 
-    
 
-   
+
+
       <div className="flex gap-3 mb-6 items-center justify-center">
         <button
           onClick={handleSubmit}
@@ -185,7 +187,7 @@ const AddReports: React.FC = () => {
             'Submit'
           )}
         </button>
-        
+
         <button
           onClick={handleClear}
           className="px-4 py-2 bg-gray-500 text-white rounded-md 
@@ -195,34 +197,34 @@ const AddReports: React.FC = () => {
         </button>
       </div>
 
-     
+
       {isLoadingReports ? (
-  <p className="text-center text-gray-500 mt-6">Loading your uploaded reports...</p>
-) : reports.length > 0 ? (
-  <div className="mt-8">
-    <h2 className="text-lg font-semibold text-gray-800 mb-3">
-      Your Uploaded Reports:
-    </h2>
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {reports.map((report) => (
-        <div key={report._id} className="bg-gray-100 p-3 rounded-lg shadow">
-          <img
-            src={report.imageUrl}
-            alt="Medical Report"
-            className="w-full h-48 object-cover rounded-md"
-          />
-          {report.createdAt && (
-            <p className="text-xs text-gray-600 mt-2 text-center">
-              Uploaded: {new Date(report.createdAt).toLocaleString()}
-            </p>
-          )}
+        <p className="text-center text-gray-500 mt-6">Loading your uploaded reports...</p>
+      ) : reports.length > 0 ? (
+        <div className="mt-8">
+          <h2 className="text-lg font-semibold text-gray-800 mb-3">
+            Your Uploaded Reports:
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {reports.map((report) => (
+              <div key={report._id} className="bg-gray-100 p-3 rounded-lg shadow">
+                <img
+                  src={report.imageUrl}
+                  alt="Medical Report"
+                  className="w-full h-48 object-cover rounded-md"
+                />
+                {report.createdAt && (
+                  <p className="text-xs text-gray-600 mt-2 text-center">
+                    Uploaded: {new Date(report.createdAt).toLocaleString()}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
-      ))}
-    </div>
-  </div>
-) : (
-  <p className="text-center text-gray-500 mt-6">No reports uploaded yet.</p>
-)}
+      ) : (
+        <p className="text-center text-gray-500 mt-6">No reports uploaded yet.</p>
+      )}
     </div>
   );
 };

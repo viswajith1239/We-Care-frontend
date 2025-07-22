@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css"
-import { FaCalendarAlt, FaStar } from "react-icons/fa"; 
+import { FaCalendarAlt, FaStar } from "react-icons/fa";
 
 import { RootState } from "../../app/store";
 import { loadStripe } from "@stripe/stripe-js";
@@ -15,6 +15,7 @@ import API_URL from "../../axios/API_URL";
 import userAxiosInstance from "../../axios/userAxiosInstance";
 import { useNavigate } from "react-router-dom";
 import { AvgRatingAndReviews } from "../../types/user";
+import { getschedules } from "../../service/userService";
 
 interface ISessionSchedule {
   _id: any;
@@ -34,6 +35,8 @@ interface DoctorProfile {
   profileImage: string;
   specializations: { name: string }[];
   yearsOfExperience: string;
+  email: string,
+  gender: string
 }
 
 interface TimeSlot {
@@ -66,11 +69,11 @@ function DoctorsProfileView() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchDoctor = async () => { 
+    const fetchDoctor = async () => {
       try {
         const response = await userAxiosInstance.get(`${API_URL}/user/doctors/${doctorId}`);
         console.log("Doctor data:", response.data);
-        
+
         if (response.data && response.data.length > 0) {
           setDoctor(response.data[0]);
         }
@@ -82,31 +85,31 @@ function DoctorsProfileView() {
     fetchDoctor();
   }, [doctorId]);
 
-  // Fetch and update available dates
+
   useEffect(() => {
     const fetchSessionSchedules = async () => {
       try {
-        const response = await userAxiosInstance.get(`${API_URL}/user/schedules`);
+        const response = await getschedules();
         const schedules = response.data;
-        
+
         console.log("Fetched Schedules:", schedules);
         setSessionSchedules(schedules);
 
-        // Get unique dates that have at least one available slot
+
         const datesWithAvailableSlots = schedules
-          .filter((schedule: ISessionSchedule) => 
+          .filter((schedule: ISessionSchedule) =>
             !schedule.isBooked && schedule.doctorId === doctorId
           )
-          .map((schedule: ISessionSchedule) => 
+          .map((schedule: ISessionSchedule) =>
             dayjs(schedule.selectedDate || schedule.startDate).format("YYYY-MM-DD")
           );
 
-        // Remove duplicates and filter out dates where ALL slots are booked
+
         const uniqueDates = Array.from(new Set(datesWithAvailableSlots));
-        
-        // Double check each date to ensure it has at least one available slot
+
+
         const validDates = uniqueDates.filter(date => {
-          const slotsForDate = schedules.filter((schedule: ISessionSchedule) => 
+          const slotsForDate = schedules.filter((schedule: ISessionSchedule) =>
             dayjs(schedule.selectedDate || schedule.startDate).format("YYYY-MM-DD") === date &&
             schedule.doctorId === doctorId &&
             !schedule.isBooked
@@ -117,7 +120,7 @@ function DoctorsProfileView() {
         console.log("Available Dates:", validDates);
         setAvailableDates(validDates);
 
-        // Reset selected date if it's no longer available
+
         if (selectedDate) {
           const selectedDateStr = dayjs(selectedDate).format("YYYY-MM-DD");
           if (!validDates.includes(selectedDateStr)) {
@@ -131,17 +134,17 @@ function DoctorsProfileView() {
     };
 
     fetchSessionSchedules();
-  }, [doctorId, refreshSchedules]); // Add refreshSchedules as dependency
+  }, [doctorId, refreshSchedules]);
 
   const handleDateChange = (date: any | null) => {
     setSelectedDate(date);
-    
+
     if (date) {
       const formattedDate = dayjs(date).format("YYYY-MM-DD");
-      
-      // Get available slots for the selected date
+
+
       const slotsForDate: TimeSlot[] = sessionSchedules
-        .filter(schedule => 
+        .filter(schedule =>
           dayjs(schedule.selectedDate || schedule.startDate).format("YYYY-MM-DD") === formattedDate &&
           schedule.doctorId === doctorId &&
           !schedule.isBooked
@@ -169,13 +172,12 @@ function DoctorsProfileView() {
         { userData: userInfo }
       );
       console.log("Payment response:", response);
-      
+
       const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
       if (stripe) {
         await stripe.redirectToCheckout({ sessionId: response.data.id });
-        
-        // Refresh the schedules after payment initiation
-        // Note: You might want to do this after successful payment instead
+
+
         setRefreshSchedules(prev => !prev);
       } else {
         navigate("/login");
@@ -204,11 +206,11 @@ function DoctorsProfileView() {
     }
   }, [userId, doctorId]);
 
-  // Add effect to refresh schedules when coming back from payment
+
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        // Refresh schedules when user comes back to the page
+
         setRefreshSchedules(prev => !prev);
       }
     };
@@ -226,7 +228,7 @@ function DoctorsProfileView() {
   const handleEditReview = () => {
     setIsReviewModalOpen(true);
   };
-  
+
   const handleStarClick = (rating: any) => {
     setSelectedRating(rating);
   };
@@ -242,14 +244,14 @@ function DoctorsProfileView() {
     try {
       const response = await userAxiosInstance.post(`${API_URL}/user/review`, data);
       console.log("Review submitted:", response.data.reviewId);
-      
+
       setreviewId(response.data.reviewId);
       setIsReviewModalOpen(false);
       setReviewComment(null);
       setSelectedRating(0);
       setHasUserReviewed(true);
       setReload((prev) => !prev);
-      
+
       if (response.data.message) {
         toast.success(response.data.message);
       }
@@ -272,12 +274,12 @@ function DoctorsProfileView() {
         data
       );
       console.log("Review updated:", response);
-      
+
       setIsReviewModalOpen(false);
       setReviewComment(null);
       setSelectedRating(0);
       setReload((prev) => !prev);
-      
+
       if (response.data.message) {
         toast.success(response.data.message);
       }
@@ -307,19 +309,19 @@ function DoctorsProfileView() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-4 lg:p-10">
       <Toaster />
-      
-      {/* Main Container with Left-Right Layout */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
-        {/* LEFT SIDE - Doctor Profile & Booking */}
-        <div className="space-y-6">
-          {/* Doctor Profile Card */}
-          <div className="bg-white shadow-xl rounded-lg text-gray-900 overflow-hidden">
-            {/* Header Background */}
-            <div className="rounded-t-lg h-32 overflow-hidden relative bg-[#00897B] bg-opacity-50"></div>
 
-            {/* Doctor Image */}
-            <div className="mx-auto w-32 h-32 relative -mt-16 border-4 border-white rounded-full overflow-hidden">
+
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+
+        <div className="max-w-3xl mx-auto px-4 py-6 space-y-6 -mt-6">
+
+          <div className="bg-white shadow-xl rounded-lg text-gray-900 overflow-hidden">
+
+            <div className="h-32 bg-[#00897B] bg-opacity-60 rounded-t-lg"></div>
+
+
+            <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white mx-auto -mt-16">
               <img
                 className="object-cover object-top h-full w-full"
                 src={doctor?.profileImage}
@@ -327,44 +329,41 @@ function DoctorsProfileView() {
               />
             </div>
 
-            {/* Rating Display */}
-            <div className="text-right">
-              {avgRatingAndTotalReviews.length > 0 && (
-                <div className="p-4 mt-0 rounded-lg mx-8">
-                  <p className="text-yellow-500 font-semibold text-lg">
-                    <FaStar className="inline-block text-yellow-500" /> 
-                    {avgRatingAndTotalReviews[0]?.averageRating?.toFixed(1) || 0}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    ({avgRatingAndTotalReviews[0]?.totalReviews || 0} reviews)
-                  </p>
-                </div>
-              )}
+
+            {avgRatingAndTotalReviews.length > 0 && (
+              <div className="text-center mt-4">
+                <p className="text-yellow-500 font-semibold text-lg flex items-center justify-center gap-1">
+                  <FaStar className="text-yellow-500" />
+                  {avgRatingAndTotalReviews[0]?.averageRating?.toFixed(1) || 0}
+                </p>
+                <p className="text-sm text-gray-600">
+                  ({avgRatingAndTotalReviews[0]?.totalReviews || 0} reviews)
+                </p>
+              </div>
+            )}
+
+
+            <div className="text-center p-4 space-y-2">
+              <h2 className="text-xl font-bold">Dr. {doctor?.name}</h2>
+              <p><strong>Specialization:</strong> {doctor?.specializations[0]?.name || "N/A"}</p>
+              <p><strong>Experience:</strong> {doctor?.yearsOfExperience || "N/A"} years</p>
+              <p><strong>Email:</strong> {doctor?.email || "N/A"}</p>
+              <p><strong>Gender:</strong> {doctor?.gender || "N/A"}</p>
             </div>
 
-            {/* Doctor Info */}
-            <div className="text-center mt-2 p-4">
-              <h2 className="text-xl font-semibold">Dr. {doctor?.name}</h2>
-              <p className="text-gray-700">
-                <strong>Specialization: </strong>
-                {doctor?.specializations[0]?.name || "N/A"}
+
+            <div className="px-4 pb-4 text-gray-700 text-center space-y-2">
+              <p>
+                <strong>Dr. {doctor?.name}</strong> has {doctor?.yearsOfExperience} years of experience and is a highly skilled and compassionate medical professional specializing in{" "}
+                <strong>{doctor?.specializations[0]?.name || "general medicine"}</strong>.
               </p>
-              <p className="text-gray-700">
-                <strong>Years of experience: </strong>
-                {doctor?.yearsOfExperience || "N/A"}
+              <p>
+                They are dedicated to providing exceptional patient care and personalized treatment plans.
               </p>
             </div>
 
-            {/* Description */}
-            <p className="text-gray-700 mt-4 px-4">
-              <strong>Dr. {doctor?.name}</strong> has {doctor?.yearsOfExperience} years of experience and is a highly skilled and compassionate medical 
-              professional specializing in{" "}
-              <strong>{doctor?.specializations[0]?.name || "general medicine"}</strong>.  
-              They are dedicated to providing exceptional patient care and personalized treatment plans.
-            </p>
 
-            {/* Book Appointment Button */}
-            <div className="p-4 border-t mx-8 mt-2 text-center">
+            <div className="p-4 border-t text-center">
               <button
                 onClick={() => setShowDateSection(true)}
                 className="px-6 py-2 bg-[#00897B] text-white font-semibold rounded-lg shadow hover:bg-[#00796B] transition transform hover:scale-105"
@@ -374,35 +373,35 @@ function DoctorsProfileView() {
             </div>
           </div>
 
-          {/* Date Selection Section */}
-          {showDateSection && (
-            <div className="w-full p-4 bg-white shadow-md rounded-lg">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Choose Available Date</h3>
 
-              {/* Date Picker */}
-              <div className="relative w-48 mx-auto mb-4">
+          {showDateSection && (
+            <div className="w-full bg-white shadow-md rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">Choose Available Date</h3>
+
+
+              <div className="relative w-48 mx-auto mb-6">
                 <DatePicker
                   ref={datePickerRef}
                   selected={selectedDate}
                   onChange={handleDateChange}
                   includeDates={availableDates.map(date => new Date(date))}
-                  minDate={new Date()} 
+                  minDate={new Date()}
                   dateFormat="MM/dd/yyyy"
                   placeholderText="Select a date"
                   popperPlacement="bottom-start"
                   className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md text-gray-700 shadow-sm cursor-pointer"
                 />
-                <FaCalendarAlt 
-                  onClick={openCalendar} 
+                <FaCalendarAlt
+                  onClick={openCalendar}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer"
                 />
               </div>
 
-              {/* Available Time Slots */}
+
               {selectedDate && availableTimeSlots.length > 0 ? (
-                <div className="mt-4">
-                  <h4 className="text-md font-semibold text-gray-800 mb-2">Available Slots</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <>
+                  <h4 className="text-md font-semibold text-gray-800 mb-3 text-center">Available Slots</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {availableTimeSlots.map((slot, index) => (
                       <button
                         key={index}
@@ -413,29 +412,30 @@ function DoctorsProfileView() {
                       </button>
                     ))}
                   </div>
-                </div>
+                </>
               ) : selectedDate && availableTimeSlots.length === 0 ? (
-                <p className="text-gray-600 mt-2 text-center">No slots available for this date.</p>
+                <p className="text-center text-gray-600 mt-2">No slots available for this date.</p>
               ) : null}
 
-              {/* Show message if no dates are available */}
+
               {availableDates.length === 0 && (
-                <p className="text-gray-600 mt-2 text-center">No available dates at the moment.</p>
+                <p className="text-center text-gray-600 mt-4">No available dates at the moment.</p>
               )}
             </div>
           )}
         </div>
 
-        {/* RIGHT SIDE - Reviews Section */}
-        <div className="space-y-6">
-          {/* Reviews Header and Add Review Button */}
-          <div className="bg-white shadow-md rounded-lg p-6 px-4 py-1">
+
+
+        <div className="space-y-6 ">
+
+          <div className="bg-white shadow-md rounded-lg p-6 px-4 py-11">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-semibold text-gray-800">
                 {bookingStatus === "Confirmed" ? "Patient Reviews" : "Reviews"}
               </h2>
-              
-              {bookingStatus === "Confirmed" && ( 
+
+              {bookingStatus === "Confirmed" && (
                 <div>
                   {hasUserReviewed ? (
                     <button
@@ -456,7 +456,7 @@ function DoctorsProfileView() {
               )}
             </div>
 
-            {/* Reviews Component */}
+
             <Review
               doctorId={doctorId}
               reload={reload}
@@ -467,7 +467,7 @@ function DoctorsProfileView() {
         </div>
       </div>
 
-      {/* Review Modal */}
+
       {isReviewModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
           <div className="bg-white rounded-lg p-6 md:p-8 w-full max-w-2xl shadow-lg max-h-[90vh] overflow-y-auto relative">
@@ -475,17 +475,16 @@ function DoctorsProfileView() {
               {hasUserReviewed ? "Edit Review" : "Write a Review"}
             </h1>
             <h2 className="font-medium mt-3 sm:text-base">Select Your Rating</h2>
-            
-            {/* Star Rating */}
+
+
             <div className="text-yellow-600 text-lg sm:text-base">
               <div className="flex items-center mt-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <svg
                     key={star}
                     onClick={() => handleStarClick(star)}
-                    className={`w-7 h-7 ms-1 cursor-pointer sm:w-5 sm:h-5 ${
-                      star <= selectedRating ? "text-yellow-600" : "text-gray-300"
-                    }`}
+                    className={`w-7 h-7 ms-1 cursor-pointer sm:w-5 sm:h-5 ${star <= selectedRating ? "text-yellow-600" : "text-gray-300"
+                      }`}
                     xmlns="http://www.w3.org/2000/svg"
                     fill="currentColor"
                     viewBox="0 0 22 20"
@@ -495,8 +494,8 @@ function DoctorsProfileView() {
                   </svg>
                 ))}
               </div>
-              
-              {/* Review Text Area */}
+
+
               <div className="mt-3">
                 <textarea
                   onChange={(e) => setReviewComment(e.target.value)}
@@ -507,8 +506,8 @@ function DoctorsProfileView() {
                 />
               </div>
             </div>
-            
-            {/* Modal Buttons */}
+
+
             <div className="flex justify-end gap-4 sm:gap-2 mt-4">
               <button
                 className="bg-red-500 px-3 py-2 rounded-md text-white sm:px-2 sm:py-1 sm:text-sm hover:bg-red-600 transition"

@@ -2,9 +2,8 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
-import axiosInstance from "../../axios/doctorAxiosInstance";
-import API_URL from "../../axios/API_URL";
 import Loading from "../spinner/loading";
+import { getDoctor } from "../../service/doctorService";
 
 interface Specialization {
   name: string;
@@ -32,8 +31,8 @@ function DoctorProfile() {
   useEffect(() => {
     const fetchDoctor = async () => {
       try {
-        const response = await axiosInstance.get(`${API_URL}/doctor/${doctorId}`);
-        setDoctor(response.data.DoctorData);
+        const response = await getDoctor(doctorId)
+        setDoctor([response.data.DoctorData]);
       } catch (err) {
         setError("Failed to load doctor data");
       }
@@ -55,10 +54,10 @@ function DoctorProfile() {
       </div>
 
       <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl overflow-hidden flex flex-col items-center">
-       
+
         <div className="mt-8 flex justify-center w-full">
           <img
-            src={doctor[0].profileImage}
+            src={doctor[0]?.profileImage}
             alt="Profile"
             className="w-40 h-40 rounded-full bg-slate-500 object-cover border-4 border-white shadow-lg"
           />
@@ -85,11 +84,11 @@ function DoctorProfile() {
             <span className="text-lg text-gray-800">
               {doctor[0].specializationDetails?.length
                 ? doctor[0].specializationDetails.map((spec, index) => (
-                    <span key={index}>
-                      {spec.name}
-                      {index < doctor[0].specializationDetails.length - 1 ? ", " : ""}
-                    </span>
-                  ))
+                  <span key={index}>
+                    {spec.name}
+                    {index < doctor[0].specializationDetails.length - 1 ? ", " : ""}
+                  </span>
+                ))
                 : "Not specified"}
             </span>
           </div>

@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import userAxiosInstance from "../../axios/userAxiosInstance";
-import API_URL from "../../axios/API_URL";
 import { Doctor } from "../../types/doctor";
 import { useNavigate, useLocation } from "react-router-dom";
+import { fetchdoctors } from "../../service/userService";
 
 function DoctorsList() {
   const [doctorsData, setDoctorsData] = useState<Doctor[]>([]);
@@ -16,14 +15,16 @@ function DoctorsList() {
   useEffect(() => {
     async function fetchDoctors() {
       try {
-        const response = await userAxiosInstance.get<Doctor[]>(`${API_URL}/user/doctors`);
+        const response = await fetchdoctors()
+        console.log("oo", response);
+
         const doctors = response.data;
 
         const params = new URLSearchParams(location.search);
         const selectedGender = params.get("gender")?.toLowerCase();
         const selectedLanguage = params.get("language")?.toLowerCase();
         const selectedSpecialization = params.get("specialization");
-        const selectedExperience = params.get("experience"); // String value (e.g., "2", "5", "10")
+        const selectedExperience = params.get("experience");
         const sortType = params.get("sort") || "a-z";
 
         setSortOption(sortType);
@@ -35,18 +36,18 @@ function DoctorsList() {
           const matchesLanguage = selectedLanguage
             ? Array.isArray(doctor.language)
               ? doctor.language?.some(
-                  (lang) => lang.toLowerCase() === selectedLanguage
-                )
+                (lang) => lang.toLowerCase() === selectedLanguage
+              )
               : doctor.language?.toLowerCase() === selectedLanguage
             : true;
           const matchesSpecialization = selectedSpecialization
             ? doctor.specializations.some(
-                (spec) => spec._id === selectedSpecialization
-              )
+              (spec) => spec._id === selectedSpecialization
+            )
             : true;
           const matchesExperience = selectedExperience
             ? parseInt(doctor.yearsOfExperience || "0") >= parseInt(selectedExperience)
-            : true; // Parse yearsOfExperience as number
+            : true;
 
           return matchesGender && matchesLanguage && matchesSpecialization && matchesExperience;
         });

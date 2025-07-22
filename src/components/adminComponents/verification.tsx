@@ -1,17 +1,15 @@
-import  { useEffect, useState } from "react";
-import { FaFileAlt ,  } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import { FaFileAlt, } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../app/store";
-// import axios from "axios";
-import API_URL from "../../axios/API_URL";
-import {  useNavigate } from "react-router-dom";
-import adminAxiosInstance from "../../axios/adminAxiosInstance";
+import { useNavigate } from "react-router-dom";
+import { getDoctorKycData } from "../../service/adminService";
 
 interface Doctor {
-  id: string; 
+  id: string;
   name: string;
   email: string;
-  kycSubmissionDate: string; 
+  kycSubmissionDate: string;
   status: string;
 }
 
@@ -33,37 +31,37 @@ function Verification() {
 
   useEffect(() => {
     const getAllDoctorsKycData = async () => {
-        console.log("///")
+      console.log("///")
       try {
-        const response = await adminAxiosInstance.get(`${API_URL}/admin/doctor/kyc`);
-        const DoctorsData: Doctor[] = response.data.data.map((doctor: any) => ({          
-          id: doctor._id, 
+        const response = await getDoctorKycData()
+        const DoctorsData: Doctor[] = response.data.data.map((doctor: any) => ({
+          id: doctor._id,
           name: doctor.name,
           email: doctor.email,
-          kycSubmissionDate: doctor.kycData?.kycSubmissionDate , 
-          status: doctor.kycData?.kycStatus || "Pending", 
+          kycSubmissionDate: doctor.kycData?.kycSubmissionDate,
+          status: doctor.kycData?.kycStatus || "Pending",
 
         }));
-        console.log("response is......>>>>.....>>",response.data.data)
-        response.data.data.forEach((doctors:any) => {
-            console.log("KYC Data:", doctors.kycData.kycStatus);
-          });
-          setDoctorsKycData(DoctorsData);
-        console.log('all pending doctors',DoctorsData);
+        console.log("response is......>>>>.....>>", response.data.data)
+        response.data.data.forEach((doctors: any) => {
+          console.log("KYC Data:", doctors.kycData.kycStatus);
+        });
+        setDoctorsKycData(DoctorsData);
+        console.log('all pending doctors', DoctorsData);
 
       } catch (error) {
         console.error('Error fetching KYC data:', error);
       }
     };
-    getAllDoctorsKycData(); 
-  }, []); 
+    getAllDoctorsKycData();
+  }, []);
 
   const filteredDoctors = doctorsKycData.filter((doctor) =>
     doctor.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleView = (doctorId: string) => {
-    console.log("//////////////doctorId",doctorId)
+    console.log("//////////////doctorId", doctorId)
     navigate(`/admin/doctor-view/${doctorId}`);
   };
 
@@ -92,25 +90,25 @@ function Verification() {
         {filteredDoctors.length > 0 ? (
           filteredDoctors.map((doctor) => (
             <div className="grid grid-cols-5 items-center p-2 hover:bg-gray-100 transition-colors border-b border-gray-200 last:border-none">
-            <div className="text-gray-800 ">{doctor.name}</div>
-            <div className="text-gray-800  px-2 truncate max-w-[200px]">
-              {doctor.email}
+              <div className="text-gray-800 ">{doctor.name}</div>
+              <div className="text-gray-800  px-2 truncate max-w-[200px]">
+                {doctor.email}
+              </div>
+              <div className="text-gray-800 ">
+                {new Date(doctor.kycSubmissionDate).toDateString()}
+              </div>
+              <div className="text-orange-500">{doctor.status}</div>
+              <div className="flex justify-center space-x-4">
+                <button
+                  onClick={() => handleView(doctor.id)}
+                  className="flex items-center space-x-1 text-white bg-blue-600 hover:bg-blue-700 py-1 px-3 rounded-md font-semibold focus:outline-none focus:ring-2 focus:ring-red-500"
+                >
+                  <FaFileAlt />
+                  <span>View</span>
+                </button>
+              </div>
             </div>
-            <div className="text-gray-800 ">
-              {new Date(doctor.kycSubmissionDate).toDateString()}
-            </div>
-            <div className="text-orange-500">{doctor.status}</div>
-            <div className="flex justify-center space-x-4">
-              <button
-                onClick={() => handleView(doctor.id)}
-                className="flex items-center space-x-1 text-white bg-blue-600 hover:bg-blue-700 py-1 px-3 rounded-md font-semibold focus:outline-none focus:ring-2 focus:ring-red-500"
-              >
-                <FaFileAlt />
-                <span>View</span>
-              </button>
-            </div>
-          </div>
-          
+
           ))
         ) : (
           <div className="text-gray-500 text-center py-6">
@@ -119,7 +117,7 @@ function Verification() {
         )}
       </div>
 
-     
+
     </div>
   );
 }

@@ -4,8 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../app/store";
 import { verifyForgotOtp } from "../../action/doctorActions";
-import axios from "axios";
-import API_URL from "../../axios/API_URL";
+import { resendOtpdoctor } from "../../service/doctorService";
 
 interface Errors {
   otp?: string;
@@ -17,15 +16,15 @@ function ForgotPasswordOtp() {
   const [seconds, setSeconds] = useState<number>(60);
   const [errors, setErrors] = useState<Errors>({});
   const [otpVerified, setOtpVerified] = useState(false);
-  
+
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
-  const doctorData = location.state; 
+  const doctorData = location.state;
 
   useEffect(() => {
     if (!doctorData) {
-      navigate("/forgotpassword"); 
+      navigate("/forgotpassword");
     }
   }, [doctorData, navigate]);
 
@@ -85,7 +84,7 @@ function ForgotPasswordOtp() {
       dispatch(verifyForgotOtp({ doctorData, otp: otpString })).then((res) => {
         if (res.meta.requestStatus === "fulfilled") {
           toast.success("OTP verified successfully!");
-          localStorage.setItem("resetUserData", JSON.stringify(doctorData)); 
+          localStorage.setItem("resetUserData", JSON.stringify(doctorData));
           setOtpVerified(true);
         } else {
           toast.error(res.payload?.message || "Invalid OTP. Please try again.");
@@ -100,12 +99,18 @@ function ForgotPasswordOtp() {
     }
   }, [otpVerified, navigate]);
 
+
+
   const resendOtp = async () => {
     try {
-      console.log("Email sent for resend OTP:", doctorData?.email);
-      const response = await axios.post(`${API_URL}/doctor/resend-otp`, {
-        email: doctorData?.email,
-      });
+      if (!doctorData?.email) {
+        toast.error("Email not found!");
+        return;
+      }
+
+      console.log("Email sent for resend OTP:", doctorData.email);
+
+      const response = await resendOtpdoctor(doctorData.email);
 
       if (response.status === 200) {
         toast.success("OTP resent successfully!");
@@ -118,6 +123,7 @@ function ForgotPasswordOtp() {
       toast.error(error.response?.data?.message || "An error occurred. Please try again.");
     }
   };
+
 
   const clearErrors = () => {
     setTimeout(() => {
@@ -152,19 +158,19 @@ function ForgotPasswordOtp() {
         >
           Verify
         </button>
-                    <button
-                        onClick={resendOtp}
-                        disabled={isDisabled}
-                        className={`w-full mt-4 py-2 px-4 ${isDisabled ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
-                            } text-white rounded-md transition duration-200`}
-                    >
-                        {isDisabled ? `Resend OTP in ${seconds}s` : "Resend OTP"}
-                    </button>
-                </div>
-            </div>
+        <button
+          onClick={resendOtp}
+          disabled={isDisabled}
+          className={`w-full mt-4 py-2 px-4 ${isDisabled ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
+            } text-white rounded-md transition duration-200`}
+        >
+          {isDisabled ? `Resend OTP in ${seconds}s` : "Resend OTP"}
+        </button>
+      </div>
+    </div>
 
-        
-    )
+
+  )
 }
 
 export default ForgotPasswordOtp

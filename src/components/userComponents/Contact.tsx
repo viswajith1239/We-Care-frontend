@@ -29,7 +29,7 @@ const ContactPage: React.FC = () => {
     subject: '',
     message: ''
   });
-  
+
   const { userInfo } = useSelector((state: RootState) => state.user);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,8 +41,7 @@ const ContactPage: React.FC = () => {
       ...prev,
       [name]: value
     }));
-    
-    // Clear error when user starts typing
+
     if (errors[name as keyof Errors]) {
       setErrors(prev => ({
         ...prev,
@@ -53,45 +52,45 @@ const ContactPage: React.FC = () => {
 
   const validate = (): Errors => {
     const newErrors: Errors = {};
-    
+
     if (!formData.name.trim()) {
       newErrors.name = "Please fill the name field";
     }
-    
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email.trim()) {
       newErrors.email = "Please fill the email field";
     } else if (!emailRegex.test(formData.email)) {
       newErrors.email = "Valid email is required";
     }
-    
+
     if (!formData.phone.trim()) {
       newErrors.phone = "Please fill the phone field";
     } else if (!formData.phone.match(/^\d{10}$/)) {
       newErrors.phone = "Phone number must be 10 digits";
     }
-    
+
     if (!formData.subject.trim()) {
       newErrors.subject = "Please select a subject";
     }
-    
+
     if (!formData.message.trim()) {
       newErrors.message = "Please fill the message field";
     }
-    
+
     return newErrors;
   };
 
   const handleSubmit = async () => {
     const validationErrors = validate();
     setErrors(validationErrors);
-    
+
     if (Object.keys(validationErrors).length > 0) {
       return;
     }
 
     setIsSubmitting(true);
-    
+
     try {
       const response = await userAxiosInstance.post(`${API_URL}/user/contact/${userInfo?.id}`, {
         name: formData.name,
@@ -104,14 +103,14 @@ const ContactPage: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        timeout: 10000, 
+        timeout: 10000,
       });
 
       console.log('Message sent successfully:', response.data);
-      
+
       setIsSubmitted(true);
       setIsSubmitting(false);
-      
+
       setTimeout(() => {
         setIsSubmitted(false);
         setFormData({
@@ -123,7 +122,7 @@ const ContactPage: React.FC = () => {
         });
         setErrors({});
       }, 3000);
-      
+
     } catch (error) {
       console.error('Error sending message:', error);
       setIsSubmitting(false);
@@ -186,10 +185,10 @@ const ContactPage: React.FC = () => {
                 <MessageSquare className="w-8 h-8 mr-3 text-blue-600" />
                 Get in Touch
               </h2>
-              
+
               <div className="space-y-6">
                 {contactInfo.map((item, index) => (
-                  <div 
+                  <div
                     key={index}
                     className="flex items-start space-x-4 p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors duration-300"
                   >
@@ -232,9 +231,8 @@ const ContactPage: React.FC = () => {
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 ${
-                        errors.name ? 'border-red-500' : 'border-gray-300'
-                      }`}
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 ${errors.name ? 'border-red-500' : 'border-gray-300'
+                        }`}
                       placeholder="Enter your name"
                     />
                     {errors.name && (
@@ -250,9 +248,8 @@ const ContactPage: React.FC = () => {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 ${
-                        errors.email ? 'border-red-500' : 'border-gray-300'
-                      }`}
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 ${errors.email ? 'border-red-500' : 'border-gray-300'
+                        }`}
                       placeholder="Enter your email"
                     />
                     {errors.email && (
@@ -271,9 +268,8 @@ const ContactPage: React.FC = () => {
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 ${
-                        errors.phone ? 'border-red-500' : 'border-gray-300'
-                      }`}
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 ${errors.phone ? 'border-red-500' : 'border-gray-300'
+                        }`}
                       placeholder="Enter your phone number"
                     />
                     {errors.phone && (
@@ -288,9 +284,8 @@ const ContactPage: React.FC = () => {
                       name="subject"
                       value={formData.subject}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 ${
-                        errors.subject ? 'border-red-500' : 'border-gray-300'
-                      }`}
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 ${errors.subject ? 'border-red-500' : 'border-gray-300'
+                        }`}
                     >
                       <option value="">Select a subject</option>
                       {subjectOptions.map((option) => (
@@ -312,9 +307,8 @@ const ContactPage: React.FC = () => {
                     value={formData.message}
                     onChange={handleInputChange}
                     rows={5}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 resize-none ${
-                      errors.message ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 resize-none ${errors.message ? 'border-red-500' : 'border-gray-300'
+                      }`}
                     placeholder="Please describe your inquiry or concern..."
                   />
                   {errors.message && (
@@ -353,7 +347,7 @@ const ContactPage: React.FC = () => {
             <div className="ml-3">
               <h3 className="text-lg font-medium text-red-800">Medical Emergency</h3>
               <p className="text-red-700 mt-1">
-                If you're experiencing a medical emergency, please call 911 or go to your nearest emergency room immediately. 
+                If you're experiencing a medical emergency, please call 911 or go to your nearest emergency room immediately.
                 Do not use this contact form for urgent medical situations.
               </p>
             </div>

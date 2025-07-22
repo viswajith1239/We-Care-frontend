@@ -1,6 +1,8 @@
 import { ReactNode } from "react";
 
 export interface Doctor {
+  doctor:[]
+    kycStatus: string;
     //specializations: ReactNode;
     _id: string; 
     profileImage: string
@@ -13,7 +15,11 @@ export interface Doctor {
     specializations: ISpecialization[]
     dailySessionLimit: number
     isBlocked: boolean; 
+
+    
   }
+
+  
   export interface ISpecialization {
     _id: string;
     name: string;

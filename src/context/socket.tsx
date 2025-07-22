@@ -7,7 +7,6 @@ import { AppDispatch,RootState } from "../app/store"
 import { endCallDoctor, setRoomId, setShowVideoCall, setVideoCall } from "../slice/DoctorSlice";
 import toast from "react-hot-toast";
 import { endCallUser, setRoomIdUser, setShowIncomingVideoCall, setShowVideoCallUser, setVideoCallUser } from "../slice/UserSlice";
-import { data } from "react-router-dom";
 import { useNotification } from "./NotificationContext";
 
 type SocketType = ReturnType<typeof io>;
@@ -127,6 +126,8 @@ console.log('userInfos',loggedUser)
         
             
             socket.on("doctor-accept", (data: any) => {
+              console.log("useraccptedcall",data);
+              
               dispatch(setRoomId(data.roomId));
               dispatch(setShowVideoCall(true));
             });

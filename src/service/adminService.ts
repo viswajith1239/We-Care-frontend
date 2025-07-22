@@ -25,9 +25,10 @@ const loginAdmin=async({email,password}:{email:string,password:string})=>{
 
 }
 
-const getSpecializations = async () => {
+const getSpecializations = async (itemsPerPage:number=5,page: number = 1) => {
+  
   try {
-    const response = await adminAxiosInstance.get(`${API_URL}/admin/specialization`); 
+    const response = await adminAxiosInstance.get(`${API_URL}/admin/specialization?page=${page}&limit=${itemsPerPage}`); 
     return response;
   } catch (error) {
     console.error("Error fetching specializations:", error);
@@ -75,6 +76,62 @@ const deleteSpecialization= async (id: string) => {
     throw error;
   }
 }
+
+
+  export const getAdminDashboardData=()=>{
+      return adminAxiosInstance.get( `${API_URL}/admin/dashboardData` )
+    }
+
+  export const getContact=()=>{
+      return adminAxiosInstance.get( `${API_URL}/admin/contact` )
+    }
+
+  export const deleteSubmissionByUser=(submissionId:string)=>{
+      return adminAxiosInstance.delete( `${API_URL}/admin/submissions/${submissionId}` )
+    }
+
+  export const getDoctorDetails=(doctorId:string)=>{
+      return adminAxiosInstance.get( `${API_URL}/admin/doctors/kyc/${doctorId}` )
+    }
+    export const getDoctorKycData=()=>{
+      return adminAxiosInstance.get(`${API_URL}/admin/doctor/kyc` )
+    }  
+
+
+  export const updateDoctorKYCStatus = async (doctorId: string, newStatus: string) => {
+  try {
+     return adminAxiosInstance.patch(
+      `/admin/kyc-status-update/${doctorId}`,
+      { status: newStatus }
+    );
+  } catch (error) {
+    throw error;
+  }
+};  
+
+export const updateDoctorStatusWithReason = async (
+  doctorId: string,
+  rejectionReason: string
+): Promise<any> => {
+  return adminAxiosInstance.patch(`/admin/kyc-status-update/${doctorId}`, {
+    status: "rejected",
+    rejectionReason,
+  });
+};
+
+    export const getUsers = async ( page: number, limit: number) => {
+  return adminAxiosInstance.get(
+    `${API_URL}/admin/users?page=${page}&limit=${limit}`
+  );
+  
+};
+
+export const toggleUserBlockStatus = async (userId: string, currentStatus: boolean) => {
+  return adminAxiosInstance.patch(`/admin/${userId}/block-unblock`, {
+    status: !currentStatus,
+  });
+  
+};
 
 
 

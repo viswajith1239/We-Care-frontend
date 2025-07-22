@@ -182,7 +182,97 @@ const registerDoctor = async (doctorData: IDoctor) => {
         console.error("Error in ResetPassword:", error);
       }
     }
+
+    export const getDoctorBookings=(doctorId:string)=>{
+      return doctorAxiosInstance.get( `${API_URL}/doctor/bookings/${doctorId}` )
+    }
+
+     export const getBookingDetails=(doctorId:string)=>{
+      return doctorAxiosInstance.get( `${API_URL}/doctor/bookingdetails/${doctorId}` )
+    }
+
+      export const getWalletBalance=(doctorId:string)=>{
+      return doctorAxiosInstance.get( `${API_URL}/doctor/wallet-data/${doctorId}` )
+    }
+     export const getDoctorDashboardData=(doctorId:string)=>{
+      return doctorAxiosInstance.get( `${API_URL}/doctor/dashboard/${doctorId}` )
+    }
+
+     export const getDoctorNotification=(doctorId:string)=>{
+      return doctorAxiosInstance.get( `${API_URL}/doctor/notifications/${doctorId}` )
+    }
+
+     export const clearDoctorNotification=(doctorId:string)=>{
+      return doctorAxiosInstance.delete( `${API_URL}/doctor/clear-notifications/${doctorId}` )
+    }
+
+    export const getPrescriptions=(doctorId:string)=>{
+      return doctorAxiosInstance.get( `${API_URL}/doctor/prescriptions/${doctorId}` )
+    }
+
+    export const getDoctor=(doctorId:string)=>{
+      return doctorAxiosInstance.get( `${API_URL}/doctor/${doctorId}` )
+    }
+
+     export const kyc=(doctorId:string)=>{
+      return doctorAxiosInstance.put( `${API_URL}/doctor/kyc/resubmit/${doctorId}` )
+    }
+
+     export const kycRejection=(doctorId:string)=>{
+      return doctorAxiosInstance.put( `${API_URL}/doctor/rejection-reason/${doctorId}` )
+    }
+    export const getSpecialization=()=>{
+      return doctorAxiosInstance.get( `${API_URL}/doctor/specializations` )
+    }
+
+     export const getDoctorSpecialization=(doctorId:string)=>{
+      return doctorAxiosInstance.get( `${API_URL}/doctor/specializations/${doctorId}` )
+    }
+
+    export const getreports=(doctorId:string)=>{
+      return doctorAxiosInstance.get( `${API_URL}/doctor/reports/${doctorId}` )
+    }
+
+
+    export const updateDoctorProfile = async (doctorId: string, updatedData: FormData) => {
+  return doctorAxiosInstance.patch(
+    `${API_URL}/doctor/update-doctor/${doctorId}`,
+    updatedData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+};
+
+export const resendOtpdoctor = async (email: string) => {
+  const response = await axios.post(`${API_URL}/doctor/resend-otp`, {
+    email,
+  });
+  return response;
+};
+
+export const getWalletData = async (doctorId: string, page: number, limit: number) => {
+  return doctorAxiosInstance.get(
+    `${API_URL}/doctor/wallet-data/${doctorId}?page=${page}&limit=${limit}`
+  );
   
+};
+
+export const getSessionData = async (doctorId: string, page: number, limit: number) => {
+  return doctorAxiosInstance.get(
+    `${API_URL}/doctor/shedules/${doctorId}?page=${page}&limit=${limit}`
+  );
+  
+};
+
+export const withdrawMoneydoctor = async (doctorId: string, amount: number) => {
+  const response = await doctorAxiosInstance.post(`${API_URL}/doctor/withdraw/${doctorId}`, {
+    amount,
+  });
+  return response;
+};
   
 
 

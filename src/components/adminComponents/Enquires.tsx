@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Mail, 
-  Phone, 
-  User, 
-  MessageSquare, 
-  Calendar, 
+import {
+  Mail,
+  Phone,
+  User,
+  MessageSquare,
+  Calendar,
   Search,
   Eye,
   Download,
   Trash2
 } from 'lucide-react';
-import adminAxiosInstance from '../../axios/adminAxiosInstance';
-import API_URL from '../../axios/API_URL';
 import Swal from 'sweetalert2';
-import {Toaster,toast} from 'react-hot-toast';
+import { Toaster, toast } from 'react-hot-toast';
+import { deleteSubmissionByUser, getContact } from '../../service/adminService';
 
 
 interface ContactSubmission {
@@ -62,10 +61,10 @@ const ContactSubmissions: React.FC = () => {
       try {
         setLoading(true);
         setError(null);
-        
-        const response = await adminAxiosInstance.get<ApiResponse>(`${API_URL}/admin/contact`);
+
+        const response = await getContact()
         console.log("API Response:", response);
-        
+
         let contacts = response?.data?.response || response?.data || [];
         let transformedContacts: ContactSubmission[] = [];
 
@@ -122,43 +121,43 @@ const ContactSubmissions: React.FC = () => {
   };
 
   const deleteSubmission = async (submissionId: string): Promise<void> => {
-  try {
-    const result = await Swal.fire({
-      title: 'Are you sure?',
-      text: "You won't be able to revert this!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Yes, delete it!',
-      cancelButtonText: 'Cancel'
-    });
+    try {
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+      });
 
-   
-    if (result.isConfirmed) {
-   
-      await adminAxiosInstance.delete(`${API_URL}/admin/submissions/${submissionId}`);
 
-      
-      setSubmissions(prev => prev.filter(sub => sub.id !== submissionId));
-      setFilteredSubmissions(prev => prev.filter(sub => sub.id !== submissionId));
+      if (result.isConfirmed) {
 
-      toast.success("Deleted successfully!");
-      
+        await deleteSubmissionByUser(submissionId)
 
-     
+
+        setSubmissions(prev => prev.filter(sub => sub.id !== submissionId));
+        setFilteredSubmissions(prev => prev.filter(sub => sub.id !== submissionId));
+
+        toast.success("Deleted successfully!");
+
+
+
+      }
+
+
+    } catch (error) {
+      console.error('Error deleting submission:', error);
+
+
+      toast.error('Failed to delete the submission. Please try again.');
+
+
     }
-  
-    
-  } catch (error) {
-    console.error('Error deleting submission:', error);
-    
-  
-    toast.error('Failed to delete the submission. Please try again.');
-    
-   
-  }
-};
+  };
 
   const exportData = (): void => {
     const csvContent = [
@@ -213,7 +212,7 @@ const ContactSubmissions: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Toaster/>
+      <Toaster />
 
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -223,22 +222,22 @@ const ContactSubmissions: React.FC = () => {
               <p className="text-sm text-gray-600 mt-1">Manage and review contact form submissions</p>
             </div>
             <div className='flex justify-end'>
-               <button
-              onClick={exportData}
-              className="flex items-center  px-4 py-2 bg-[#00897B] text-white rounded-lg bg-[#00897B]transition-colors -mt-10"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Export CSV
-            </button>
+              <button
+                onClick={exportData}
+                className="flex items-center  px-4 py-2 bg-[#00897B] text-white rounded-lg bg-[#00897B]transition-colors -mt-10"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Export CSV
+              </button>
             </div>
-           
+
           </div>
         </div>
       </div>
 
-     
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-  
+
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="relative flex-1 max-w-md">
@@ -257,7 +256,7 @@ const ContactSubmissions: React.FC = () => {
           </div>
         </div>
 
-       
+
         <div className="bg-white rounded-lg shadow-sm divide-y divide-gray-200">
           {filteredSubmissions.length === 0 ? (
             <div className="text-center py-12">
@@ -268,15 +267,15 @@ const ContactSubmissions: React.FC = () => {
             filteredSubmissions.map((submission: ContactSubmission) => (
               <div key={submission.id} className="hover:bg-gray-50 transition-colors p-6">
                 <div className="flex flex-col md:flex-row">
-               
+
                   <div className="flex-1 space-y-3">
                     <div className="flex items-center gap-2">
                       <User className="w-4 h-4 text-gray-500" />
                       <span className="font-medium text-gray-900">{submission.name}</span>
                     </div>
-                    
-                  
-                   <div className="flex flex-col sm:flex-row gap-2 sm:gap-6 text-sm text-gray-600">
+
+
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-6 text-sm text-gray-600">
                       <div className="flex items-center gap-2">
                         <Mail className="w-4 h-4" />
                         <span>{submission.email}</span>
@@ -286,21 +285,21 @@ const ContactSubmissions: React.FC = () => {
                         <span>{submission.phone}</span>
                       </div>
                     </div>
-      
+
                     <div className='flex justify-between'>
                       <h3 className="font-medium text-gray-900">{submission.subject}</h3>
-                      
+
                     </div>
                     <div className='flex justify-start'>
                       <p className="text-gray-600 text-sm line-clamp-2">{submission.message}</p>
                     </div>
-                  
+
                     <div className="flex items-center gap-2 text-xs text-gray-500">
                       <Calendar className="w-3 h-3" />
                       <span>Submitted on {formatDate(submission.timestamp)}</span>
                     </div>
                   </div>
-                 
+
                   <div className="flex items-center justify-end gap-2 mt-4 md:mt-0 md:ml-4">
                     <button
                       onClick={() => setSelectedSubmission(submission)}
@@ -324,7 +323,7 @@ const ContactSubmissions: React.FC = () => {
         </div>
       </div>
 
-  
+
       {selectedSubmission && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
@@ -341,7 +340,7 @@ const ContactSubmissions: React.FC = () => {
                 </button>
               </div>
 
-             
+
               <div className="bg-gray-50 rounded-lg p-4">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Personal Information</h3>
                 <div className="flex flex-col sm:flex-row gap-4">
@@ -369,7 +368,7 @@ const ContactSubmissions: React.FC = () => {
                 </div>
               </div>
 
-      
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
                 <div className="bg-white border rounded-lg p-4">
@@ -383,7 +382,7 @@ const ContactSubmissions: React.FC = () => {
                 </div>
               </div>
 
-             
+
               <div className="bg-gray-50 rounded-lg p-4">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Submission Details</h3>
                 <div className="flex flex-col sm:flex-row gap-4">
@@ -401,7 +400,7 @@ const ContactSubmissions: React.FC = () => {
                 </div>
               </div>
 
-         
+
               <div className="bg-blue-50 rounded-lg p-4">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Message Statistics</h3>
                 <div className="flex flex-col sm:flex-row gap-4 text-center">
@@ -420,7 +419,7 @@ const ContactSubmissions: React.FC = () => {
                 </div>
               </div>
 
-           
+
               <div className="flex justify-end gap-3 pt-4 border-t">
                 <button
                   onClick={() => setSelectedSubmission(null)}

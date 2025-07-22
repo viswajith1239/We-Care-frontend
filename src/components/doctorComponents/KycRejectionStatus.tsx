@@ -1,9 +1,9 @@
-import axiosInstance from "../../axios/doctorAxiosInstance";
+
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import { useEffect, useState } from "react";
 import DoctorKyc from "../doctorComponents/DoctorKyc";
-import API_URL from "../../axios/API_URL";
+import { kyc, kycRejection } from "../../service/doctorService";
 
 function KycRejectionStatus() {
   const [isResubmitted, setIsResubmitted] = useState(false);
@@ -14,9 +14,7 @@ function KycRejectionStatus() {
 
   const handleResubmit = async () => {
     try {
-      const response = await axiosInstance.put(
-        `${API_URL}/doctor/kyc/resubmit/${doctorId}`
-      );
+      const response = await kyc(doctorId)
 
       if (response.status === 200) {
         setIsResubmitted(true);
@@ -29,9 +27,7 @@ function KycRejectionStatus() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axiosInstance.get(
-          `${API_URL}/doctor/rejection-reason/${doctorId}`
-        );
+        const response = await kycRejection(doctorId)
         setRejectionReason(response.data.reason);
       } catch (error) {
         console.error("Error fetching rejection data:", error);

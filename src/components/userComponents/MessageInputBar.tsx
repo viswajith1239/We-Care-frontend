@@ -184,9 +184,8 @@ function MessageInputBar({ doctorId, onNewMessage }: MessageInputBarProps) {
         <button
           type="button"
           onClick={toggleEmojiPicker}
-          className={`absolute left-8 z-10 ${
-            showEmojiPicker ? "text-blue-400" : "text-gray-400 hover:text-white"
-          }`}
+          className={`absolute left-8 z-10 ${showEmojiPicker ? "text-blue-400" : "text-gray-400 hover:text-white"
+            }`}
         >
           <BsEmojiSmile />
         </button>

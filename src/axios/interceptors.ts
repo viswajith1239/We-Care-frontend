@@ -1,0 +1,36 @@
+import { AxiosInstance, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
+
+interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {}
+
+type Role = 'user' | 'doctor' | 'admin';
+
+const LOGIN_REDIRECT: Record<Role, string> = {
+  user: '/login',
+  doctor: '/doctor/login',
+  admin: '/admin/login',
+};
+
+export function setupInterceptors(instance: AxiosInstance, role: Role) {
+  instance.interceptors.request.use(
+    (config: CustomAxiosRequestConfig) => {
+      // Ensure cookies are sent automatically
+      config.withCredentials = true;
+      return config;
+    },
+    (error: AxiosError) => Promise.reject(error)
+  );
+
+  instance.interceptors.response.use(
+    (response: AxiosResponse) => response,
+    async (error: AxiosError) => {
+      const originalRequest = error.config;
+
+      // If token is invalid or expired — redirect to login
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        window.location.href = LOGIN_REDIRECT[role];
+      }
+
+      return Promise.reject(error);
+    }
+  );
+}

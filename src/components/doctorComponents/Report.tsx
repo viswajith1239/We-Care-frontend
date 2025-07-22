@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
-import axiosInstance from "../../axios/doctorAxiosInstance";
-import API_URL from "../../axios/API_URL";
 import toast from "react-hot-toast";
+import { getreports } from "../../service/doctorService";
 
 interface ReportData {
   _id: string;
@@ -47,54 +46,54 @@ function Report() {
     if (!doctorInfo || !doctorInfo.id) return;
     try {
       setIsLoadingReports(true);
-      const response = await axiosInstance.get(`${API_URL}/doctor/reports/${doctorInfo.id}`);
+      const response = await getreports(doctorInfo.id)
       console.log("bgg", response);
-      
+
       setReports(response.data.reports);
-      
-   
+
+
       const reportsData: ReportData[] = response.data.reports;
-      
-      console.log("Reports data structure:", reportsData); 
-      
-      
+
+      console.log("Reports data structure:", reportsData);
+
+
       const groupedMap = new Map<string, ReportData[]>();
-      
+
       reportsData.forEach((report: ReportData) => {
-     
+
         let userId: string;
         let userName: string;
-        
+
         if (report.user) {
-          
+
           userId = report.user._id;
           userName = report.user.name;
         } else {
-          
+
           userId = report.userId || report.patientId || 'unknown';
           userName = report.userName || report.patientName || `User ${userId}`;
         }
-        
+
         if (!groupedMap.has(userId)) {
           groupedMap.set(userId, []);
         }
         groupedMap.get(userId)!.push(report);
       });
-      
-     
+
+
       const grouped: GroupedReportData[] = Array.from(groupedMap.entries()).map(([userId, userReports]) => {
-      
-        const sortedReports = userReports.sort((a: ReportData, b: ReportData) => 
+
+        const sortedReports = userReports.sort((a: ReportData, b: ReportData) =>
           new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
         );
-    
+
         let userName: string;
         if (userReports[0].user) {
           userName = userReports[0].user.name;
         } else {
           userName = userReports[0].userName || userReports[0].patientName || `User ${userId}`;
         }
-        
+
         return {
           patientId: userId,
           patientName: userName,
@@ -103,7 +102,7 @@ function Report() {
           lastUpload: sortedReports.length > 0 ? sortedReports[0].createdAt : undefined
         };
       });
-      
+
       setGroupedReports(grouped);
     } catch (error) {
       toast.error("Failed to load reports");
@@ -126,26 +125,26 @@ function Report() {
   const handleImageClick = (imageUrl: string) => {
     setSelectedImage(imageUrl);
     setFullImageModal(true);
-     setShowModal(false);
+    setShowModal(false);
   };
 
   const closeModal = () => {
     setShowModal(false);
     setSelectedUserReports([]);
     setSelectedUserName("");
-   
+
   };
 
   const closeImageModal = () => {
     setFullImageModal(false);
     setSelectedImage("");
-      setShowModal(true);
+    setShowModal(true);
   };
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Medical Reports Dashboard</h1>
-      
+
       {isLoadingReports ? (
         <div className="flex justify-center items-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -156,7 +155,7 @@ function Report() {
           <table className="min-w-full divide-y divide-gray-200 rounded-lg border">
             <thead className="bg-gray-50">
               <tr>
-                 <th className="px-6 py-3 text-xs font-medium bg-[#00897B] text-white text-center uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium bg-[#00897B] text-white text-center uppercase tracking-wider">
                   Patient Id
                 </th>
                 <th className="px-6 py-3 bg-[#00897B] text-white text-center text-xs font-medium uppercase tracking-wider">
@@ -177,29 +176,29 @@ function Report() {
               {groupedReports.map((group, index) => (
                 <tr key={group.patientId || index} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    
+
                     <div className="text-sm text-gray-500">ID: {group.patientId}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                   
-                      <div className="text-sm font-medium text-gray-900">{group.patientName}</div>
-                   
+
+                    <div className="text-sm font-medium text-gray-900">{group.patientName}</div>
+
                   </td>
-                  
+
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                       {group.totalReports} reports
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {group.lastUpload 
+                    {group.lastUpload
                       ? new Date(group.lastUpload).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })
                       : 'No uploads'
                     }
                   </td>
@@ -228,7 +227,7 @@ function Report() {
         </div>
       )}
 
-    
+
       {showModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
           <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
@@ -243,7 +242,7 @@ function Report() {
                 ×
               </button>
             </div>
-            
+
             {selectedUserReports.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-96 overflow-y-auto">
                 {selectedUserReports.map((report) => (
@@ -269,7 +268,7 @@ function Report() {
             ) : (
               <p className="text-center text-gray-500 py-8">No reports available for this user.</p>
             )}
-            
+
             <div className="flex justify-end mt-6">
               <button
                 onClick={closeModal}
@@ -282,7 +281,7 @@ function Report() {
         </div>
       )}
 
-     
+
       {fullImageModal && selectedImage && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-60">
           <div className="relative max-w-4xl max-h-full p-4">

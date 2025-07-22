@@ -2,6 +2,7 @@ import { User } from "../features/userTyepes";
 import API_URL from '../axios/API_URL'; 
 import userAxiosInstance from "../axios/userAxiosInstance";
 import axios from "axios";
+import { Doctor } from "../types/doctor";
 
 const registerForm = async (userData: User) => {
 
@@ -121,6 +122,130 @@ const resetPassword=async( userData: string, payload: { newPassword: string })=>
 const logout = () => {
   return userAxiosInstance.post(`${API_URL}/user/logout`, {});
 }
+
+
+export const getspecializations=()=>{
+ return userAxiosInstance.get(`${API_URL}/user/specializations`);
+}
+
+export const getusers=()=>{
+  return  userAxiosInstance.get(`${API_URL}/user/users/`); 
+}
+
+export const getuser=(userId:string)=>{
+  return  userAxiosInstance.get(`${API_URL}/user/users/${userId}`); 
+}
+
+export const getnotification=(userId:string)=>{
+  return  userAxiosInstance.get(`${API_URL}/user/notifications/${userId}`); 
+}
+
+export const clearnotification=(userId:string)=>{
+  return  userAxiosInstance.delete(`${API_URL}/user/clear-notifications/${userId}`); 
+}
+
+export const getdoctors=()=>{
+  return userAxiosInstance.get(`${API_URL}/user/doctors`);
+}
+
+export const getreports=(userId:string)=>{
+  return userAxiosInstance.get(`${API_URL}/user/reports/${userId}`);
+}
+
+
+export const fetchdoctors=()=>{
+  return userAxiosInstance.get<Doctor[]>(`${API_URL}/user/doctors`);
+}
+
+export const getdoctor=(doctorId:string)=>{
+  return userAxiosInstance.get(`${API_URL}/user/doctors/${doctorId}`);
+}
+
+export const getschedules=()=>{
+return userAxiosInstance.get(`${API_URL}/user/schedules`)
+}
+
+export const getDoctorReview=(doctorId:string)=>{
+return userAxiosInstance.get(`${API_URL}/user/reviews/${doctorId}`)
+}
+
+
+export const createStripeSession = async (appointmentId: string, userData: any) => {
+  const response = await userAxiosInstance.post(
+    `${API_URL}/user/payment/${appointmentId}`,
+    { userData }
+  );
+  return response;
+};
+
+
+
+
+
+export const getBookingDetails = (
+  userId: string,
+  page: number = 1,
+  limit: number = 5
+) => {
+  return userAxiosInstance.get(
+    `${API_URL}/user/bookings-details/${userId}?page=${page}&limit=${limit}`
+  );
+};
+
+export const getPrescription = (
+  userId: string,
+  page: number = 1,
+  limit: number = 5
+) => {
+  return userAxiosInstance.get(
+    `${API_URL}/user/prescription/${userId}?page=${page}&limit=${limit}`
+  );
+};
+
+export const getWalletData = async (userId: string, page: number, limit: number) => {
+  return userAxiosInstance.get(
+    `${API_URL}/user/wallet-data/${userId}?page=${page}&limit=${limit}`
+  );
+  
+};
+export const cancelAppointment = async (
+  appoinmentId: string,
+  userId: string,
+  doctorId: string
+) => {
+  return userAxiosInstance.post(`${API_URL}/user/cancel-appoinment`, {
+    appoinmentId: appoinmentId,
+    userId,
+    doctorId,
+  });
+}
+
+
+export const submitContactFormApi = async (
+  userId: string,
+  formData: {
+    name: string;
+    email: string;
+    phone: string;
+    subject: string;
+    message: string;
+  }
+) => {
+  const response = await userAxiosInstance.post(
+    `${API_URL}/user/contact/${userId}`,
+    {
+      ...formData,
+      timestamp: new Date().toISOString(),
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      timeout: 10000,
+    }
+  );
+  return response.data;
+};
 
 
 

@@ -6,9 +6,8 @@ import DoctorSideBar from "./DoctorSideBar";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
-import doctorAxiosInstance from "../../axios/doctorAxiosInstance";
-import API_URL from "../../axios/API_URL";
 import { useNotification } from "../../context/NotificationContext";
+import { clearDoctorNotification, getDoctorNotification } from "../../service/doctorService";
 // import { FaQuoteLeft, FaQuoteRight } from "react-icons/fa";
 // import img from "../../assets/cartoon dashboard.png"
 
@@ -17,9 +16,9 @@ const DoctorLayout: React.FC = () => {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const { doctorInfo } = useSelector((state: RootState) => state.doctor);
-  console.log("ffff",doctorInfo._id);
-  
-  const {doctorNotifications, addDoctorNotification, clearDoctorNotifications, updateDoctorNotificationReadStatus} = useNotification();
+  console.log("ffff", doctorInfo._id);
+
+  const { doctorNotifications, addDoctorNotification, clearDoctorNotifications, updateDoctorNotificationReadStatus } = useNotification();
 
 
   const navigate = useNavigate();
@@ -46,18 +45,18 @@ const DoctorLayout: React.FC = () => {
     }
   };
 
-  useEffect(()=>{
-    const fetchNotification =async()=>{
+  useEffect(() => {
+    const fetchNotification = async () => {
       try {
-        if(doctorInfo.id){
-          const response=await doctorAxiosInstance.get( `${API_URL}/doctor/notifications/${doctorInfo.id}`)
-          console.log("hhhh",response);
-          
+        if (doctorInfo.id) {
+          const response = await getDoctorNotification(doctorInfo.id)
+          console.log("hhhh", response);
+
           const serverNotifications = response.data.notifications || [];
           serverNotifications.forEach((notif: { content: string }) => {
             addDoctorNotification(notif.content);
           }
-        );
+          );
         }
       } catch (error) {
         console.error("Failed to fetch notifications:", error);
@@ -65,13 +64,11 @@ const DoctorLayout: React.FC = () => {
       }
     }
     fetchNotification()
-  },[doctorInfo?.id])
+  }, [doctorInfo?.id])
 
   const handleClear = async () => {
     try {
-      const response = await doctorAxiosInstance.delete(
-        `${API_URL}/doctor/clear-notifications/${doctorInfo?.id}`
-      );
+      const response = await clearDoctorNotification(doctorInfo.id)
 
       if (response.status === 200) {
         clearDoctorNotifications();
@@ -95,13 +92,13 @@ const DoctorLayout: React.FC = () => {
   return (
     <div className="h-screen flex bg-slate-100">
       <DoctorSideBar />
-  
+
       <div className="flex-1 flex flex-col">
         <header className="bg-gradient-to-r from-[#5cbba8] to-[#5cbba8] text-white shadow-md py-4 px-6 flex items-center justify-between border rounded-lg ">
           <h1 className="text-2xl font-semibold">Doctor Dashboard</h1>
-  
+
           <div className="flex items-center space-x-6">
-           
+
             <div className="relative" ref={notificationRef}>
               <BsBell
                 className="h-6 w-6 cursor-pointer"
@@ -110,7 +107,7 @@ const DoctorLayout: React.FC = () => {
               <span className="absolute top-0 right-0 inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-red-600 rounded-full">
                 {doctorNotifications.length}
               </span>
-  
+
               {isNotificationOpen && (
                 <div className="absolute right-0 mt-2 w-64 bg-white text-gray-800 shadow-lg rounded-lg z-10">
                   <div className="p-4">
@@ -123,11 +120,10 @@ const DoctorLayout: React.FC = () => {
                           {doctorNotifications.map((notification, index) => (
                             <li
                               key={index}
-                              className={`text-sm text-gray-700 border-b pb-2 ${
-                                notification.read
+                              className={`text-sm text-gray-700 border-b pb-2 ${notification.read
                                   ? "opacity-50 bg-gray-100"
                                   : "bg-[#e0f0e0]"
-                              }`}
+                                }`}
                             >
                               {typeof notification.message === "string"
                                 ? notification.message
@@ -153,8 +149,8 @@ const DoctorLayout: React.FC = () => {
                 </div>
               )}
             </div>
-  
-           
+
+
             <div className="relative" ref={profileRef}>
               <FaUserCircle
                 className="text-2xl cursor-pointer"
@@ -184,17 +180,17 @@ const DoctorLayout: React.FC = () => {
             </div>
           </div>
         </header>
-  
+
         <section className="flex justify-center items-center bg-gradient-to-r from-[#5cbba8] via-white to-[#5cbba8]">
-    
+
         </section>
-  
+
         <div className="flex-1 p-6 bg-slate-100 overflow-y-auto">
           <Outlet />
         </div>
       </div>
     </div>
   );
-}  
+}
 
 export default DoctorLayout;

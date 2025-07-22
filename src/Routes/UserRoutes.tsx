@@ -24,6 +24,7 @@ import PrescriptionPage from '../pages/userPages/PrescriptionPage';
 import AddReportsPage from '../pages/userPages/AddReportsPage';
 import AboutPage from '../pages/userPages/AboutPage';
 import ContactPage from '../pages/userPages/ContactPage';
+import WalletPage from '../pages/userPages/WalletPage';
 
 
 
@@ -50,6 +51,7 @@ function UserRoutes() {
                 <Route path={USER_ROUTES.PROFILE_MESSAGE} element={<UserChat doctorId={''} />} />
                 <Route path={USER_ROUTES.PROFILE_PRESCRIPTIONS} element={<PrescriptionPage />} />
                 <Route path={USER_ROUTES.PROFILE_REPORTS} element={<AddReportsPage />} />
+                <Route path={USER_ROUTES.PROFILE_WALLET} element={<WalletPage />} />
                 
             </Route>
 

@@ -12,6 +12,7 @@ import { useNotification } from "../../context/NotificationContext";
 import { BsBell } from 'react-icons/bs';
 import { logoutUser } from '../../action/userActions';
 import { User, UserCircle, UserCheck } from 'lucide-react'
+import { getnotification, getuser } from '../../service/userService';
 
 interface INotificationContent {
   content: string;
@@ -31,27 +32,27 @@ function Header() {
   const navigate = useNavigate()
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
-  
-  const { 
-    addUserNotification, 
-    clearUserNotifications, 
-    userNotifications, 
-    updateUserNotificationReadStatus, 
+
+  const {
+    addUserNotification,
+    clearUserNotifications,
+    userNotifications,
+    updateUserNotificationReadStatus,
     countUnreadNotificationsUser,
     clearAllNotifications,
-    initializeForUser 
+    initializeForUser
   } = useNotification();
-  
+
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
   const [notificationsData, setNotificationsData] = useState()
   const [userProfileImage, setUserProfileImage] = useState<string | null>(null);
   const { userInfo } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch<AppDispatch>();
-  
+
   console.log("user infos", userInfo);
   const userId = userInfo?.id;
 
-  // Initialize notifications for the current user
+
   useEffect(() => {
     if (userId) {
       initializeForUser(userId);
@@ -61,11 +62,11 @@ function Header() {
   useEffect(() => {
     if (!userId) return;
 
-    const fetchUserDetails = async () => {
+    const fetchUserDetails = async (userId: string) => {
       console.log("ppp");
       try {
         console.log("hhhhh");
-        const response = await userAxiosInstance.get(`${API_URL}/user/users/${userId}`);
+        const response = await getuser(userId)
         console.log("*************", response);
 
         if (response.data.response.profileImage) {
@@ -75,20 +76,20 @@ function Header() {
         console.error("Failed to fetch user details", error);
       }
     };
-    fetchUserDetails();
+    fetchUserDetails(userId);
   }, [userId]);
 
   function handleLogout() {
     console.log("Clearing notifications... in handleLogout");
-    
-    // Clear all notifications from context and localStorage
+
+
     clearAllNotifications();
-    
-    // Clear Redux state and cookies
+
+
     dispatch(logoutUser());
     Cookies.remove("AccessToken");
-    
-    // Navigate to login
+
+
     navigate("/login");
   }
 
@@ -111,18 +112,16 @@ function Header() {
   useEffect(() => {
     if (!userId) return;
 
-    const fetchNotifications = async () => {
+    const fetchNotifications = async (userId: string) => {
       try {
-        const response = await userAxiosInstance.get(
-          `${API_URL}/user/notifications/${userId}`
-        );
+        const response = await getnotification(userId)
         console.log("tttt", response);
 
         const serverNotifications = response.data?.notifications ?? [];
-       
+
         clearUserNotifications();
-        
-     
+
+
         serverNotifications.forEach((notif: any) => {
           if (notif && notif.content) {
             addUserNotification(notif.content);
@@ -132,8 +131,8 @@ function Header() {
         console.error("Failed to fetch notifications:", error);
       }
     };
-    
-    fetchNotifications();
+
+    fetchNotifications(userId);
   }, [userId, addUserNotification, clearUserNotifications]);
 
   const handleClear = async () => {
@@ -155,12 +154,12 @@ function Header() {
   return (
     <header className="bg-[#5cbba8] text-[#572c5f] p-4 sticky top-0 z-50">
       <div className="container mx-auto flex justify-between items-center">
-        
+
         <div className="text-lg font-semibold h-16 flex items-center">
-          <img 
-            src={logo_img} 
-            alt="Logo" 
-            className="w-28 h-12 rounded-full object-cover" 
+          <img
+            src={logo_img}
+            alt="Logo"
+            className="w-28 h-12 rounded-full object-cover"
           />
         </div>
 
@@ -190,9 +189,9 @@ function Header() {
         <div className="hidden md:flex items-center space-x-4">
           {userInfo && (
             <div className="relative">
-              <BsBell 
-                className="h-6 w-6 text-[#572c5f] cursor-pointer" 
-                onClick={() => setIsNotificationOpen(!isNotificationOpen)} 
+              <BsBell
+                className="h-6 w-6 text-[#572c5f] cursor-pointer"
+                onClick={() => setIsNotificationOpen(!isNotificationOpen)}
               />
               <span className="absolute -top-1 -right-1 w-4 h-4 text-[10px] font-bold text-white bg-red-600 rounded-full flex items-center justify-center">
                 {countUnreadNotificationsUser}
@@ -209,9 +208,8 @@ function Header() {
                         {userNotifications.map((notification, index) => (
                           <li
                             key={index}
-                            className={`text-sm text-gray-700 border-b pb-2 cursor-pointer ${
-                              notification.read ? "opacity-50 bg-gray-100" : "bg-[#dce1d9]"
-                            }`}
+                            className={`text-sm text-gray-700 border-b pb-2 cursor-pointer ${notification.read ? "opacity-50 bg-gray-100" : "bg-[#dce1d9]"
+                              }`}
                           >
                             {typeof notification.message === "string"
                               ? notification.message
@@ -249,7 +247,7 @@ function Header() {
                     }}
                   />
                 </div>
-                
+
                 {isProfileMenuOpen && (
                   <ul
                     role="menu"

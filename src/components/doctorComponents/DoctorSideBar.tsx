@@ -11,7 +11,7 @@ import {
   FaFileMedical,
   FaFileAlt
 } from "react-icons/fa";
-import  logo_img from "../../assets/wmremove-transformed.png"
+import logo_img from "../../assets/wmremove-transformed.png"
 
 function DoctorSideBar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -29,21 +29,20 @@ function DoctorSideBar() {
   return (
     <div className="flex h-screen bg-gray-100">
       <div
-        className={`${
-          isSidebarOpen ? "w-64" : "w-20"
-        } bg-[#00897B] text-white flex flex-col p-5 transition-all duration-300 rounded-2xl`}
+        className={`${isSidebarOpen ? "w-64" : "w-20"
+          } bg-[#00897B] text-white flex flex-col p-5 transition-all duration-300 rounded-2xl`}
       >
         <div className="flex justify-between items-center mb-6">
           <button onClick={toggleSidebar} className="text-white">
             <FaBars size={24} />
           </button>
-           {isSidebarOpen && (
-      <img
-         src={logo_img} 
-        alt="WeCare Logo"
-    className="w-28 h-12 rounded-full object-cover mr-14" 
-      />
-    )}
+          {isSidebarOpen && (
+            <img
+              src={logo_img}
+              alt="WeCare Logo"
+              className="w-28 h-12 rounded-full object-cover mr-14"
+            />
+          )}
         </div>
 
         <nav className="flex flex-col space-y-3">
@@ -94,11 +93,11 @@ function DoctorSideBar() {
             <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Medication history</span>
           </Link>
 
-             <Link
+          <Link
             to="/doctor/reports"
             className={`flex items-center px-4 py-2 text-gray-100 rounded-2xl ${isActive("/doctor/reports")}`}
           >
-            <FaFileAlt  size={22} />
+            <FaFileAlt size={22} />
             <span className={`ml-3 ${!isSidebarOpen && "hidden"}`}>Medical reports</span>
           </Link>
 

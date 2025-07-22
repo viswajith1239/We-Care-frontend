@@ -16,6 +16,7 @@ export const USER_ROUTES = {
     PROFILE_MESSAGE: '/profile/message',
     PROFILE_PRESCRIPTIONS: '/profile/prescriptions',
     PROFILE_REPORTS: '/profile/reports',
+    PROFILE_WALLET:'/profile/wallet'
    
 
 };
