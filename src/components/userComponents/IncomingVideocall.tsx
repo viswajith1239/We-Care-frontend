@@ -8,6 +8,10 @@ import { MdCallEnd } from "react-icons/md"
 function IncomingVideoCall() {
 
   const { showIncomingVideoCall } = useSelector((state: RootState) => state.user)
+  console.log("incoming",showIncomingVideoCall);
+  
+  
+  
   const dispatch = useDispatch<AppDispatch>()
   const { socket } = useSocketContext()
   const handleEndCall = async () => {

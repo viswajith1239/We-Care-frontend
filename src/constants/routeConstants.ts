@@ -56,6 +56,7 @@ export const ADMIN_ROUTES = {
     DASHBOARD: '/',
     SPECIALIZATIONS: '/specialisations',
     USER_LISTING: '/user-listing',
+    DOCTOR_LISTING:'/doctor-listing',
     VERIFICATION: '/verification',
     DOCTOR_VIEW: (doctorId = ':doctorId') => `/doctor-view/${doctorId}`,
     ENQUIRY:'/enquiry',

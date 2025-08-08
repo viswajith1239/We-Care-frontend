@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Swal from 'sweetalert2';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../app/store';
@@ -35,6 +35,7 @@ function Bookings() {
   const [bookingDetails, setBookingDetails] = useState<BookingDetail[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
   const [paginationInfo, setPaginationInfo] = useState<PaginationInfo>({
     currentPage: 1,
     totalPages: 1,
@@ -49,11 +50,23 @@ function Bookings() {
   const ITEMS_PER_PAGE = 5;
   const navigate = useNavigate();
 
-  const fetchBookingDetails = async (page: number = 1) => {
+  // Debounced search function
+  const debounce = (func: Function, delay: number) => {
+    let timeoutId: NodeJS.Timeout;
+    return (...args: any[]) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func.apply(null, args), delay);
+    };
+  };
+
+  const fetchBookingDetails = async (page: number = 1, search: string = '') => {
     try {
       setLoading(true);
       if (userInfo && userInfo.id) {
-        const response = await getBookingDetails(userInfo.id, page, ITEMS_PER_PAGE);
+        console.log("ss", search);
+
+        const response = await getBookingDetails(userInfo.id, page, ITEMS_PER_PAGE, search);
+
 
         console.log('Booking data:', response.data);
 
@@ -61,7 +74,6 @@ function Bookings() {
           setBookingDetails(response.data.bookings);
           setPaginationInfo(response.data.pagination);
         } else {
-
           setBookingDetails(response.data || []);
         }
       } else {
@@ -75,9 +87,32 @@ function Bookings() {
     }
   };
 
+
+  const debouncedSearch = useCallback(
+    debounce((searchTerm: string) => {
+      setCurrentPage(1);
+      fetchBookingDetails(1, searchTerm);
+    }, 500),
+    [userInfo]
+  );
+
   useEffect(() => {
-    fetchBookingDetails(currentPage);
+    fetchBookingDetails(currentPage, searchQuery);
   }, [userInfo, currentPage]);
+
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    debouncedSearch(value);
+  };
+
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    setCurrentPage(1);
+    fetchBookingDetails(1, '');
+  };
 
   const handleCancel = async (appoinmentId: string, userId: string, doctorId: string) => {
     const result = await Swal.fire({
@@ -98,7 +133,7 @@ function Bookings() {
         } else {
           toast.success('Appointment cancelled successfully! No refund applicable.');
         }
-        fetchBookingDetails(currentPage);
+        fetchBookingDetails(currentPage, searchQuery);
       } catch (error) {
         console.error('Error cancelling appointment:', error);
         toast.error('Failed to cancel appointment');
@@ -199,15 +234,42 @@ function Bookings() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h2 className="text-2xl font-bold mb-6">Your Bookings</h2>
+
+
+      <div className="mb-6 flex justify-center">
+        <div className="relative w-full max-w-md">
+          <input
+            type="text"
+            placeholder="Search by doctor name ..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00897B] focus:border-transparent outline-none"
+          />
+          {searchQuery && (
+            <button
+              onClick={clearSearch}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+      </div>
+
+
       <ReusableTable
         headers={headers}
         data={bookingDetails}
         renderRow={renderRow}
         headerClassName="bg-[#00897B] text-white"
-        emptyMessage="No bookings found. Schedule an appointment with a doctor."
+        emptyMessage={
+          searchQuery
+            ? `No bookings found matching "${searchQuery}". Try a different search term.`
+            : "No bookings found. Schedule an appointment with a doctor."
+        }
       />
-      <div className="flex justify-center items-center mt-4">
 
+      <div className="flex justify-center items-center mt-4">
         <div className="flex items-center space-x-2">
           <button
             className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
@@ -228,9 +290,9 @@ function Bookings() {
               Next
             </button>
           </div>
-
         </div>
       </div>
+
       {showDetailsModal && selectedBooking && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
           <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-md shadow-lg rounded-md bg-white">

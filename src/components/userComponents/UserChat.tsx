@@ -30,6 +30,8 @@ interface DoctorChatProps {
 const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
   const { userInfo } = useSelector((state: RootState) => state.user);
   const { doctorInfo } = useSelector((state: RootState) => state.doctor);
+
+  
   const [searchParams] = useSearchParams();
 
   const [messages, setMessages] = useState<Message[]>([]);

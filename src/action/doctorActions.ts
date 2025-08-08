@@ -79,7 +79,8 @@ export const registerDoctor = createAsyncThunk(
             return response
   
         } catch (error:any) {
-          return   thunkAPI.rejectWithValue(error.response.data)
+          const message = error.response?.data?.message || error.message || 'Login failed';
+          return   thunkAPI.rejectWithValue({message})
         }
     }
   )

@@ -4,6 +4,7 @@ export interface Doctor {
   doctor:[]
     kycStatus: string;
     //specializations: ReactNode;
+      id: string
     _id: string; 
     profileImage: string
     name: string; 

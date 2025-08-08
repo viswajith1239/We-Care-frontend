@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
-import { User } from "../../types/user";
-import { getUsers, toggleUserBlockStatus } from "../../service/adminService";
+import { Doctor } from "../../types/doctor";
+import { getDoctors, toggleDoctorBlockStatus } from "../../service/adminService";
 
 interface PaginationInfo {
   currentPage: number;
@@ -11,8 +11,8 @@ interface PaginationInfo {
   limit: number;
 }
 
-function UserListing() {
-  const [users, setUsers] = useState<User[]>([]);
+function DoctorListing() {
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState<boolean>(true);
@@ -26,7 +26,7 @@ function UserListing() {
   });
   const ITEMS_PER_PAGE = 5;
 
-  
+
   const debounce = (func: Function, delay: number) => {
     let timeoutId: NodeJS.Timeout;
     return (...args: any[]) => {
@@ -35,27 +35,24 @@ function UserListing() {
     };
   };
 
-  const fetchUsers = async (page: number = 1, search: string = '') => {
+  const fetchDoctors = async (page: number = 1, search: string = '') => {
     try {
       setLoading(true);
       console.log("Search query:", search);
-      
-      
-      const response = await getUsers(page, ITEMS_PER_PAGE, search);
-      console.log("kkk", response);
+   
+      const response = await getDoctors(page, ITEMS_PER_PAGE, search);
 
-      if (response.data && response.data.users && response.data.users.users && Array.isArray(response.data.users.users)) {
-        setUsers(response.data.users.users);
-        if (response.data.users.pagination) {
-          setPaginationInfo(response.data.users.pagination);
+      if (response.data && response.data.doctors && response.data.doctors.doctors && Array.isArray(response.data.doctors.doctors)) {
+        setDoctors(response.data.doctors.doctors);
+        if (response.data.doctors.pagination) {
+          setPaginationInfo(response.data.doctors.pagination);
         }
       } else {
-        setUsers([]);
-        console.warn("No users data received or users is not an array");
+        setDoctors([]);
       }
     } catch (error) {
-      console.error("Error fetching users:", error);
-      setUsers([]);
+      console.error("Error fetching doctors:", error);
+      setDoctors([]);
     } finally {
       setLoading(false);
     }
@@ -64,13 +61,13 @@ function UserListing() {
   const debouncedSearch = useCallback(
     debounce((searchTerm: string) => {
       setCurrentPage(1);
-      fetchUsers(1, searchTerm);
+      fetchDoctors(1, searchTerm);
     }, 500),
     []
   );
 
   useEffect(() => {
-    fetchUsers(currentPage, searchQuery);
+    fetchDoctors(currentPage, searchQuery);
   }, [currentPage]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,20 +79,20 @@ function UserListing() {
   const clearSearch = () => {
     setSearchQuery('');
     setCurrentPage(1);
-    fetchUsers(1, '');
+    fetchDoctors(1, '');
   };
 
-  const handleBlockUnblock = async (userId: string, currentStatus: boolean) => {
-    console.log("kkk", userId);
+  const handleBlockUnblock = async (doctorId: string, currentStatus: boolean) => {
+    console.log("kkk", doctorId);
 
     try {
-      const response = await toggleUserBlockStatus(userId, currentStatus);
+      const response = await toggleDoctorBlockStatus(doctorId, currentStatus);
 
       if (response.status === 200 && response.data) {
-        const updatedUserStatus = response.data.data;
-        setUsers((prevUsers) =>
-          prevUsers.map((user) =>
-            user.id === userId ? { ...user, isBlocked: updatedUserStatus } : user
+        const updatedDoctorStatus = response.data.data;
+        setDoctors((prevUsers) =>
+          prevUsers.map((doctor) =>
+            doctor.id === doctorId ? { ...doctor, isBlocked: updatedDoctorStatus } : doctor
           )
         );
       } else {
@@ -113,7 +110,7 @@ function UserListing() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <p>Loading users...</p>
+        <p>Loading doctors...</p>
       </div>
     );
   }
@@ -121,14 +118,14 @@ function UserListing() {
   return (
     <div className="p-4 w-full flex flex-col items-center">
       <div className="w-full max-w-5xl">
-        <h2 className="text-2xl font-bold mb-6 text-center">User Management</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center">Doctor Management</h2>
 
       
         <div className="mb-6 flex justify-center">
           <div className="relative w-full max-w-md">
             <input
               type="text"
-              placeholder="Search by user name or email..."
+              placeholder="Search by doctor name or email..."
               value={searchQuery}
               onChange={handleSearchChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00897B] focus:border-transparent outline-none"
@@ -144,11 +141,11 @@ function UserListing() {
           </div>
         </div>
 
-        {!users || users.length === 0 ? (
+        {!doctors || doctors.length === 0 ? (
           <p className="text-gray-500 text-xl font-medium text-center">
             {searchQuery
-              ? `No users found matching "${searchQuery}". Try a different search term.`
-              : "No users found."
+              ? `No doctors found matching "${searchQuery}". Try a different search term.`
+              : "No doctors found."
             }
           </p>
         ) : (
@@ -163,19 +160,19 @@ function UserListing() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {users && users.length > 0 && users.map((user, index) => (
-                <tr key={user.id}>
+              {doctors && doctors.length > 0 && doctors.map((doctor, index) => (
+                <tr key={doctor.id}>
                   <td className="px-6 py-4 text-center">{((currentPage - 1) * ITEMS_PER_PAGE) + index + 1}</td>
-                  <td className="px-6 py-4 text-center">{user.name}</td>
-                  <td className="px-6 py-4 text-center">{user.email}</td>
-                  <td className="px-6 py-4 text-center">{user.phone}</td>
+                  <td className="px-6 py-4 text-center">{doctor.name}</td>
+                  <td className="px-6 py-4 text-center">{doctor.email}</td>
+                  <td className="px-6 py-4 text-center">{doctor.phone}</td>
                   <td className="px-6 py-4 text-center">
                     <button
-                      onClick={() => handleBlockUnblock(user?.id, user.isBlocked)}
-                      className={`px-4 py-2 text-white rounded font-medium transition ${user.isBlocked ? "bg-[#00897B] hover:bg-[#00766a]" : "bg-red-600 hover:bg-red-700"
+                      onClick={() => handleBlockUnblock(doctor?.id, doctor.isBlocked)}
+                      className={`px-4 py-2 text-white rounded font-medium transition ${doctor.isBlocked ? "bg-[#00897B] hover:bg-[#00766a]" : "bg-red-600 hover:bg-red-700"
                         }`}
                     >
-                      {user.isBlocked ? "Unblock" : "Block"}
+                      {doctor.isBlocked ? "Unblock" : "Block"}
                     </button>
                   </td>
                 </tr>
@@ -184,8 +181,8 @@ function UserListing() {
           </table>
         )}
 
-        
-        {users && users.length > 0 && (
+   
+        {doctors && doctors.length > 0 && (
           <div className="flex justify-center items-center mt-4">
             <div className="flex items-center space-x-2">
               <button
@@ -213,4 +210,4 @@ function UserListing() {
   );
 }
 
-export default UserListing;
+export default DoctorListing;

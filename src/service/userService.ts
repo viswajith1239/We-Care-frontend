@@ -170,6 +170,31 @@ return userAxiosInstance.get(`${API_URL}/user/reviews/${doctorId}`)
 }
 
 
+export const downloadPrescriptionPDF = async (prescriptionId: string, userId: string) => {
+  try {
+    const response = await userAxiosInstance.get(`${API_URL}/user/prescription/download/${prescriptionId}/${userId}`, {
+      responseType: 'blob', // Important for handling binary data
+    });
+
+    // Create download link
+    const blob = new Blob([response.data], { type: 'application/pdf' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Prescription_${prescriptionId}_${new Date().toISOString().split('T')[0]}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error downloading prescription PDF:', error);
+    throw error;
+  }
+};
+
+
 export const createStripeSession = async (appointmentId: string, userData: any) => {
   const response = await userAxiosInstance.post(
     `${API_URL}/user/payment/${appointmentId}`,
@@ -185,20 +210,34 @@ export const createStripeSession = async (appointmentId: string, userData: any) 
 export const getBookingDetails = (
   userId: string,
   page: number = 1,
-  limit: number = 5
+  limit: number = 5,
+  search: string = ''
 ) => {
+  const params: any = { page, limit };
+  
+
+  if (search && search.trim()) {
+    params.search = search.trim();
+  }
+  
   return userAxiosInstance.get(
-    `${API_URL}/user/bookings-details/${userId}?page=${page}&limit=${limit}`
+    `${API_URL}/user/bookings-details/${userId}`,
+    { params }
   );
 };
 
 export const getPrescription = (
   userId: string,
   page: number = 1,
-  limit: number = 5
+  limit: number = 5,
+  search: string = ''
 ) => {
+  const params: any = { page, limit };
+   if (search && search.trim()) {
+    params.search = search.trim();
+  }
   return userAxiosInstance.get(
-    `${API_URL}/user/prescription/${userId}?page=${page}&limit=${limit}`
+    `${API_URL}/user/prescription/${userId}`,{ params }
   );
 };
 

@@ -11,7 +11,7 @@ const userAxiosInstance = axios.create({
     withCredentials: true,
 });
 
-// Request Interceptor for User
+
 userAxiosInstance.interceptors.request.use(
     (config: CustomAxiosRequestConfig) => {
         console.log('Request Interceptor for User');

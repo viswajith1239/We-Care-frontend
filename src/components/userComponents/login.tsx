@@ -1,4 +1,3 @@
-
 import { Link, useNavigate } from "react-router-dom"
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -118,31 +117,29 @@ function login() {
 
   return (
     <div
-      className="relative bg-cover bg-center min-h-screen"
+      className="relative bg-cover bg-center min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8"
       style={{ backgroundImage: `url(${bgimage})` }}
     >
       <Toaster />
 
-      <div className='absolute -z-10 h-full overflow-hidden '>
-        <div className='absolute bg-[#c8ebc51f] w-full h-full' ></div>
-
+      <div className='absolute inset-0 -z-10 overflow-hidden'>
+        <div className='absolute bg-[#c8ebc51f] w-full h-full'></div>
       </div>
-      <section className="flex flex-col items-center py-10  justify-center" >
-        <div
-          className="w-[400px] md:w-[500px] bg-white/30 backdrop-blur-[1px] border border-white/40 rounded-lg shadow-lg p-6 md:mt-0 sm:max-w-md ">
-          <div className="p-6 space-y-4 md:space-y-6 sm:p-8 ">
-            <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+
+      <section className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-md">
+        <div className="w-full bg-white/30 backdrop-blur-[1px] border border-white/40 rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
+          <div className="space-y-4 md:space-y-6">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold leading-tight tracking-tight text-gray-900 dark:text-white text-center">
               Login
             </h1>
             <form
               onSubmit={handleSubmit}
-              className="space-y-4 md:space-y-3">
+              className="space-y-4 md:space-y-6">
 
               <div>
                 <label
                   htmlFor="email"
-
-                  className="block mb-2 text-md font-medium text-gray-900 dark:text-white text-left"
+                  className="block mb-2 text-sm sm:text-md font-medium text-gray-900 dark:text-white text-left"
                 >
                   Email
                 </label>
@@ -151,21 +148,17 @@ function login() {
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-
-                  className="w-full h-[40px] p-2 text-black bg-white/50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00897B] placeholder:text-black"
-
-
+                  className="w-full h-[40px] sm:h-[45px] md:h-[50px] p-2 sm:p-3 text-black bg-white/50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00897B] placeholder:text-black text-sm sm:text-base"
                 />
                 {errors.email && (
-                  <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                  <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.email}</p>
                 )}
-
-
               </div>
+
               <div>
                 <label
                   htmlFor="password"
-                  className="block mb-2 text-md font-medium text-gray-900 dark:text-white text-left"
+                  className="block mb-2 text-sm sm:text-md font-medium text-gray-900 dark:text-white text-left"
                 >
                   Password
                 </label>
@@ -174,24 +167,21 @@ function login() {
                   type={showPassword ? "text" : "password"}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-
-
-                  className="w-full h-[40px] p-2 text-black bg-white/50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00897B] placeholder:text-black"
+                  className="w-full h-[40px] sm:h-[45px] md:h-[50px] p-2 sm:p-3 text-black bg-white/50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00897B] placeholder:text-black text-sm sm:text-base"
                 />
                 {errors.password && (
-                  <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+                  <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.password}</p>
                 )}
-
-
               </div>
 
               <button
                 type="submit"
-                className="w-full text-white bg-[#00897B] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#00897B]"
+                className="w-full text-white bg-[#00897B] hover:bg-[#00776B] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm sm:text-base px-5 py-2.5 sm:py-3 text-center dark:bg-[#00897B] transition-colors duration-200"
               >
                 Login
               </button>
-              <p className="text-md font-light text-black text-center">
+
+              <p className="text-sm sm:text-md font-light text-black text-center">
                 Don't have an account?{' '}
                 <Link
                   className="font-medium text-[#5cbba8] hover:underline hover:text-[#5cbba8]"
@@ -200,17 +190,21 @@ function login() {
                   Sign in here
                 </Link>
               </p>
+
               <p className="text-center mt-4">
-                <a href="/forgot-password" className="text-[#00897B] hover:underline">
+                <a href="/forgot-password" className="text-[#00897B] hover:underline text-sm sm:text-base">
                   Forgot Password?
                 </a>
               </p>
             </form>
+
             <div className="flex justify-center w-full mt-4">
-              <GoogleLogin
-                onSuccess={handleGoogleResponse}
-                onError={handleGoogleError}
-              />
+              <div className="scale-90 sm:scale-100">
+                <GoogleLogin
+                  onSuccess={handleGoogleResponse}
+                  onError={handleGoogleError}
+                />
+              </div>
             </div>
           </div>
         </div>

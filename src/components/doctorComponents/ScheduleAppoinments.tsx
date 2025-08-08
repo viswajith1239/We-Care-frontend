@@ -358,23 +358,23 @@ const ScheduleAppoinments: React.FC = () => {
     }
   };
 
-  // Fix 2: Update the handlePageChange function
+
   const handlePageChange = (newPage: number) => {
     console.log("Changing to page:", newPage);
     console.log("Current page before change:", currentPage);
 
     setCurrentPage(newPage);
-    fetchSessionData(newPage); // Pass the new page directly
+    fetchSessionData(newPage); 
   };
 
-  // Fix 3: Update the useEffect to avoid infinite loops
+ 
   useEffect(() => {
     if (doctorId) {
-      fetchSessionData(1); // Always start from page 1 on initial load
+      fetchSessionData(1); 
     }
-  }, [doctorId]); // Remove currentPage from dependencies
+  }, [doctorId]); 
 
-  // Fix 4: Add a separate useEffect for page changes
+
   useEffect(() => {
     if (doctorId && currentPage > 1) {
       fetchSessionData(currentPage);
@@ -387,6 +387,17 @@ const ScheduleAppoinments: React.FC = () => {
   // const currentSessions = sessionSchedules.slice(indexOfFirstItem, indexOfLastItem);
 
 
+  const formatTime = (time:string|undefined) => {
+  if (!time) return '';
+  
+  const [hours, minutes] = time.split(':');
+  const hour = parseInt(hours, 10);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const displayHour = hour % 12 || 12;
+  
+  return `${displayHour}:${minutes} ${ampm}`;
+};
+
   const renderRecurringOptions = () => {
     if (!formData.isRecurring) return null;
 
@@ -398,7 +409,7 @@ const ScheduleAppoinments: React.FC = () => {
             name="recurrenceType"
             value={formData.recurrenceType}
             onChange={handleInputChange}
-            className="w-full mt-2 p-3 border border-gray-300 rounded-lg"
+            className="w-full mt-2 p-2 sm:p-3 border border-gray-300 rounded-lg text-sm sm:text-base"
           >
             {Object.values(RecurrenceType)
               .filter(type => type !== RecurrenceType.SINGLE)
@@ -412,15 +423,15 @@ const ScheduleAppoinments: React.FC = () => {
         {formData.recurrenceType === RecurrenceType.WEEKLY && (
           <div>
             <label className="text-gray-700 font-medium">Days of Week</label>
-            <div className="flex space-x-2 mt-2">
+            <div className="flex flex-wrap gap-2 mt-2">
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
                 <button
                   key={day}
                   type="button"
                   onClick={() => handleDayToggle(index)}
-                  className={`px-3 py-2 rounded-lg ${selectedDays.includes(index)
+                  className={`px-2 py-2 text-xs sm:px-3 sm:text-sm rounded-lg transition-colors ${selectedDays.includes(index)
                     ? 'bg-green-500 text-white'
-                    : 'bg-gray-200 text-gray-700'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                     }`}
                 >
                   {day}
@@ -430,7 +441,7 @@ const ScheduleAppoinments: React.FC = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="text-gray-700 font-medium">Recurrence Interval</label>
             <input
@@ -439,7 +450,7 @@ const ScheduleAppoinments: React.FC = () => {
               value={formData.recurrenceInterval}
               onChange={handleInputChange}
               min="1"
-              className="w-full mt-2 p-3 border border-gray-300 rounded-lg"
+              className="w-full mt-2 p-2 sm:p-3 border border-gray-300 rounded-lg text-sm sm:text-base"
             />
           </div>
           <div>
@@ -449,7 +460,7 @@ const ScheduleAppoinments: React.FC = () => {
               name="recurrenceEnd"
               value={formData.recurrenceEnd}
               onChange={handleInputChange}
-              className="w-full mt-2 p-3 border border-gray-300 rounded-lg"
+              className="w-full mt-2 p-2 sm:p-3 border border-gray-300 rounded-lg text-sm sm:text-base"
               min={new Date().toISOString().split("T")[0]}
             />
           </div>
@@ -460,43 +471,45 @@ const ScheduleAppoinments: React.FC = () => {
 
 
   return (
-    <div className="min-h-screen bg-white py-4 px-4">
+    <div className="min-h-screen bg-white py-4 px-2 sm:px-4 lg:px-6">
       <Toaster />
 
 
-      <button
-        onClick={() => handleOpenModal()}
-        className="mt-2 px-4 py-3 bg-[#00897B] text-white text-lg font-semibold rounded-lg shadow-xl transform hover:scale-105 transition-all duration-300"
-      >
-        Add New Slot
-      </button>
+      <div className="mb-6">
+        <button
+          onClick={() => handleOpenModal()}
+          className="w-full sm:w-auto px-4 py-3 bg-[#00897B] text-white text-sm sm:text-lg font-semibold rounded-lg shadow-xl transform hover:scale-105 transition-all duration-300"
+        >
+          Add New Slot
+        </button>
+      </div>
 
 
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 md:p-8 rounded-xl w-full max-w-lg shadow-xl relative">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+          <div className="bg-white p-4 sm:p-6 md:p-8 rounded-xl w-full max-w-lg max-h-[95vh] shadow-xl relative">
 
             <button
               onClick={handleCancel}
-              className="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-2xl"
+              className="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-2xl z-10"
             >
               &times;
             </button>
 
-            <h2 className="text-2xl font-bold text-gray-900 text-center mb-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 text-center mb-4 sm:mb-6 pr-8">
               {isRescheduling ? 'Reschedule Appointment' : 'Add Slot Details'}
             </h2>
 
-            <div className="max-h-[80vh] overflow-y-auto">
-              <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="max-h-[70vh] overflow-y-auto">
+              <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
 
                 <div>
-                  <label className="text-gray-700 font-medium">Specialization</label>
+                  <label className="text-gray-700 font-medium text-sm sm:text-base">Specialization</label>
                   <select
                     name="specialization"
                     value={formData.specialization}
                     onChange={handleInputChange}
-                    className="w-full mt-2 p-3 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300"
+                    className="w-full mt-2 p-2 sm:p-3 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300 text-sm sm:text-base"
                   >
                     <option value="">Select Specialization</option>
                     {spec.map((special) => (
@@ -508,17 +521,17 @@ const ScheduleAppoinments: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="text-gray-700 font-medium">Price</label>
+                  <label className="text-gray-700 font-medium text-sm sm:text-base">Price</label>
                   <input
                     type="number"
                     name="price"
                     value={formData.price}
                     onChange={handleInputChange}
-                    className="w-full mt-2 p-3 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300"
+                    className="w-full mt-2 p-2 sm:p-3 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300 text-sm sm:text-base"
                   />
                 </div>
 
-
+     
                 {!isRescheduling && (
                   <div className="flex items-center">
                     <input
@@ -528,58 +541,60 @@ const ScheduleAppoinments: React.FC = () => {
                       onChange={handleInputChange}
                       className="mr-2"
                     />
-                    <label className="text-gray-700">Create Recurring Appointment</label>
+                    <label className="text-gray-700 text-sm sm:text-base">Create Recurring Appointment</label>
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   <div>
-                    <label className="text-gray-700 font-medium">Date</label>
+                    <label className="text-gray-700 font-medium text-sm sm:text-base">Date</label>
                     <input
                       type="date"
                       name="selectedDate"
                       value={formData.selectedDate}
                       onChange={handleInputChange}
-                      className="w-full mt-2 p-3 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300"
+                      className="w-full mt-2 p-2 sm:p-3 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300 text-sm sm:text-base"
                       min={new Date().toISOString().split("T")[0]}
                     />
                   </div>
-                  <div>
-                    <label className="text-gray-700 font-medium">Start Time</label>
-                    <input
-                      type="time"
-                      name="startTime"
-                      value={formData.startTime}
-                      onChange={handleInputChange}
-                      className="w-full mt-2 p-3 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-gray-700 font-medium">End Time</label>
-                    <input
-                      type="time"
-                      name="endTime"
-                      value={formData.endTime}
-                      onChange={handleInputChange}
-                      className="w-full mt-2 p-3 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300"
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-gray-700 font-medium text-sm sm:text-base">Start Time</label>
+                      <input
+                        type="time"
+                        name="startTime"
+                        value={formData.startTime}
+                        onChange={handleInputChange}
+                        className="w-full mt-2 p-2 sm:p-3 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300 text-sm sm:text-base"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-gray-700 font-medium text-sm sm:text-base">End Time</label>
+                      <input
+                        type="time"
+                        name="endTime"
+                        value={formData.endTime}
+                        onChange={handleInputChange}
+                        className="w-full mt-2 p-2 sm:p-3 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300 text-sm sm:text-base"
+                      />
+                    </div>
                   </div>
                 </div>
 
-
+               
                 {!isRescheduling && renderRecurringOptions()}
 
-                <div className="flex justify-end space-x-4 mt-6">
+                <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 mt-4 sm:mt-6">
                   <button
                     onClick={handleCancel}
                     type="button"
-                    className="px-5 py-2 bg-gray-300 text-gray-700 font-medium rounded-lg shadow-md hover:bg-gray-400 transition-all duration-300"
+                    className="px-4 sm:px-5 py-2 bg-gray-300 text-gray-700 font-medium rounded-lg shadow-md hover:bg-gray-400 transition-all duration-300 text-sm sm:text-base"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 bg-indigo-600 text-white font-medium rounded-lg shadow-md hover:bg-indigo-700 transition-all duration-300"
+                    className="px-4 sm:px-5 py-2 bg-indigo-600 text-white font-medium rounded-lg shadow-md hover:bg-indigo-700 transition-all duration-300 text-sm sm:text-base"
                   >
                     {isRescheduling ? 'Update' : 'Save'}
                   </button>
@@ -590,127 +605,252 @@ const ScheduleAppoinments: React.FC = () => {
         </div>
       )}
 
-
-      <div className="mt-1">
-        <h2 className="text-2xl font-bold text-black mb-4 text-center">
+ 
+      <div className="mt-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-black mb-4 text-center">
           Scheduled Slots
         </h2>
-        <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden border">
-          <thead>
-            <tr className="bg-[#00897B] text-white">
-              <th className="py-3 px-6 text-center">Slots</th>
-              <th className="py-3 px-6 text-center">Date</th>
-              <th className="py-3 px-6 text-center">Start Time</th>
-              <th className="py-3 px-6 text-center">Status</th>
-              <th className="py-3 px-6 text-center">Price</th>
-              <th className="py-3 px-6 text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sessionSchedules.length > 0 ? (
-              sessionSchedules.map((appoinment, index) => (
-                <tr key={index} className="border-b">
-                  <td className="py-3 px-6 text-center">
-                    {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
-                  </td>
-                  <td className="py-3 px-6 text-center">
-                    {new Date(appoinment.selectedDate || appoinment.startDate).toLocaleDateString(undefined, {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric"
-                    })}
-                  </td>
-                  <td className="py-3 px-6 text-center">{appoinment.startTime}</td>
-                  <td className="py-3 px-6 text-center">{appoinment.status}</td>
-                  <td className="py-3 px-6 text-center">{appoinment.price}</td>
-                  <td className="py-3 px-6 text-center flex justify-center gap-2">
-                    <button
-                      className={`py-2 px-3 rounded-md bg-red-400 ${(appoinment.status === 'Cancelled' || appoinment.status === 'Completed' || appoinment.status === 'Confirmed')
-                        ? "opacity-50 cursor-not-allowed"
-                        : "opacity-100"
-                        }`}
-                      onClick={() => {
-                        if (
-                          appoinment.status !== 'Cancelled' &&
-                          appoinment.status !== 'Completed' &&
-                          appoinment.status !== 'Confirmed'
-                        ) {
-                          Swal.fire({
-                            title: 'Are you sure?',
-                            text: "You won't be able to revert this!",
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonColor: '#d33',
-                            cancelButtonColor: '#3085d6',
-                            confirmButtonText: 'Yes, cancel it!'
-                          }).then((result) => {
-                            if (result.isConfirmed) {
-                              handleAppoinmentCancel(appoinment._id);
-                              Swal.fire(
-                                'Cancelled!',
-                                'Your appointment has been cancelled.',
-                                'success'
-                              );
-                            }
-                          });
-                        }
-                      }}
-                      disabled={
-                        appoinment.status === 'Cancelled' ||
-                        appoinment.status === 'Completed' ||
-                        appoinment.status === 'Confirmed'
-                      }
-                    >
-                      {appoinment.status === 'Cancelled' ? "Cancelled" : "Cancel"}
-                    </button>
 
-                    <button
-                      className={`py-2 px-3 rounded-md bg-blue-600 text-white ${(appoinment.status === 'Cancelled' || appoinment.status === 'Completed' || appoinment.status === 'Pending')
-                        ? "opacity-50 cursor-not-allowed"
-                        : "opacity-100 hover:bg-blue-600"
-                        }`}
-                      onClick={() => {
-                        if (
-                          appoinment.status !== 'Cancelled' &&
-                          appoinment.status !== 'Completed'
-                        ) {
-                          handleReschedule(appoinment);
-                        }
-                      }}
-                      disabled={
-                        appoinment.status === 'Cancelled' ||
-                        appoinment.status === 'Completed'
-                      }
-                    >
-                      Reschedule
-                    </button>
+        <div className="hidden lg:block overflow-x-auto">
+          <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden border">
+            <thead>
+              <tr className="bg-[#00897B] text-white">
+                <th className="py-3 px-4 text-center text-sm font-medium">Slots</th>
+                <th className="py-3 px-4 text-center text-sm font-medium">Date</th>
+                <th className="py-3 px-4 text-center text-sm font-medium">Start Time</th>
+                <th className="py-3 px-4 text-center text-sm font-medium">End Time</th>
+                <th className="py-3 px-4 text-center text-sm font-medium">Status</th>
+                <th className="py-3 px-4 text-center text-sm font-medium">Price</th>
+                <th className="py-3 px-4 text-center text-sm font-medium">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sessionSchedules.length > 0 ? (
+                sessionSchedules.map((appoinment, index) => (
+                  <tr key={index} className="border-b hover:bg-gray-50">
+                    <td className="py-3 px-4 text-center text-sm">
+                      {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
+                    </td>
+                    <td className="py-3 px-4 text-center text-sm">
+                      {new Date(appoinment.selectedDate || appoinment.startDate).toLocaleDateString(undefined, {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric"
+                      })}
+                    </td>
+                    <td className="py-3 px-4 text-center text-sm">{formatTime(appoinment.startTime)}</td>
+                    <td className="py-3 px-4 text-center text-sm">{formatTime(appoinment.endTime)}</td>
+                    <td className="py-3 px-4 text-center text-sm">
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        appoinment.status === 'Confirmed' ? 'bg-green-100 text-green-800' :
+                        appoinment.status === 'Cancelled' ? 'bg-red-100 text-red-800' :
+                        appoinment.status === 'Completed' ? 'bg-blue-100 text-blue-800' :
+                        'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {appoinment.status}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-center text-sm">₹{appoinment.price}</td>
+                    <td className="py-3 px-4 text-center">
+                      <div className="flex justify-center gap-2">
+                        <button
+                          className={`py-1 px-2 rounded-md text-xs text-white ${
+                            (appoinment.status === 'Cancelled' || appoinment.status === 'Completed' || appoinment.status === 'Confirmed')
+                              ? "bg-gray-400 cursor-not-allowed"
+                              : "bg-red-500 hover:bg-red-600"
+                          }`}
+                          onClick={() => {
+                            if (
+                              appoinment.status !== 'Cancelled' &&
+                              appoinment.status !== 'Completed' &&
+                              appoinment.status !== 'Confirmed'
+                            ) {
+                              Swal.fire({
+                                title: 'Are you sure?',
+                                text: "You won't be able to revert this!",
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#d33',
+                                cancelButtonColor: '#3085d6',
+                                confirmButtonText: 'Yes, cancel it!'
+                              }).then((result) => {
+                                if (result.isConfirmed) {
+                                  handleAppoinmentCancel(appoinment._id);
+                                  Swal.fire(
+                                    'Cancelled!',
+                                    'Your appointment has been cancelled.',
+                                    'success'
+                                  );
+                                }
+                              });
+                            }
+                          }}
+                          disabled={
+                            appoinment.status === 'Cancelled' ||
+                            appoinment.status === 'Completed' ||
+                            appoinment.status === 'Confirmed'
+                          }
+                        >
+                          {appoinment.status === 'Cancelled' ? "Cancelled" : "Cancel"}
+                        </button>
+
+                        <button
+                          className={`py-1 px-2 rounded-md text-xs text-white ${
+                            (appoinment.status === 'Cancelled' || appoinment.status === 'Completed')
+                              ? "bg-gray-400 cursor-not-allowed"
+                              : "bg-blue-500 hover:bg-blue-600"
+                          }`}
+                          onClick={() => {
+                            if (
+                              appoinment.status !== 'Cancelled' &&
+                              appoinment.status !== 'Completed'
+                            ) {
+                              handleReschedule(appoinment);
+                            }
+                          }}
+                          disabled={
+                            appoinment.status === 'Cancelled' ||
+                            appoinment.status === 'Completed'
+                          }
+                        >
+                          Reschedule
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-gray-500">
+                    No scheduled appointments found.
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={6} className="py-8 text-center text-gray-500">
-                  No scheduled appointments found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              )}
+            </tbody>
+          </table>
+        </div>
 
+    
+        <div className="lg:hidden space-y-4">
+          {sessionSchedules.length > 0 ? (
+            sessionSchedules.map((appoinment, index) => (
+              <div key={index} className="bg-white border rounded-lg p-4 shadow-sm">
+                <div className="flex justify-between items-start mb-3">
+                  <div className="text-sm font-medium text-gray-600">
+                    Slot #{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
+                  </div>
+                  <span className={`px-2 py-1 rounded-full text-xs ${
+                    appoinment.status === 'Confirmed' ? 'bg-green-100 text-green-800' :
+                    appoinment.status === 'Cancelled' ? 'bg-red-100 text-red-800' :
+                    appoinment.status === 'Completed' ? 'bg-blue-100 text-blue-800' :
+                    'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {appoinment.status}
+                  </span>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3 text-sm mb-4">
+                  <div>
+                    <span className="text-gray-600">Price:</span>
+                    <div className="font-medium">₹{appoinment.price}</div>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Start Time:</span>
+                    <div className="font-medium">{formatTime(appoinment.startTime)}</div>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">End Time:</span>
+                    <div className="font-medium">{formatTime(appoinment.endTime)}</div>
+                  </div>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <button
+                    className={`flex-1 py-2 px-3 rounded-md text-sm text-white ${
+                      (appoinment.status === 'Cancelled' || appoinment.status === 'Completed' || appoinment.status === 'Confirmed')
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-red-500 hover:bg-red-600"
+                    }`}
+                    onClick={() => {
+                      if (
+                        appoinment.status !== 'Cancelled' &&
+                        appoinment.status !== 'Completed' &&
+                        appoinment.status !== 'Confirmed'
+                      ) {
+                        Swal.fire({
+                          title: 'Are you sure?',
+                          text: "You won't be able to revert this!",
+                          icon: 'warning',
+                          showCancelButton: true,
+                          confirmButtonColor: '#d33',
+                          cancelButtonColor: '#3085d6',
+                          confirmButtonText: 'Yes, cancel it!'
+                        }).then((result) => {
+                          if (result.isConfirmed) {
+                            handleAppoinmentCancel(appoinment._id);
+                            Swal.fire(
+                              'Cancelled!',
+                              'Your appointment has been cancelled.',
+                              'success'
+                            );
+                          }
+                        });
+                      }
+                    }}
+                    disabled={
+                      appoinment.status === 'Cancelled' ||
+                      appoinment.status === 'Completed' ||
+                      appoinment.status === 'Confirmed'
+                    }
+                  >
+                    {appoinment.status === 'Cancelled' ? "Cancelled" : "Cancel"}
+                  </button>
 
-        <div className="flex justify-between items-center mt-6">
+                  <button
+                    className={`flex-1 py-2 px-3 rounded-md text-sm text-white ${
+                      (appoinment.status === 'Cancelled' || appoinment.status === 'Completed')
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-blue-500 hover:bg-blue-600"
+                    }`}
+                    onClick={() => {
+                      if (
+                        appoinment.status !== 'Cancelled' &&
+                        appoinment.status !== 'Completed'
+                      ) {
+                        handleReschedule(appoinment);
+                      }
+                    }}
+                    disabled={
+                      appoinment.status === 'Cancelled' ||
+                      appoinment.status === 'Completed'
+                    }
+                  >
+                    Reschedule
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              No scheduled appointments found.
+            </div>
+          )}
+        </div>
+
+       
+        <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
           <button
-            className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+            className="w-full sm:w-auto px-4 py-2 bg-gray-300 rounded disabled:opacity-50 text-sm sm:text-base hover:bg-gray-400 transition-colors"
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={!paginationInfo?.hasPreviousPage || currentPage <= 1}
           >
             Previous
           </button>
-          <span className="text-gray-600">
+          <span className="text-gray-600 text-sm sm:text-base">
             Page {currentPage} of {paginationInfo?.totalPages || 1}
           </span>
           <button
-            className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+            className="w-full sm:w-auto px-4 py-2 bg-gray-300 rounded disabled:opacity-50 text-sm sm:text-base hover:bg-gray-400 transition-colors"
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={!paginationInfo?.hasNextPage || currentPage >= (paginationInfo?.totalPages || 1)}
           >

@@ -141,14 +141,14 @@ function DoctorSignUp() {
 
   return (
     <div
-      className="relative bg-cover bg-center min-h-screen"
+      className="relative bg-cover bg-center min-h-screen flex items-center justify-center px-4 py-6"
       style={{ backgroundImage: `url(${bgimage})` }}
     >
-      <section className="flex flex-col items-center pt-6  max-w-1xl w-full ">
+      <div className="w-full max-w-md mx-auto">
         <Toaster />
-        <div className="w-full  rounded-3xl bg-white/30 backdrop-blur-[1px]   shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
-          <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-            <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+        <div className="w-full rounded-3xl bg-white/30 backdrop-blur-[1px] shadow dark:border dark:bg-gray-800 dark:border-gray-700">
+          <div className="p-4 sm:p-6 lg:p-8 space-y-4 md:space-y-6">
+            <h1 className="text-xl sm:text-2xl font-bold leading-tight tracking-tight text-gray-900 dark:text-white text-center">
               Doctor Signup
             </h1>
             <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
@@ -162,7 +162,7 @@ function DoctorSignUp() {
                   type="text"
                   name="name"
                   id="name"
-                  className={`bg-gray-50 border text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:bg-gray-700 dark:border-gray-600 dark:placeholder-black dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ${errors.name ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
+                  className={`bg-gray-50 border text-gray-900 text-sm sm:text-base rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:bg-gray-700 dark:border-gray-600 dark:placeholder-black dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ${errors.name ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
                     }`}
                   placeholder="Enter name"
                 />
@@ -181,7 +181,7 @@ function DoctorSignUp() {
                   type="email"
                   name="username"
                   id="username"
-                  className={`bg-gray-50 border text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:bg-gray-700 dark:border-gray-600 dark:placeholder-black dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ${errors.email ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
+                  className={`bg-gray-50 border text-gray-900 text-sm sm:text-base rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:bg-gray-700 dark:border-gray-600 dark:placeholder-black dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ${errors.email ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
                     }`}
                   placeholder="Enter email"
                 />
@@ -200,7 +200,7 @@ function DoctorSignUp() {
                   type="number"
                   name="phone"
                   id="phone"
-                  className={`bg-gray-50 border text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:bg-gray-700 dark:border-gray-600 dark:placeholder-black dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ${errors.phone ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
+                  className={`bg-gray-50 border text-gray-900 text-sm sm:text-base rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:bg-gray-700 dark:border-gray-600 dark:placeholder-black dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ${errors.phone ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
                     }`}
                   placeholder="Enter phone"
                 />
@@ -215,11 +215,11 @@ function DoctorSignUp() {
                 </label>
                 <div className="relative">
                   <div
-                    className={`relative border p-2 rounded-md w-full text-left focus:ring-2 focus:ring-[#572c5f] cursor-pointer bg-white ${errors.specializations ? 'border-red-500' : 'border-gray-300'
+                    className={`relative border p-2.5 rounded-md w-full text-left focus:ring-2 focus:ring-[#572c5f] cursor-pointer bg-white text-sm sm:text-base ${errors.specializations ? 'border-red-500' : 'border-gray-300'
                       }`}
                     onClick={toggleDropdown}
                   >
-                    <span>
+                    <span className="block truncate pr-8">
                       {selectedSpecializations.length > 0
                         ? selectedSpecializations.join(", ")
                         : "Select Specializations"}
@@ -240,23 +240,23 @@ function DoctorSignUp() {
                   </div>
 
                   {isDropdownOpen && (
-                    <div className="absolute z-50 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
+                    <div className="absolute z-50 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-48 overflow-y-auto">
                       {loading ? (
-                        <div className="p-2 text-gray-500">Loading...</div>
+                        <div className="p-2 text-gray-500 text-sm">Loading...</div>
                       ) : (
                         specializations.map((spec) => (
                           <div
                             key={spec._id}
-                            className="p-2 hover:bg-gray-200 cursor-pointer flex items-center"
+                            className="p-2 hover:bg-gray-200 cursor-pointer flex items-center text-sm"
                             onClick={() => handleSpecializationChange(spec.name)}
                           >
                             <input
                               type="checkbox"
                               checked={selectedSpecializations.includes(spec.name)}
                               readOnly
-                              className="mr-2"
+                              className="mr-2 flex-shrink-0"
                             />
-                            {spec.name}
+                            <span className="truncate">{spec.name}</span>
                           </div>
                         ))
                       )}
@@ -279,7 +279,7 @@ function DoctorSignUp() {
                   name="password"
                   id="password"
                   placeholder="Enter password"
-                  className={`bg-gray-50 border text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:bg-gray-700 dark:border-gray-600 dark:placeholder-black dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ${errors.password ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
+                  className={`bg-gray-50 border text-gray-900 text-sm sm:text-base rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:bg-gray-700 dark:border-gray-600 dark:placeholder-black dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ${errors.password ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
                     }`}
                 />
                 {errors.password && (
@@ -289,27 +289,24 @@ function DoctorSignUp() {
 
               <button
                 type="submit"
-                className="w-full text-white bg-[#00897B] hover:bg-[#00796B] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                className="w-full text-white bg-[#00897B] hover:bg-[#00796B] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 transition-colors duration-200"
               >
                 Create an account
               </button>
-              <p className="text-md font-light text-black-500 dark:text-black-400">
-                Already have an account?
+              <p className="text-sm sm:text-base font-light text-black-500 dark:text-black-400 text-center">
+                Already have an account?{" "}
                 <Link
                   className="font-medium text-[#5cbba8] hover:underline hover:text-[#5cbba8]"
                   to="/doctor/login"
                 >
                   Login in here
                 </Link>
-
               </p>
             </form>
           </div>
         </div>
-      </section>
-
+      </div>
     </div>
-
   )
 }
 export default DoctorSignUp

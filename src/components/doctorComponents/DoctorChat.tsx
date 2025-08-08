@@ -22,6 +22,7 @@ interface Message {
 }
 
 interface User {
+  bookingId: string;
   startDate: string;
   bookingDate: string;
   amount: any;
@@ -100,6 +101,8 @@ const Chat: React.FC<DoctorChatProps> = ({ userId }) => {
         const response = await axios.get(`${API_URL}/doctor/fetchusers/${doctorInfo?.id}`, {
           withCredentials: true,
         });
+        console.log("rr",response);
+        
 
         const extractedUsers = response.data.map((item: any) => ({
           _id: item._id,
@@ -108,9 +111,11 @@ const Chat: React.FC<DoctorChatProps> = ({ userId }) => {
           email: item.email,
           amount: item.amount,
           appoinmentId: item.appoinmentId,
+          bookingId:item.bookingId,
           profileImage: item.profileImage,
           bookingDate: item.bookingDate,
           startDate: item.startDate,
+         
         }));
 
         setUsers(extractedUsers);
@@ -153,13 +158,19 @@ const Chat: React.FC<DoctorChatProps> = ({ userId }) => {
     const fetchDoctor = async () => {
       try {
         const response = await axios.get(`${API_URL}/doctor/${doctorInfo.id}`);
-        setDoctorData(response.data.DoctorData[0]);
+       
+        
+        setDoctorData(response.data.DoctorData);
       } catch (error) {
         console.error("Error fetching doctor data:", error);
       }
     };
     fetchDoctor();
   }, [doctorInfo?.id]);
+
+  useEffect(() => {
+  console.log("doctorInfo:", doctorInfo); // 👈 Add this to debug
+}, [doctorInfo]);
 
   // Socket listener for messages and deletions
   useEffect(() => {
@@ -266,6 +277,8 @@ const Chat: React.FC<DoctorChatProps> = ({ userId }) => {
       setSelectedMessage(selectedMessage === messageId ? null : messageId);
     }
   };
+  console.log("selectedUser:", selectedUser);
+console.log("doctorData:", doctorData);
 
   const navigateVideoChat = () => {
     dispatch(
@@ -277,6 +290,7 @@ const Chat: React.FC<DoctorChatProps> = ({ userId }) => {
         userName: `${selectedUser?.name}`,
         doctorName: `${doctorData?.name}`,
         doctorImage: `${doctorData?.profileImage}`,
+        profileImage:`${selectedUser?.profileImage}`,
         bookingId: `${selectedUser?.appoinmentId}`,
       })
     );
@@ -306,6 +320,8 @@ const Chat: React.FC<DoctorChatProps> = ({ userId }) => {
       return;
     }
 
+    console.log('Full selectedUser object:', selectedUser);
+
     try {
       const prescriptionData = {
         prescriptions,
@@ -313,10 +329,12 @@ const Chat: React.FC<DoctorChatProps> = ({ userId }) => {
           id: selectedUser._id,
           name: selectedUser.name,
           email: selectedUser.email,
-          appointmentId: selectedUser.appoinmentId,
+          bookingIds: selectedUser.bookingId,
+          bookingId:selectedUser.appoinmentId,
           amount: selectedUser.amount,
           bookingDate: selectedUser.bookingDate,
           startDate: selectedUser.startDate,
+          
         },
         doctorDetails: {
           doctorId: doctorInfo.id,

@@ -10,10 +10,10 @@ const LOGIN_REDIRECT: Record<Role, string> = {
   admin: '/admin/login',
 };
 
-export function setupInterceptors(instance: AxiosInstance, role: Role) {
+export function axiosInstance(instance: AxiosInstance, role: Role) {
   instance.interceptors.request.use(
     (config: CustomAxiosRequestConfig) => {
-      // Ensure cookies are sent automatically
+   
       config.withCredentials = true;
       return config;
     },
@@ -25,7 +25,7 @@ export function setupInterceptors(instance: AxiosInstance, role: Role) {
     async (error: AxiosError) => {
       const originalRequest = error.config;
 
-      // If token is invalid or expired — redirect to login
+
       if (error.response?.status === 401 || error.response?.status === 403) {
         window.location.href = LOGIN_REDIRECT[role];
       }

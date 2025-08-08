@@ -1,9 +1,10 @@
 import {createSlice,PayloadAction} from "@reduxjs/toolkit"
 import { registerDoctor,loginDoctor,submitKyc,getKycStatus, logoutDoctor} from "../action/doctorActions"
+import { Doctor } from "../types/doctor";
 
 
 interface DoctorState{
-    doctorInfo:null|any,
+    doctorInfo:Doctor|any,
     loading:null|any
     kycStatus: string;
     videoCall:  VideoCallPayload | null;
@@ -30,6 +31,7 @@ interface VideoCallPayload {
   doctorName: string;
   doctorImage: string;
   bookingId: string
+  profileImage:string
 }
 
 const doctor = localStorage.getItem("doctor");

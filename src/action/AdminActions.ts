@@ -38,4 +38,16 @@ interface LoginAdmin {
       }
     }
   );
+
+  export const adminLogout = createAsyncThunk(
+  "admin/logout",
+  async (_, thunkAPI) => {
+    try {
+      const response = await adminService.adminLogout();
+      return response.data;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.response?.data || "Failed to logout");
+    }
+  }
+);
   

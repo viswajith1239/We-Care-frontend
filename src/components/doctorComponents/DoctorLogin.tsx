@@ -46,7 +46,7 @@ function DoctorLogin() {
       setPassword(value);
     }
 
-    // Clear error when user starts typing
+
     if (errors[field as keyof Errors]) {
       setErrors(prev => ({
         ...prev,
@@ -62,7 +62,7 @@ function DoctorLogin() {
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length > 0) {
-      // Clear errors after 3 seconds
+     
       setTimeout(() => {
         setErrors({});
       }, 3000);
@@ -86,6 +86,15 @@ function DoctorLogin() {
       if (error.response) {
         console.error("Error in login user data", error);
         toast.error("Something went wrong, try again later");
+         const errorMessage = error?.message || "Login failed. Please check your credentials.";
+        
+                if (errorMessage === "Your account is blocked.") {
+                  toast.error("Your account is blocked.");
+                } else if (errorMessage === "Invalid email or password") {
+                  toast.error(" Invalid email or password.");
+                } else {
+                  toast.error(errorMessage);
+                }
       }
     }
   };
@@ -117,20 +126,24 @@ function DoctorLogin() {
 
   return (
     <div
-      className="relative bg-cover bg-center min-h-screen"
+      className="relative bg-cover bg-center min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8"
       style={{ backgroundImage: `url(${bgimage})` }}
     >
-      <section className="flex flex-col items-center pt-6  max-w-1xl w-full ">
-        <Toaster />
-        <div className="w-full  rounded-3xl bg-white/30 backdrop-blur-[1px] shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
-          <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-            <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+      <Toaster />
+      
+      <section className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-md">
+        <div className="w-full rounded-2xl sm:rounded-3xl bg-white/30 backdrop-blur-[1px] shadow border border-white/20 dark:bg-gray-800 dark:border-gray-700">
+          <div className="p-4 sm:p-6 md:p-8 space-y-4 md:space-y-6">
+            <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold leading-tight tracking-tight text-gray-900 dark:text-white text-center">
               Doctor Login
             </h1>
             <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
 
               <div>
-                <label htmlFor="username" className="block mb-2 text-md font-medium text-gray-900 dark:text-white ">
+                <label 
+                  htmlFor="username" 
+                  className="block mb-2 text-sm sm:text-md font-medium text-gray-900 dark:text-white"
+                >
                   Email
                 </label>
                 <input
@@ -139,19 +152,21 @@ function DoctorLogin() {
                   type="email"
                   name="username"
                   id="username"
-                  className={`bg-gray-50 border text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:bg-gray-700 dark:border-gray-600 dark:placeholder-black dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ${errors.email ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                  className={`bg-gray-50 border text-gray-900 text-sm sm:text-base rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 sm:p-3 placeholder-black dark:bg-gray-700 dark:border-gray-600 dark:placeholder-black dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 transition-colors duration-200 ${
+                    errors.email ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   placeholder="Enter email"
                 />
                 {errors.email && (
-                  <div className="mt-1 text-red-500 text-sm">{errors.email}</div>
+                  <div className="mt-1 text-red-500 text-xs sm:text-sm">{errors.email}</div>
                 )}
               </div>
 
-
-
               <div>
-                <label htmlFor="password" className="block mb-2 text-md font-medium text-gray-900 dark:text-white">
+                <label 
+                  htmlFor="password" 
+                  className="block mb-2 text-sm sm:text-md font-medium text-gray-900 dark:text-white"
+                >
                   Password
                 </label>
                 <input
@@ -161,40 +176,50 @@ function DoctorLogin() {
                   name="password"
                   id="password"
                   placeholder="Enter password"
-                  className={`bg-gray-50 border text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:bg-gray-700 dark:border-gray-600 dark:placeholder-black dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ${errors.password ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                  className={`bg-gray-50 border text-gray-900 text-sm sm:text-base rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 sm:p-3 placeholder-black dark:bg-gray-700 dark:border-gray-600 dark:placeholder-black dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 transition-colors duration-200 ${
+                    errors.password ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 />
                 {errors.password && (
-                  <div className="mt-1 text-red-500 text-sm">{errors.password}</div>
+                  <div className="mt-1 text-red-500 text-xs sm:text-sm">{errors.password}</div>
                 )}
               </div>
+
               <button
                 type="submit"
-                className="w-full text-white bg-[#00897B] bg-[#00897B] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                className="w-full text-white bg-[#00897B] hover:bg-[#00776B] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm sm:text-base px-5 py-2.5 sm:py-3 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 transition-colors duration-200"
               >
                 Login
               </button>
-              <p className="text-md font-light text-black-500 dark:text-black-400">
+
+              <p className="text-sm sm:text-md font-light text-black-500 dark:text-black-400 text-center">
                 Don't have an account?{' '}
                 <Link
-                  className="font-medium text-[#5cbba8] hover:underline hover:text-[#5cbba8]"
+                  className="font-medium text-[#5cbba8] hover:underline hover:text-[#5cbba8] transition-colors duration-200"
                   to="/doctor/signup"
                 >
                   Sign in here
                 </Link>
               </p>
+
               <p className="text-center mt-4">
-                <a href="/doctor/doctor-forgot-password" className="text-[#00897B] hover:underline">
+                <a 
+                  href="/doctor/doctor-forgot-password" 
+                  className="text-[#00897B] hover:underline text-sm sm:text-base transition-colors duration-200"
+                >
                   Forgot Password?
                 </a>
               </p>
             </form>
+            
             {/* <div className="flex justify-center w-full mt-4">
-              <GoogleLogin
-                  onSuccess={handleGoogleResponse}
-                  onError={handleGoogleError}
-/>
-                </div> */}
+              <div className="scale-90 sm:scale-100">
+                <GoogleLogin
+                    onSuccess={handleGoogleResponse}
+                    onError={handleGoogleError}
+                />
+              </div>
+            </div> */}
           </div>
         </div>
       </section>

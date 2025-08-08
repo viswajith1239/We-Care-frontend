@@ -23,7 +23,10 @@ const AddReports: React.FC = () => {
   const [reports, setReports] = useState<ReportData[]>([]);
   const [isLoadingReports, setIsLoadingReports] = useState<boolean>(false);
   const { doctorInfo } = useSelector((state: RootState) => state.doctor);
+  console.log("Full doctor state:", useSelector((state: RootState) => state.doctor));
   console.log("usere ", userInfo);
+  console.log("doctor infossssssssssssssssss",doctorInfo);
+  
 
 
 
@@ -71,6 +74,7 @@ const AddReports: React.FC = () => {
       alert('Please log in to upload medical reports.');
       return;
     }
+console.log("doctor idss",doctorInfo?.id);
 
     setIsUploading(true);
     setPreviewImage(selectedImage);
@@ -79,7 +83,7 @@ const AddReports: React.FC = () => {
       const formData = new FormData();
       formData.append('image', selectedImage.file);
       formData.append('userId', userInfo.id);
-      formData.append('doctorId', doctorInfo.id);
+      formData.append('doctorId', doctorInfo?.id);
 
 
 
@@ -207,7 +211,7 @@ const AddReports: React.FC = () => {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {reports.map((report) => (
-              <div key={report._id} className="bg-gray-100 p-3 rounded-lg shadow">
+              <div key={report?._id} className="bg-gray-100 p-3 rounded-lg shadow">
                 <img
                   src={report.imageUrl}
                   alt="Medical Report"

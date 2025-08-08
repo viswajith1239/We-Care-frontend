@@ -57,6 +57,8 @@ const registerDoctor = async (doctorData: IDoctor) => {
       try {
         console.log("doctor service..",email,password)
           const response=await doctorAxiosInstance.post(`${API_URL}/doctor/logindoctor`,{email,password})
+          console.log("service doctor",response);
+          
   
           // const accessToken  = response.data.token
           // console.log("accessss token is",accessToken)
@@ -183,8 +185,14 @@ const registerDoctor = async (doctorData: IDoctor) => {
       }
     }
 
-    export const getDoctorBookings=(doctorId:string)=>{
-      return doctorAxiosInstance.get( `${API_URL}/doctor/bookings/${doctorId}` )
+    export const getDoctorBookings=(doctorId:string,page: number = 1, limit: number = 5,search: string = '')=>{
+      
+     const params: any = { page, limit };
+
+      if (search && search.trim()) {
+    params.search = search.trim();
+  }
+      return doctorAxiosInstance.get( `${API_URL}/doctor/bookings/${doctorId}`,{params} )
     }
 
      export const getBookingDetails=(doctorId:string)=>{
@@ -206,9 +214,20 @@ const registerDoctor = async (doctorData: IDoctor) => {
       return doctorAxiosInstance.delete( `${API_URL}/doctor/clear-notifications/${doctorId}` )
     }
 
-    export const getPrescriptions=(doctorId:string)=>{
-      return doctorAxiosInstance.get( `${API_URL}/doctor/prescriptions/${doctorId}` )
-    }
+   export const getPrescriptions = (doctorId: string, page: number = 1, limit: number = 5, search: string = '') => {
+  // Build query parameters
+  const params = new URLSearchParams({
+    page: page.toString(),
+    limit: limit.toString(),
+  });
+
+  
+  if (search.trim()) {
+    params.append('search', search);
+  }
+
+  return doctorAxiosInstance.get(`${API_URL}/doctor/prescriptions/${doctorId}?${params.toString()}`);
+};
 
     export const getDoctor=(doctorId:string)=>{
       return doctorAxiosInstance.get( `${API_URL}/doctor/${doctorId}` )
@@ -229,8 +248,13 @@ const registerDoctor = async (doctorData: IDoctor) => {
       return doctorAxiosInstance.get( `${API_URL}/doctor/specializations/${doctorId}` )
     }
 
-    export const getreports=(doctorId:string)=>{
-      return doctorAxiosInstance.get( `${API_URL}/doctor/reports/${doctorId}` )
+    export const getreports=(doctorId:string,page: number = 1, limit: number = 5,search: string = '')=>{
+      const params: any = { page, limit };
+
+      if (search && search.trim()) {
+    params.search = search.trim();
+  }
+      return doctorAxiosInstance.get( `${API_URL}/doctor/reports/${doctorId}`,{params} )
     }
 
 

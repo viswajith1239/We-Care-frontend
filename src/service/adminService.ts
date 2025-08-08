@@ -4,6 +4,7 @@ import axios from "axios";
 import adminAxiosInstance from "../axios/adminAxiosInstance";
 import API_URL from "../axios/API_URL";
 
+
 const loginAdmin=async({email,password}:{email:string,password:string})=>{
     
     try{
@@ -24,6 +25,10 @@ const loginAdmin=async({email,password}:{email:string,password:string})=>{
     }
 
 }
+
+const adminLogout = () => {
+  return adminAxiosInstance.post(`${API_URL}/admin/logout`);
+};
 
 const getSpecializations = async (itemsPerPage:number=5,page: number = 1) => {
   
@@ -119,19 +124,47 @@ export const updateDoctorStatusWithReason = async (
   });
 };
 
-    export const getUsers = async ( page: number, limit: number) => {
+    export const getUsers = async ( page: number, limit: number, search: string = '') => {
+      const params: any = { page, limit };
+      if (search && search.trim()) {
+    params.search = search.trim();
+  }
   return adminAxiosInstance.get(
-    `${API_URL}/admin/users?page=${page}&limit=${limit}`
+    `${API_URL}/admin/users`,{params}
   );
   
 };
 
+export const getDoctors = async (
+  page: number,
+  limit: number,
+  search: string = ''
+) => {
+  const params: any = { page, limit };
+  
+  if (search && search.trim()) {
+    params.search = search.trim();
+  }
+  
+  return adminAxiosInstance.get(`${API_URL}/admin/doctors`,
+    { params }
+  );
+};
 export const toggleUserBlockStatus = async (userId: string, currentStatus: boolean) => {
-  return adminAxiosInstance.patch(`/admin/${userId}/block-unblock`, {
+  return adminAxiosInstance.patch(`/admin/user/${userId}/block-unblock`, {
     status: !currentStatus,
   });
+
+  
   
 };
+
+export const toggleDoctorBlockStatus = async (doctorId: string, currentStatus: boolean) => {
+  return adminAxiosInstance.patch(`/admin/doctor/${doctorId}/block-unblock`, {
+    status: !currentStatus,
+  });
+}
+  
 
 
 
@@ -140,7 +173,8 @@ const adminService={
     getSpecializations,
     addSpecialization,
     updateSpecialization,
-    deleteSpecialization
+    deleteSpecialization,
+    adminLogout
     
 }
 export default adminService

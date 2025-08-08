@@ -4,7 +4,7 @@ import { adminLogin, } from '../action/AdminActions';
 interface AdminState {
   adminData: any;
   adminToken: string | null;
-  specializations: any[]; // Adding specializations to state
+  specializations: any[]; 
   loading: boolean;
   error: string | null;
 }
