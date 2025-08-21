@@ -274,7 +274,7 @@ function Report() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           <p className="ml-3 text-gray-500">Loading reports...</p>
         </div>
-      ) : groupedReports.length > 0 ? (
+      ) : reports.length > 0 ? (
         <>
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <table className="min-w-full divide-y divide-gray-200 rounded-lg border">

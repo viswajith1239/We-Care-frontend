@@ -4,16 +4,7 @@ import { useSelector } from 'react-redux';
 import toast, { Toaster } from 'react-hot-toast';
 import { getPrescriptions } from '../../service/doctorService';
 
-interface BookingDetail {
-  startDate: string | number | Date;
-  userId: { _id: string; name: string; email: string; phone: string };
-  _id: string;
-  startTime: string;
-  endTime: string;
-  paymentStatus: string;
-  appoinmentStatus?: string;
-  bookingDate: string;
-}
+
 
 interface Medicine {
   medicineName: string;

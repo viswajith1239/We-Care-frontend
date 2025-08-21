@@ -16,9 +16,7 @@ function DoctorsPage() {
         <div className="flex flex-1 bg-white">
          
           <div className="w-80 bg-white shadow-lg p-4 md:w-72 lg:w-64">
-            <DoctorsListFilterBar onFilterChange={function (filters: { specialization: string; gender: string; priceRange: [number, number]; language: string; }): void {
-              throw new Error('Function not implemented.');
-            } } />
+            <DoctorsListFilterBar  />
          
             <div className="mt-6">
               <h3 className="text-lg font-semibold text-gray-700 mt-10">About Our Doctors</h3>

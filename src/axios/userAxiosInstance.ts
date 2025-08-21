@@ -1,6 +1,5 @@
 import axios, {  AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import API_URL from './API_URL';
-import Cookies from 'js-cookie';
 
 interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
     _retry?: boolean;

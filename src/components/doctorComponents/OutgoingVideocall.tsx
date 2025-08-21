@@ -1,10 +1,10 @@
-import React, { useEffect, useRef } from 'react'
+import  { useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../app/store';
 import { useSocketContext } from '../../context/socket';
 import { endCallDoctor } from '../../slice/DoctorSlice'
 import { MdCallEnd } from "react-icons/md";
-import userimg from "../../assets/user.png"
+
 
 
 function OutgoingVideocall() {

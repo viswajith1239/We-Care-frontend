@@ -58,8 +58,8 @@ const AddReports: React.FC = () => {
     if (file && file.type.startsWith('image/')) {
       const url = URL.createObjectURL(file);
       setSelectedImage({ file, url });
-
-      setPreviewImage(null);
+      // Set preview image when file is selected
+      setPreviewImage({ file, url });
     }
   };
 
@@ -77,7 +77,6 @@ const AddReports: React.FC = () => {
 console.log("doctor idss",doctorInfo?.id);
 
     setIsUploading(true);
-    setPreviewImage(selectedImage);
 
     try {
       const formData = new FormData();
@@ -170,8 +169,42 @@ console.log("doctor idss",doctorInfo?.id);
         />
       </div>
 
+     
+      {previewImage && (
+        <div className="mb-6">
+          <h3 className="text-lg font-medium text-gray-700 mb-3 text-center">
+            Preview Selected Report:
+          </h3>
+          <div className="flex justify-center">
+            <div className="bg-gray-100 p-3 rounded-lg shadow max-w-md">
+              <img
+                src={previewImage.url}
+                alt="Selected Report Preview"
+                className="w-full h-48 object-cover rounded-md"
+              />
+              <p className="text-xs text-gray-600 mt-2 text-center">
+                Ready to upload: {previewImage.file.name}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
-
+     
+      {uploadedUrl && !isUploading && (
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div className="flex items-center justify-center">
+            <div className="text-center">
+              <p className="text-green-800 font-medium mb-2">
+                 Report uploaded successfully!
+              </p>
+              <p className="text-sm text-green-600">
+                Your report has been saved and is now available in your reports list below.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex gap-3 mb-6 items-center justify-center">
         <button

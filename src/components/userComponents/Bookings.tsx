@@ -176,7 +176,7 @@ function Bookings() {
 
   const headers = ['Doctor', 'Date', 'Time', 'Payment Status', 'Appointment Status', 'Refund', 'Actions'];
 
-  const renderRow = (booking: BookingDetail, index: number) => (
+  const renderRow = (booking: BookingDetail) => (
     <tr key={booking._id} className="hover:bg-gray-50">
       <td className="py-3 px-4 border-b text-center">{booking.doctorName}</td>
       <td className="py-3 px-4 border-b text-center">{new Date(booking.startDate).toLocaleDateString()}</td>

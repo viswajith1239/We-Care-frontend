@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import userAxiosInstance from "../../axios/userAxiosInstance";
 import API_URL from "../../axios/API_URL";
@@ -89,9 +89,7 @@ function PatientWallet() {
     }
   }, [userInfo?.id, currentPage]);
 
-  const handleAddMoneyButton = () => {
-    setIsAddMoneyModalOpen(true);
-  };
+ 
 
   const handleAddMoney = async () => {
     const amount = addMoney.amount ?? "";

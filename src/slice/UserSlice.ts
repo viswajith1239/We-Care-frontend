@@ -148,6 +148,8 @@ const userSlice = createSlice({
       })
 
       .addCase(logoutUser.fulfilled, (state, action: PayloadAction<User>) => {
+        console.log(action.payload);
+        
         state.userInfo = null;
         state.error = null;
         localStorage.removeItem('user')

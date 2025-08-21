@@ -60,7 +60,6 @@ interface DoctorChatProps {
 const Chat: React.FC<DoctorChatProps> = ({ userId }) => {
   const { userInfo } = useSelector((state: RootState) => state.user);
   const { doctorInfo, showPrescription } = useSelector((state: RootState) => state.doctor);
-  const [bookingId, setBookingId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -342,7 +341,7 @@ console.log("doctorData:", doctorData);
           doctorImage: doctorData?.profileImage,
         },
       };
-      const response = await doctorAxiosInstance.post(
+     await doctorAxiosInstance.post(
         `${API_URL}/doctor/prescription/${doctorInfo.id}/${selectedUser._id}`,
         { ...prescriptionData }
       );

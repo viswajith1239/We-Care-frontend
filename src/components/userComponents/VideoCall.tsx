@@ -8,7 +8,7 @@ import { setRoomIdUser, setShowIncomingVideoCall, setShowVideoCallUser, setVideo
 
 function VideoCall() {
   const videoCallRef = useRef<HTMLDivElement | null>(null);
-  const { roomIdUser, showIncomingVideoCall, videoCall } = useSelector((state: RootState) => state.user);
+  const { roomIdUser, showIncomingVideoCall } = useSelector((state: RootState) => state.user);
   let { socket } = useSocketContext();
   const dispatch = useDispatch();
   useEffect(() => {

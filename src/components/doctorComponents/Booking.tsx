@@ -96,6 +96,7 @@ function Bookings() {
     setSearchQuery(value);
     debouncedSearch(value);
   };
+  
 
   const clearSearch = () => {
     setSearchQuery('');
@@ -107,30 +108,7 @@ function Bookings() {
     setCurrentPage(newPage);
   };
 
-  const handleCancel = async (bookingId: string, userId: string) => {
-    const result = await Swal.fire({
-      title: "Do you want to cancel this appointment?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, cancel it!",
-    });
-
-    if (result.isConfirmed) {
-      try {
-        const response = await doctorAxiosInstance.post(
-          `${API_URL}/doctor/cancel-booking`,
-          { bookingId, userId }
-        );
-        toast.success("Appointment cancelled successfully!");
-        fetchBookingDetails(currentPage, searchQuery);
-      } catch (error) {
-        console.log("Error canceling appointment", error);
-        toast.error('Failed to cancel appointment');
-      }
-    }
-  };
+  
 
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {

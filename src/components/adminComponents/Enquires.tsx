@@ -43,10 +43,7 @@ interface RawContact {
   status?: 'pending' | 'in-progress' | 'resolved';
 }
 
-interface ApiResponse {
-  response?: RawContact[];
-  data?: RawContact[];
-}
+
 
 const ContactSubmissions: React.FC = () => {
   const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);

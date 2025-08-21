@@ -24,6 +24,7 @@ function Banner() {
 
 
   function doctorLogin(event: React.MouseEvent<HTMLButtonElement>): void {
+      event.preventDefault();
     navigate("/doctor/login");
   }
 

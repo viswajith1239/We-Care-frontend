@@ -23,7 +23,7 @@ export function axiosInstance(instance: AxiosInstance, role: Role) {
   instance.interceptors.response.use(
     (response: AxiosResponse) => response,
     async (error: AxiosError) => {
-      const originalRequest = error.config;
+      
 
 
       if (error.response?.status === 401 || error.response?.status === 403) {

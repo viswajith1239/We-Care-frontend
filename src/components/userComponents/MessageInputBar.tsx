@@ -24,7 +24,6 @@ function MessageInputBar({ doctorId, onNewMessage }: MessageInputBarProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { userInfo } = useSelector((state: RootState) => state.user);
-  const { doctorInfo } = useSelector((state: RootState) => state.doctor);
   const { socket } = useSocketContext();
 
   const userId = userInfo?.id;

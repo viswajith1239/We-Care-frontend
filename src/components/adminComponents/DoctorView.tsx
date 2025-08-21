@@ -4,8 +4,8 @@ import { FaCheck, FaTimes } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 // import { useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../app/store";
-import { useDispatch } from "react-redux";
+// import { AppDispatch } from "../../app/store";
+// import { useDispatch } from "react-redux";
 import { getDoctorDetails, updateDoctorKYCStatus, updateDoctorStatusWithReason } from "../../service/adminService";
 
 interface Errors {
@@ -33,7 +33,7 @@ function DoctorView() {
 
   const { doctorId } = useParams();
   const navigate = useNavigate();
-  const dispatch = useDispatch<AppDispatch>();
+  // const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
     if (!doctorId) return

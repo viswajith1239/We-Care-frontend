@@ -25,7 +25,6 @@ function MessageInputBar({ userId, onNewMessage }: MessageInputBarProps) {
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { userInfo } = useSelector((state: RootState) => state.user);
   const { doctorInfo } = useSelector((state: RootState) => state.doctor);
   const { socket } = useSocketContext();
 

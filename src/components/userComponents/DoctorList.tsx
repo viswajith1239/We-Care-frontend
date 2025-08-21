@@ -3,6 +3,9 @@ import { Doctor } from "../../types/doctor";
 import { useNavigate, useLocation } from "react-router-dom";
 import { fetchdoctors } from "../../service/userService";
 
+
+
+
 function DoctorsList() {
   const [doctorsData, setDoctorsData] = useState<Doctor[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -67,6 +70,19 @@ function DoctorsList() {
     fetchDoctors();
   }, [location.search]);
 
+  // New useEffect to handle sorting when sortOption changes
+  useEffect(() => {
+    if (doctorsData.length > 0) {
+      let sortedDoctors = [...doctorsData];
+      if (sortOption === "a-z") {
+        sortedDoctors.sort((a, b) => a.name.localeCompare(b.name));
+      } else if (sortOption === "z-a") {
+        sortedDoctors.sort((a, b) => b.name.localeCompare(a.name));
+      }
+      setDoctorsData(sortedDoctors);
+    }
+  }, [sortOption]);
+
   const handleViewProfile = (doctorId: string) => {
     navigate(`/doctorsprofileview/${doctorId}`);
   };
@@ -83,13 +99,24 @@ function DoctorsList() {
     setDisplayLimit((prevLimit) => prevLimit + 6);
   };
 
+  // Handler for sort option change
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newSortOption = e.target.value;
+    setSortOption(newSortOption);
+    
+    // Update URL params to reflect the sort change
+    const params = new URLSearchParams(location.search);
+    params.set("sort", newSortOption);
+    navigate({ search: params.toString() }, { replace: true });
+  };
+
   return (
     <div className="bg-white min-h-screen py-8 px-4">
       <h1 className="text-4xl font-bold text-center mb-8 text-black">
         Meet Our Doctors
       </h1>
 
-      <div className="flex justify-center mb-6">
+      <div className="flex justify-center mb-6 gap-4">
         <input
           type="text"
           placeholder="Search for a doctor..."
@@ -97,13 +124,23 @@ function DoctorsList() {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+        
+        {/* Sort dropdown */}
+        <select
+          value={sortOption}
+          onChange={handleSortChange}
+          className="p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+        >
+          <option value="a-z">Sort A-Z</option>
+          <option value="z-a">Sort Z-A</option>
+        </select>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-6">
         {filteredDoctors.slice(0, displayLimit).map((doctor: Doctor) => (
           <div
             key={doctor._id}
-            className="bg-white shadow-lg rounded-xl overflow-hidden transform transition-transform hover:scale-105 col-span-2 shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px]"
+            className="bg-white shadow-lg rounded-xl overflow-hidden transform transition-transform hover:scale-105 col-span-2 "
           >
             <img
               src={doctor.profileImage}
@@ -112,7 +149,7 @@ function DoctorsList() {
             />
             <div className="p-4 text-center">
               <h3 className="font-semibold text-xl pt-4">Dr. {doctor.name}</h3>
-              <p className="text-gray-600">Experience: {doctor.yearsOfExperience} Years</p> {/* Updated to yearsOfExperience */}
+              <p className="text-gray-600">Experience: {doctor.yearsOfExperience} Years</p>
               <div className="text-gray-600 flex justify-center mt-3 space-x-2">
                 {doctor.specializations.map((spec) => (
                   <p className="bg-blue-100 rounded-xl text-sm" key={spec._id}>

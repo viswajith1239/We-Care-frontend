@@ -95,8 +95,8 @@ function DoctorsProfileView() {
         console.log("Fetched Schedules:", schedules);
         setSessionSchedules(schedules);
 
-
-        const datesWithAvailableSlots = schedules
+        // Ensure schedules is an array and filter properly
+        const datesWithAvailableSlots = (schedules as ISessionSchedule[])
           .filter((schedule: ISessionSchedule) =>
             !schedule.isBooked && schedule.doctorId === doctorId
           )
@@ -104,12 +104,12 @@ function DoctorsProfileView() {
             dayjs(schedule.selectedDate || schedule.startDate).format("YYYY-MM-DD")
           );
 
+        // Get unique dates as strings
+        const uniqueDates: string[] = Array.from(new Set(datesWithAvailableSlots));
 
-        const uniqueDates = Array.from(new Set(datesWithAvailableSlots));
-
-
-        const validDates = uniqueDates.filter(date => {
-          const slotsForDate = schedules.filter((schedule: ISessionSchedule) =>
+        // Filter valid dates and ensure they remain as strings
+        const validDates: string[] = uniqueDates.filter((date: string) => {
+          const slotsForDate = (schedules as ISessionSchedule[]).filter((schedule: ISessionSchedule) =>
             dayjs(schedule.selectedDate || schedule.startDate).format("YYYY-MM-DD") === date &&
             schedule.doctorId === doctorId &&
             !schedule.isBooked
@@ -120,7 +120,7 @@ function DoctorsProfileView() {
         console.log("Available Dates:", validDates);
         setAvailableDates(validDates);
 
-
+        // Check if selected date is still valid
         if (selectedDate) {
           const selectedDateStr = dayjs(selectedDate).format("YYYY-MM-DD");
           if (!validDates.includes(selectedDateStr)) {
@@ -142,7 +142,7 @@ function DoctorsProfileView() {
     if (date) {
       const formattedDate = dayjs(date).format("YYYY-MM-DD");
 
-
+      // Generate time slots for selected date
       const slotsForDate: TimeSlot[] = sessionSchedules
         .filter(schedule =>
           dayjs(schedule.selectedDate || schedule.startDate).format("YYYY-MM-DD") === formattedDate &&
@@ -177,7 +177,7 @@ function DoctorsProfileView() {
       if (stripe) {
         await stripe.redirectToCheckout({ sessionId: response.data.id });
 
-
+        // Trigger refresh after payment
         setRefreshSchedules(prev => !prev);
       } else {
         navigate("/login");
@@ -206,11 +206,11 @@ function DoctorsProfileView() {
     }
   }, [userId, doctorId]);
 
-
+  // Handle page visibility change to refresh schedules
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-
+        // Refresh schedules when user comes back to the page
         setRefreshSchedules(prev => !prev);
       }
     };
@@ -310,17 +310,17 @@ function DoctorsProfileView() {
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-4 lg:p-10">
       <Toaster />
 
-
+      {/* Main Grid Layout */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-
+        {/* Left Column - Doctor Profile & Booking */}
         <div className="max-w-3xl mx-auto px-4 py-6 space-y-6 -mt-6">
-
+          {/* Doctor Profile Card */}
           <div className="bg-white shadow-xl rounded-lg text-gray-900 overflow-hidden">
-
+            {/* Header Background */}
             <div className="h-32 bg-[#00897B] bg-opacity-60 rounded-t-lg"></div>
 
-
+            {/* Profile Image */}
             <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white mx-auto -mt-16">
               <img
                 className="object-cover object-top h-full w-full"
@@ -329,7 +329,7 @@ function DoctorsProfileView() {
               />
             </div>
 
-
+            {/* Rating Display */}
             {avgRatingAndTotalReviews.length > 0 && (
               <div className="text-center mt-4">
                 <p className="text-yellow-500 font-semibold text-lg flex items-center justify-center gap-1">
@@ -342,7 +342,7 @@ function DoctorsProfileView() {
               </div>
             )}
 
-
+            {/* Doctor Details */}
             <div className="text-center p-4 space-y-2">
               <h2 className="text-xl font-bold">Dr. {doctor?.name}</h2>
               <p><strong>Specialization:</strong> {doctor?.specializations[0]?.name || "N/A"}</p>
@@ -351,7 +351,7 @@ function DoctorsProfileView() {
               <p><strong>Gender:</strong> {doctor?.gender || "N/A"}</p>
             </div>
 
-
+            {/* Doctor Description */}
             <div className="px-4 pb-4 text-gray-700 text-center space-y-2">
               <p>
                 <strong>Dr. {doctor?.name}</strong> has {doctor?.yearsOfExperience} years of experience and is a highly skilled and compassionate medical professional specializing in{" "}
@@ -362,7 +362,7 @@ function DoctorsProfileView() {
               </p>
             </div>
 
-
+            {/* Book Appointment Button */}
             <div className="p-4 border-t text-center">
               <button
                 onClick={() => setShowDateSection(true)}
@@ -373,12 +373,12 @@ function DoctorsProfileView() {
             </div>
           </div>
 
-
+          {/* Date Selection Section */}
           {showDateSection && (
             <div className="w-full bg-white shadow-md rounded-lg p-6">
               <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">Choose Available Date</h3>
 
-
+              {/* Date Picker */}
               <div className="relative w-48 mx-auto mb-6">
                 <DatePicker
                   ref={datePickerRef}
@@ -397,7 +397,7 @@ function DoctorsProfileView() {
                 />
               </div>
 
-
+              {/* Time Slots */}
               {selectedDate && availableTimeSlots.length > 0 ? (
                 <>
                   <h4 className="text-md font-semibold text-gray-800 mb-3 text-center">Available Slots</h4>
@@ -417,7 +417,7 @@ function DoctorsProfileView() {
                 <p className="text-center text-gray-600 mt-2">No slots available for this date.</p>
               ) : null}
 
-
+              {/* No Available Dates Message */}
               {availableDates.length === 0 && (
                 <p className="text-center text-gray-600 mt-4">No available dates at the moment.</p>
               )}
@@ -426,9 +426,9 @@ function DoctorsProfileView() {
         </div>
 
 
-
+        {/* Right Column - Reviews Section */}
         <div className="space-y-6 ">
-
+          {/* Reviews Card */}
           <div className="bg-white shadow-md rounded-lg p-6 px-4 py-11">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-semibold text-gray-800">
@@ -456,7 +456,7 @@ function DoctorsProfileView() {
               )}
             </div>
 
-
+            {/* Review Component */}
             <Review
               doctorId={doctorId}
               reload={reload}
@@ -467,7 +467,7 @@ function DoctorsProfileView() {
         </div>
       </div>
 
-
+      {/* Review Modal */}
       {isReviewModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
           <div className="bg-white rounded-lg p-6 md:p-8 w-full max-w-2xl shadow-lg max-h-[90vh] overflow-y-auto relative">
@@ -476,7 +476,7 @@ function DoctorsProfileView() {
             </h1>
             <h2 className="font-medium mt-3 sm:text-base">Select Your Rating</h2>
 
-
+            {/* Star Rating */}
             <div className="text-yellow-600 text-lg sm:text-base">
               <div className="flex items-center mt-2">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -495,7 +495,7 @@ function DoctorsProfileView() {
                 ))}
               </div>
 
-
+              {/* Review Text Area */}
               <div className="mt-3">
                 <textarea
                   onChange={(e) => setReviewComment(e.target.value)}
@@ -507,7 +507,7 @@ function DoctorsProfileView() {
               </div>
             </div>
 
-
+            {/* Modal Buttons */}
             <div className="flex justify-end gap-4 sm:gap-2 mt-4">
               <button
                 className="bg-red-500 px-3 py-2 rounded-md text-white sm:px-2 sm:py-1 sm:text-sm hover:bg-red-600 transition"

@@ -4,14 +4,13 @@ import Header from "../../components/userComponents/Header"
 import Banner from "../../components/userComponents/Banner"
 import Footer from "../../components/userComponents/Footer"
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 // import userAxiosInstance from "../../axios/userAxiosInstance";
 // import { useNavigate } from "react-router-dom";
 // import { useEffect } from "react";
 // import API_URL from "../../axios/API_URL";
 function HomePage(){
 
-    const navigate = useNavigate();
+    
     useEffect(() => {
         window.history.pushState(null, "", window.location.href);
         window.onpopstate = () => {

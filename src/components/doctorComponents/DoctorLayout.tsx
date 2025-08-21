@@ -18,7 +18,7 @@ const DoctorLayout: React.FC = () => {
   const { doctorInfo } = useSelector((state: RootState) => state.doctor);
   console.log("ffff", doctorInfo._id);
 
-  const { doctorNotifications, addDoctorNotification, clearDoctorNotifications, updateDoctorNotificationReadStatus } = useNotification();
+  const { doctorNotifications, addDoctorNotification, clearDoctorNotifications,  } = useNotification();
 
 
   const navigate = useNavigate();

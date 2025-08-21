@@ -1,8 +1,8 @@
 import { Link, useNavigate } from "react-router-dom"
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, {  useState } from "react";
+import { useDispatch } from "react-redux";
 import { Toaster, toast } from "react-hot-toast";
-import { AppDispatch, RootState } from "../../app/store"
+import { AppDispatch, } from "../../app/store"
 import { loginUser, GoogleLogins } from "../../action/userActions"
 import { GoogleLogin, CredentialResponse } from "@react-oauth/google"
 import bgimage from "../../assets/doctor-nurses-special-equipment.jpg"

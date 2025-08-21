@@ -34,7 +34,7 @@ const ScheduleAppoinments: React.FC = () => {
   const [sessionSchedules, setSessionSchedules] = useState<IAppoinmentSchedule[]>([]);
   const [isRescheduling, setIsRescheduling] = useState(false);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
-  const [sessions, setSessions] = useState<IAppoinmentSchedule[]>([]);
+ 
 
 
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -75,11 +75,22 @@ const ScheduleAppoinments: React.FC = () => {
 
     if (name === 'isRecurring' && type === 'checkbox') {
       const checkbox = e.target as HTMLInputElement;
+      const newSessionType = checkbox.checked ? RecurrenceType.DAILY : RecurrenceType.SINGLE;
+      
+      setSessionType(newSessionType);
       setFormData(prev => ({
         ...prev,
         [name]: checkbox.checked,
-        recurrenceType: checkbox.checked ? RecurrenceType.DAILY : RecurrenceType.SINGLE
+        recurrenceType: newSessionType
       }));
+      return;
+    }
+
+    // Handle recurrenceType change
+    if (name === 'recurrenceType') {
+      const newType = value as RecurrenceType;
+      setSessionType(newType);
+      setFormData(prev => ({ ...prev, [name]: newType }));
       return;
     }
 
@@ -111,6 +122,9 @@ const ScheduleAppoinments: React.FC = () => {
         const formattedDate = appointmentDate.toISOString().split('T')[0];
         const specializationId = appointmentToReschedule.specializationId?._id || "";
 
+        // Set sessionType for rescheduling (always single for existing appointments)
+        setSessionType(RecurrenceType.SINGLE);
+        
         setFormData({
           selectedDate: formattedDate,
           startTime: appointmentToReschedule.startTime,
@@ -127,6 +141,8 @@ const ScheduleAppoinments: React.FC = () => {
         setIsRescheduling(false);
         setSelectedAppointmentId(null);
 
+        // Reset sessionType to default
+        setSessionType(RecurrenceType.SINGLE);
 
         setFormData({
           selectedDate: "",
@@ -140,7 +156,6 @@ const ScheduleAppoinments: React.FC = () => {
           recurrenceEnd: "",
         });
         setSelectedDays([]);
-        setSessionType(RecurrenceType.SINGLE);
       }
 
       setShowModal(true);
@@ -203,7 +218,7 @@ const ScheduleAppoinments: React.FC = () => {
       }
 
       if (
-        formData.recurrenceType === RecurrenceType.WEEKLY &&
+        sessionType === RecurrenceType.WEEKLY &&
         selectedDays.length === 0
       ) {
         toast.error("Please select at least one day for weekly recurring appointments.");
@@ -243,8 +258,8 @@ const ScheduleAppoinments: React.FC = () => {
           status: "Pending",
           specializationId: formData.specialization,
           isRecurring: formData.isRecurring,
-          recurrenceType: formData.isRecurring ? formData.recurrenceType : "None",
-          daysOfWeek: formData.isRecurring && formData.recurrenceType === RecurrenceType.WEEKLY
+          recurrenceType: formData.isRecurring ? sessionType : "None", // Use sessionType here
+          daysOfWeek: formData.isRecurring && sessionType === RecurrenceType.WEEKLY
             ? selectedDays
             : [],
           recurrenceInterval: formData.isRecurring ? formData.recurrenceInterval : 1,
@@ -407,7 +422,7 @@ const ScheduleAppoinments: React.FC = () => {
           <label className="text-gray-700 font-medium">Recurrence Type</label>
           <select
             name="recurrenceType"
-            value={formData.recurrenceType}
+            value={sessionType} // Use sessionType here
             onChange={handleInputChange}
             className="w-full mt-2 p-2 sm:p-3 border border-gray-300 rounded-lg text-sm sm:text-base"
           >
@@ -420,7 +435,7 @@ const ScheduleAppoinments: React.FC = () => {
           </select>
         </div>
 
-        {formData.recurrenceType === RecurrenceType.WEEKLY && (
+        {sessionType === RecurrenceType.WEEKLY && ( // Use sessionType here
           <div>
             <label className="text-gray-700 font-medium">Days of Week</label>
             <div className="flex flex-wrap gap-2 mt-2">

@@ -1,4 +1,4 @@
-import React from 'react'
+
 import Verification from '../../components/adminComponents/verification'
 
 function VerificatonPage() {

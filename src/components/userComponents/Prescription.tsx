@@ -54,7 +54,6 @@ function Prescription() {
   const userId = userInfo?.id;
   const ITEMS_PER_PAGE = 3;
 
-
   const debounce = (func: Function, delay: number) => {
     let timeoutId: NodeJS.Timeout;
     return (...args: any[]) => {
@@ -160,16 +159,12 @@ function Prescription() {
     fetchPrescription(1, '');
   };
 
-  const formatDate = (dateString: string): string => {
+  const formatDate = (dateString: string | number | Date): string => {
     if (!dateString) return 'N/A';
     
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      });
+      return date.toLocaleDateString('en-GB');
     } catch (error) {
       return 'Invalid Date';
     }
@@ -183,14 +178,13 @@ function Prescription() {
     }
   };
 
-  const renderRow = (prescription: PrescriptionData, index: number) => {
+  const renderRow = (prescription: PrescriptionData) => {
     const prescriptions = Array.isArray(prescription.prescriptions) ? prescription.prescriptions : [];
 
     return prescriptions.map((med: any, medIndex: number) => (
       <tr key={`${prescription._id}-${medIndex}`} className="border-t hover:bg-gray-50">
         <td className="py-2 px-4 text-center">{prescription.doctorName || 'Unknown'}</td>
-         <td className="py-2 px-4 text-center">  {prescription.createdAt ? 
-         new Date(prescription.createdAt).toLocaleDateString('en-GB') : 'N/A'}</td>
+        <td className="py-2 px-4 text-center">{formatDate(prescription.createdAt)}</td>
         <td className="py-2 px-4 text-center">{med.medicineName || 'N/A'}</td>
         <td className="py-2 px-4 text-center">{med.dosage || 'N/A'}</td>
         <td className="py-2 px-4 text-center">{med.frequency || 'N/A'}</td>
@@ -244,7 +238,6 @@ function Prescription() {
     <div className="mt-10">
       <h2 className="text-xl font-semibold mb-4">Your Prescriptions</h2>
       
- 
       <div className="mb-6 flex justify-center">
         <div className="relative w-full max-w-md">
           <input

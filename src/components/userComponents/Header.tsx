@@ -11,7 +11,6 @@ import toast from 'react-hot-toast';
 import { useNotification } from "../../context/NotificationContext";
 import { BsBell } from 'react-icons/bs';
 import { logoutUser } from '../../action/userActions';
-import { User, UserCircle, UserCheck } from 'lucide-react'
 import { getnotification, getuser } from '../../service/userService';
 
 interface INotificationContent {
@@ -37,14 +36,12 @@ function Header() {
     addUserNotification,
     clearUserNotifications,
     userNotifications,
-    updateUserNotificationReadStatus,
     countUnreadNotificationsUser,
     clearAllNotifications,
     initializeForUser
   } = useNotification();
 
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
-  const [notificationsData, setNotificationsData] = useState()
   const [userProfileImage, setUserProfileImage] = useState<string | null>(null);
   const { userInfo } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch<AppDispatch>();

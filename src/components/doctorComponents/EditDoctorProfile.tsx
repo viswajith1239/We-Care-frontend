@@ -20,7 +20,7 @@ interface FormData {
 }
 
 const EditDoctorProfile: React.FC = () => {
-  const [error, setError] = useState<string | null>(null);
+
   const [allSpecializations, setAllSpecializations] = useState<
     { name: string; _id: string }[]
   >([]);
@@ -39,8 +39,7 @@ const EditDoctorProfile: React.FC = () => {
   const navigate = useNavigate();
   const { doctorInfo } = useSelector((state: RootState) => state.doctor);
   const doctorId = doctorInfo.id;
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
+
 
   useEffect(() => {
     const fetchDoctor = async () => {
@@ -63,9 +62,8 @@ const EditDoctorProfile: React.FC = () => {
           specializations: doctorData?.specializations || [],
           about: doctorData?.about || "",
         });
-      } catch (err) {
-        setError("Failed to load doctor data");
-        console.error("Error fetching doctor data:", err);
+      } catch (error) {
+        console.error("Error fetching doctor data:", error);
       }
     };
     fetchDoctor();

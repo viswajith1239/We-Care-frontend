@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import { FaFileAlt, } from "react-icons/fa";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../app/store";
 import { useNavigate } from "react-router-dom";
 import { getDoctorKycData } from "../../service/adminService";
 
@@ -13,20 +11,17 @@ interface Doctor {
   status: string;
 }
 
-interface Errors {
-  name?: string;
-  description?: string;
-}
+
 
 function Verification() {
   const [doctorsKycData, setDoctorsKycData] = useState<Doctor[]>([]);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [errors, setErrors] = useState<Errors>({});
 
-  const dispatch = useDispatch<AppDispatch>();
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+
+
+
   const navigate = useNavigate();
 
   useEffect(() => {
