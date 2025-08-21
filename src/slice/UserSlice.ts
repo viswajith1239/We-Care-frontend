@@ -83,8 +83,8 @@ const userSlice = createSlice({
       
       state.videoCall = null;
       state.showIncomingVideoCall = null;
-      state.showVideoCallUser = false; // Ensure the video call state is false
-      state.roomIdUser = null;         // Clear the room ID if necessary
+      state.showVideoCallUser = false;
+      state.roomIdUser = null;         
       console.log('callend user slice',state.showIncomingVideoCall);
       localStorage.removeItem("IncomingVideoCall");
     },

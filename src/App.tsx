@@ -1,4 +1,4 @@
-// import React from "react";
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import UserRoutes from "./Routes/UserRoutes";
 import AdminRoutes from "./Routes/AdminRoutes";
@@ -40,5 +40,6 @@ function App() {
     </>
   )
 }
+
 
 export default App

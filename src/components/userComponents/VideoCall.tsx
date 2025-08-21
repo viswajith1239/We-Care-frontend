@@ -1,6 +1,6 @@
 import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt"
 import { useEffect, useRef } from "react";
-import { RootState } from "../../app/store";
+import { RootState } from "../../../src/app/store";
 import { useDispatch, useSelector } from "react-redux";
 import { useSocketContext } from "../../context/socket";
 import { setRoomIdUser, setShowIncomingVideoCall, setShowVideoCallUser, setVideoCallUser } from "../../slice/UserSlice";
