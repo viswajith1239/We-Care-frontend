@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
-import doctorAxiosInstance from "../../axios/doctorAxiosInstance";
-import API_URL from "../../axios/API_URL";
-import Swal from "sweetalert2";
+
+
+
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
-import toast from "react-hot-toast";
+
 import { getDoctorBookings } from "../../service/doctorService";
 
 interface BookingDetail {

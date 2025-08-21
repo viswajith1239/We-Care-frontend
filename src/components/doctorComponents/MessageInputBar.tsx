@@ -134,7 +134,7 @@ function MessageInputBar({ userId, onNewMessage }: MessageInputBarProps) {
     }
   };
 
-  const handleEmojiClick = (emojiData: EmojiClickData, event: MouseEvent) => {
+  const handleEmojiClick = (emojiData: EmojiClickData) => {
     const currentPosition = inputRef.current?.selectionStart || message.length;
     const newMessage = message.slice(0, currentPosition) + emojiData.emoji + message.slice(currentPosition);
     setMessage(newMessage);
