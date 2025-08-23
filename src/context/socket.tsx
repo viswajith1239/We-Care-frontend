@@ -41,7 +41,7 @@ console.log('userInfos',loggedUser)
               return;
             }
         
-            const newSocket = io("https://www.viswajith.site:3000", {
+            const newSocket = io("https://www.viswajith.site", {
               query: { userId: loggedUser },
               transports: ["websocket"],
               reconnectionAttempts: 5,
