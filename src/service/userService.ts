@@ -51,7 +51,9 @@ const login = async (userData: { email: string; password: string }) => {
       return Promise.reject(error.response.data); 
     }
 
-    return Promise.reject({ message: "An unknown error occurred" });
+console.log("eeeeee",error);
+
+    return Promise.reject({ message: "An unknown error occurred" ,error});
   }
 };
 
