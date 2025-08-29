@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, FormEvent, useEffect } from "react";
+import React, { useState, ChangeEvent, FormEvent, useEffect, useCallback } from "react";
 import axiosinstance from "../../axios/userAxiosInstance";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
@@ -16,7 +16,6 @@ enum RecurrenceType {
   MONTHLY = "Monthly"
 }
 
-
 interface PaginationInfo {
   currentPage: number;
   totalPages: number;
@@ -27,15 +26,16 @@ interface PaginationInfo {
 }
 
 const ScheduleAppoinments: React.FC = () => {
-
   const [showModal, setShowModal] = useState(false);
   const [sessionType, setSessionType] = useState<RecurrenceType>(RecurrenceType.SINGLE);
   const [spec, setSpec] = useState<ISpecialization[]>([]);
   const [sessionSchedules, setSessionSchedules] = useState<IAppoinmentSchedule[]>([]);
   const [isRescheduling, setIsRescheduling] = useState(false);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
- 
-
+  const [startDate, setStartDate] = useState('');
+const [endDate, setEndDate] = useState('');
+const [allAppointments, setAllAppointments] = useState<IAppoinmentSchedule[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [paginationInfo, setPaginationInfo] = useState<PaginationInfo>({
@@ -47,7 +47,6 @@ const ScheduleAppoinments: React.FC = () => {
     limit: 5
   });
   const ITEMS_PER_PAGE = 5;
-
 
   const [formData, setFormData] = useState({
     selectedDate: "",
@@ -61,17 +60,21 @@ const ScheduleAppoinments: React.FC = () => {
     recurrenceEnd: "",
   });
 
-
   const [selectedDays, setSelectedDays] = useState<number[]>([]);
-
 
   const { doctorInfo } = useSelector((state: RootState) => state.doctor);
   const doctorId = doctorInfo.id;
 
+  const debounce = (func: Function, delay: number) => {
+    let timeoutId: NodeJS.Timeout;
+    return (...args: any[]) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func.apply(null, args), delay);
+    };
+  };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-
 
     if (name === 'isRecurring' && type === 'checkbox') {
       const checkbox = e.target as HTMLInputElement;
@@ -97,7 +100,6 @@ const ScheduleAppoinments: React.FC = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-
   const handleDayToggle = (day: number) => {
     setSelectedDays(prev =>
       prev.includes(day)
@@ -106,17 +108,14 @@ const ScheduleAppoinments: React.FC = () => {
     );
   };
 
-
   const handleOpenModal = async (appointmentToReschedule?: IAppoinmentSchedule) => {
     try {
       const response = await getDoctorSpecialization(doctorId)
       setSpec(response.data.data.specializations);
 
       if (appointmentToReschedule) {
-
         setIsRescheduling(true);
         setSelectedAppointmentId(appointmentToReschedule._id);
-
 
         const appointmentDate = new Date(appointmentToReschedule.selectedDate || appointmentToReschedule.startDate);
         const formattedDate = appointmentDate.toISOString().split('T')[0];
@@ -137,7 +136,6 @@ const ScheduleAppoinments: React.FC = () => {
           recurrenceEnd: "",
         });
       } else {
-
         setIsRescheduling(false);
         setSelectedAppointmentId(null);
 
@@ -165,7 +163,6 @@ const ScheduleAppoinments: React.FC = () => {
     }
   };
 
-
   const handleCancel = () => {
     setFormData({
       selectedDate: "",
@@ -185,11 +182,153 @@ const ScheduleAppoinments: React.FC = () => {
     setSelectedAppointmentId(null);
   };
 
+  const filterAppointmentsByDateRange = (appointments: IAppoinmentSchedule[]) => {
+  if (!startDate && !endDate) {
+    return appointments;
+  }
 
+  return appointments.filter(appointment => {
+    const appointmentDate = new Date(appointment.selectedDate || appointment.startDate);
+    const start = startDate ? new Date(startDate) : null;
+    const end = endDate ? new Date(endDate) : null;
+
+    if (start && end) {
+      return appointmentDate >= start && appointmentDate <= end;
+    } else if (start) {
+      return appointmentDate >= start;
+    } else if (end) {
+      return appointmentDate <= end;
+    }
+    return true;
+  });
+};
+
+  // Modified fetchSessionData to accept search parameter
+const fetchSessionData = async (page: number = 1, search: string = '') => {
+  try {
+    console.log("Fetching session data with search:", search);
+    
+    const response = await getSessionData(doctorId, page, ITEMS_PER_PAGE, search);
+
+    console.log("Full response:", response);
+    console.log("Requested page:", page);
+
+    const schedules = response.data.sheduleData?.appoinmentData || [];
+    const paginationData = response.data.sheduleData?.pagination || null;
+
+    console.log("Extracted schedules:", schedules);
+    console.log("Extracted pagination:", paginationData);
+
+    if (Array.isArray(schedules)) {
+      // Store all appointments for filtering
+      setAllAppointments(schedules);
+      
+      // Apply date range filter
+      const filteredAppointments = filterAppointmentsByDateRange(schedules);
+      setSessionSchedules(filteredAppointments);
+
+      if (paginationData) {
+        setPaginationInfo(paginationData);
+
+        if (paginationData.currentPage !== currentPage) {
+          setCurrentPage(paginationData.currentPage);
+        }
+      } else {
+        const totalSchedules = filteredAppointments.length;
+        const totalPages = Math.ceil(totalSchedules / ITEMS_PER_PAGE);
+        setPaginationInfo({
+          currentPage: page,
+          totalPages: totalPages,
+          totalSchedules: totalSchedules,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1,
+          limit: ITEMS_PER_PAGE
+        });
+      }
+    } else {
+      console.error("Schedules data is not an array:", schedules);
+      setSessionSchedules([]);
+      setAllAppointments([]);
+    }
+  } catch (error) {
+    console.error("Failed to fetch schedules:", error);
+    toast.error("Failed to fetch schedules");
+    setSessionSchedules([]);
+    setAllAppointments([]);
+  }
+};
+
+// Add handlers for date range changes
+const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const value = e.target.value;
+  setStartDate(value);
+  applyDateRangeFilter(value, endDate);
+};
+
+const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const value = e.target.value;
+  setEndDate(value);
+  applyDateRangeFilter(startDate, value);
+};
+
+const applyDateRangeFilter = (start: string, end: string) => {
+  const filteredAppointments = allAppointments.filter(appointment => {
+    const appointmentDate = new Date(appointment.selectedDate || appointment.startDate);
+    const startFilter = start ? new Date(start) : null;
+    const endFilter = end ? new Date(end) : null;
+
+    if (startFilter && endFilter) {
+      return appointmentDate >= startFilter && appointmentDate <= endFilter;
+    } else if (startFilter) {
+      return appointmentDate >= startFilter;
+    } else if (endFilter) {
+      return appointmentDate <= endFilter;
+    }
+    return true;
+  });
+
+  setSessionSchedules(filteredAppointments);
+  
+  // Update pagination info for filtered results
+  const totalSchedules = filteredAppointments.length;
+  const totalPages = Math.ceil(totalSchedules / ITEMS_PER_PAGE);
+  setPaginationInfo(prev => ({
+    ...prev,
+    totalSchedules: totalSchedules,
+    totalPages: totalPages,
+    hasNextPage: currentPage < totalPages,
+    hasPreviousPage: currentPage > 1,
+  }));
+};
+
+const clearDateRange = () => {
+  setStartDate('');
+  setEndDate('');
+  setSessionSchedules(allAppointments);
+  
+  // Reset pagination info
+  const totalSchedules = allAppointments.length;
+  const totalPages = Math.ceil(totalSchedules / ITEMS_PER_PAGE);
+  setPaginationInfo(prev => ({
+    ...prev,
+    totalSchedules: totalSchedules,
+    totalPages: totalPages,
+    hasNextPage: currentPage < totalPages,
+    hasPreviousPage: currentPage > 1,
+  }));
+};
+
+  // Add debouncedSearch callback
+  const debouncedSearch = useCallback(
+    debounce((searchTerm: string) => {
+      setCurrentPage(1);
+      fetchSessionData(1, searchTerm);
+    }, 500),
+    [doctorId]
+  );
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
 
     if (!formData.selectedDate || !formData.startTime || !formData.endTime) {
       toast.error("Please fill in all required fields.");
@@ -228,7 +367,6 @@ const ScheduleAppoinments: React.FC = () => {
 
     try {
       if (isRescheduling && selectedAppointmentId) {
-
         const rescheduleData = {
           selectedDate: formData.selectedDate,
           startTime: formData.startTime,
@@ -239,8 +377,6 @@ const ScheduleAppoinments: React.FC = () => {
         };
         console.log("fffff", rescheduleData);
 
-
-
         const response = await axiosinstance.put(
           `${API_URL}/doctor/shedules/${selectedAppointmentId}/reschedule`,
           rescheduleData
@@ -248,7 +384,7 @@ const ScheduleAppoinments: React.FC = () => {
 
         if (response.status === 200) {
           toast.success("Appointment rescheduled successfully and set to Pending status");
-          fetchSessionData();
+          fetchSessionData(currentPage, searchQuery);
           handleCancel();
         }
       } else {
@@ -258,7 +394,7 @@ const ScheduleAppoinments: React.FC = () => {
           status: "Pending",
           specializationId: formData.specialization,
           isRecurring: formData.isRecurring,
-          recurrenceType: formData.isRecurring ? sessionType : "None", // Use sessionType here
+          recurrenceType: formData.isRecurring ? sessionType : "None",
           daysOfWeek: formData.isRecurring && sessionType === RecurrenceType.WEEKLY
             ? selectedDays
             : [],
@@ -286,7 +422,7 @@ const ScheduleAppoinments: React.FC = () => {
               ? "Recurring appointments created successfully"
               : "Single appointment created successfully"
           );
-          fetchSessionData(currentPage);
+          fetchSessionData(currentPage, searchQuery);
           handleCancel();
         }
       }
@@ -308,13 +444,7 @@ const ScheduleAppoinments: React.FC = () => {
 
       if (response.data.success) {
         toast.success('Appointment cancelled')
-
-        fetchSessionData(currentPage);
-        //   setSessions((prevSessions) =>
-        //   prevSessions.map((session) =>
-        //     session._id === id ? { ...session, isCancelled: true } : session
-        //   )
-        // );
+        fetchSessionData(currentPage, searchQuery);
       }
     } catch (error) {
       console.error("Failed to cancel appointment:", error);
@@ -326,92 +456,50 @@ const ScheduleAppoinments: React.FC = () => {
     handleOpenModal(appointment);
   };
 
-  const fetchSessionData = async (page: number = 1) => {
-    try {
-      const response = await getSessionData(doctorId, page, ITEMS_PER_PAGE)
-
-      console.log("Full response:", response);
-      console.log("Requested page:", page);
-
-      const schedules = response.data.sheduleData?.appoinmentData || [];
-      const paginationData = response.data.sheduleData?.pagination || null;
-
-      console.log("Extracted schedules:", schedules);
-      console.log("Extracted pagination:", paginationData);
-
-      if (Array.isArray(schedules)) {
-        setSessionSchedules(schedules);
-
-        if (paginationData) {
-          setPaginationInfo(paginationData);
-
-          if (paginationData.currentPage !== currentPage) {
-            setCurrentPage(paginationData.currentPage);
-          }
-        } else {
-
-          const totalSchedules = schedules.length;
-          const totalPages = Math.ceil(totalSchedules / ITEMS_PER_PAGE);
-          setPaginationInfo({
-            currentPage: page,
-            totalPages: totalPages,
-            totalSchedules: totalSchedules,
-            hasNextPage: page < totalPages,
-            hasPreviousPage: page > 1,
-            limit: ITEMS_PER_PAGE
-          });
-        }
-      } else {
-        console.error("Schedules data is not an array:", schedules);
-        setSessionSchedules([]);
-      }
-
-    } catch (error) {
-      console.error("Failed to fetch schedules:", error);
-      toast.error("Failed to fetch schedules");
-      setSessionSchedules([]);
-    }
-  };
-
-
   const handlePageChange = (newPage: number) => {
     console.log("Changing to page:", newPage);
     console.log("Current page before change:", currentPage);
 
     setCurrentPage(newPage);
-    fetchSessionData(newPage); 
+    fetchSessionData(newPage, searchQuery); // Include search query
   };
 
- 
+  // Updated search handlers
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    debouncedSearch(value);
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    setCurrentPage(1);
+    fetchSessionData(1, '');
+  };
+
   useEffect(() => {
     if (doctorId) {
-      fetchSessionData(1); 
+      fetchSessionData(1, searchQuery); 
     }
   }, [doctorId]); 
 
-
+  // Update useEffect to include searchQuery in dependencies
   useEffect(() => {
     if (doctorId && currentPage > 1) {
-      fetchSessionData(currentPage);
+      fetchSessionData(currentPage, searchQuery);
     }
   }, [currentPage]);
 
-  // const totalPages = Math.ceil(sessionSchedules.length / itemsPerPage);
-  // const indexOfLastItem = currentPage * itemsPerPage;
-  // const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  // const currentSessions = sessionSchedules.slice(indexOfFirstItem, indexOfLastItem);
-
-
   const formatTime = (time:string|undefined) => {
-  if (!time) return '';
-  
-  const [hours, minutes] = time.split(':');
-  const hour = parseInt(hours, 10);
-  const ampm = hour >= 12 ? 'PM' : 'AM';
-  const displayHour = hour % 12 || 12;
-  
-  return `${displayHour}:${minutes} ${ampm}`;
-};
+    if (!time) return '';
+    
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours, 10);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 || 12;
+    
+    return `${displayHour}:${minutes} ${ampm}`;
+  };
 
   const renderRecurringOptions = () => {
     if (!formData.isRecurring) return null;
@@ -498,6 +586,8 @@ const ScheduleAppoinments: React.FC = () => {
           Add New Slot
         </button>
       </div>
+
+      
 
 
       {showModal && (
@@ -626,7 +716,61 @@ const ScheduleAppoinments: React.FC = () => {
           Scheduled Slots
         </h2>
 
-        <div className="hidden lg:block overflow-x-auto">
+        <div className="mb-4 sm:mb-6 flex justify-center">
+        <div className="relative w-full max-w-xs sm:max-w-md lg:max-w-lg">
+          <input
+            type="text"
+            placeholder="Search...."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border  border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00897B] focus:border-transparent outline-none"
+          />
+          {searchQuery && (
+            <button
+              onClick={clearSearch}
+              className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 text-sm sm:text-base"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+
+        <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row justify-center items-center gap-4">
+    <div className="flex flex-col sm:flex-row items-center gap-2">
+      <label className="text-sm font-medium text-gray-700"></label>
+      <input
+        type="date"
+        value={startDate}
+        onChange={handleStartDateChange}
+        className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00897B] focus:border-transparent outline-none"
+      />
+    </div>
+    
+    <div className="flex flex-col sm:flex-row items-center gap-2">
+      <label className="text-sm font-medium text-gray-700"></label>
+      <input
+        type="date"
+        value={endDate}
+        onChange={handleEndDateChange}
+        className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00897B] focus:border-transparent outline-none"
+        min={startDate}
+      />
+    </div>
+    
+    {(startDate || endDate) && (
+      <button
+        onClick={clearDateRange}
+        className="px-3 py-2 text-sm bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+      >
+        Clear Dates
+      </button>
+    )}
+  </div>
+
+
+      </div>
+
+        <div className="hidden lg:block overflow-x-auto mt-10">
           <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden border">
             <thead>
               <tr className="bg-[#00897B] text-white">

@@ -284,12 +284,24 @@ export const getWalletData = async (doctorId: string, page: number, limit: numbe
   
 };
 
-export const getSessionData = async (doctorId: string, page: number, limit: number) => {
-  return doctorAxiosInstance.get(
-    `${API_URL}/doctor/shedules/${doctorId}?page=${page}&limit=${limit}`
-  );
+export const getSessionData = (
+  doctorId: string,
+  page: number = 1,
+  limit: number = 5,
+  search: string = ''
+) => {
+  const params: any = { page, limit };
   
+  if (search && search.trim()) {
+    params.search = search.trim();
+  }
+
+  return doctorAxiosInstance.get(
+    `${API_URL}/doctor/shedules/${doctorId}`,
+    { params }
+  );
 };
+
 
 export const withdrawMoneydoctor = async (doctorId: string, amount: number) => {
   const response = await doctorAxiosInstance.post(`${API_URL}/doctor/withdraw/${doctorId}`, {

@@ -45,7 +45,7 @@ const login = async (userData: { email: string; password: string }) => {
     const response = await userAxiosInstance.post(`${API_URL}/user/login`, userData);
     return response; 
   } catch (error: any) {
-    console.error("Axios error response:", error.response); 
+    console.error("Axios error response:", error); 
 
     if (error.response) {
       return Promise.reject(error.response.data); 

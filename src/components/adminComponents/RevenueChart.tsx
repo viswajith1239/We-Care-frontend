@@ -65,7 +65,7 @@ const RevenueChart: React.FC<RevenueChartProps> = ({ data }) => {
       </div>
 
       {/* Report Table */}
-      <div className="w-full mt-8">
+      <div className="w-full mt-20">
         <div className="w-full overflow-x-auto">
           <table className="w-full border-collapse rounded-lg overflow-hidden">
             <thead>
