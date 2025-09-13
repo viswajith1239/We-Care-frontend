@@ -115,7 +115,9 @@ export default function SpecializationTable() {
         newErrors.name = "Specialization name should only contain letters and spaces";
       } else if (trimmedName.length < 3) {
         newErrors.name = "Specialization name must be at least 3 characters long";
-      } else {
+      }  else if (trimmedName.length > 10) { 
+    newErrors.name = "Specialization name cannot exceed 50 characters";
+      }else {
         const lowerCasedName = trimmedName.toLowerCase();
         const duplicateExists = specialization.some(
           (spec) =>
@@ -132,7 +134,9 @@ export default function SpecializationTable() {
       newErrors.description = "Please fill the description field";
     } else if (trimmedDescription.length < 3) {
       newErrors.description = "Description must be at least 3 characters long";
-    }
+    }else if (trimmedDescription.length > 10) { // ✅
+  newErrors.description = "Description cannot exceed 200 characters";
+}
 
     return { errors: newErrors, isDuplicate };
   };
