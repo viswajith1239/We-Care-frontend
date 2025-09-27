@@ -7,6 +7,7 @@ import { registerDoctor } from "../../action/doctorActions"
 import { Toaster, toast } from "react-hot-toast";
 import bgimage from "../../assets/young-handsome-physician-medical-robe-with-stethoscope.jpg"
 import { getSpecialization } from "../../service/doctorService";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 interface ISpecialization {
   _id: string;
@@ -19,12 +20,13 @@ interface Errors {
   password?: string;
   specializations?: string;
 }
-function DoctorSignUp() {
 
+function DoctorSignUp() {
   const [name, SetName] = useState<string>("")
   const [email, SetEmail] = useState<string>("")
   const [phone, SetPhone] = useState<string>("")
   const [password, SetPassword] = useState<string>("")
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedSpecializations, setSelectedSpecializations] = useState<string[]>([]);
   const [specializations, setSpecializations] = useState<ISpecialization[]>([]);
@@ -86,6 +88,10 @@ function DoctorSignUp() {
     setIsDropdownOpen((prev) => !prev);
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   const handleSpecializationChange = (name: string) => {
     setSelectedSpecializations((prev) =>
       prev.includes(name)
@@ -93,7 +99,6 @@ function DoctorSignUp() {
         : [...prev, name]
     );
     setIsDropdownOpen(false)
-
 
     if (errors.specializations) {
       setErrors(prev => ({
@@ -127,7 +132,6 @@ function DoctorSignUp() {
     navigate("/doctor/otp", { state: doctorData, replace: true });
   };
 
-
   const handleInputChange = (field: keyof Errors, value: string, setter: React.Dispatch<React.SetStateAction<string>>) => {
     setter(value);
     if (errors[field]) {
@@ -137,7 +141,6 @@ function DoctorSignUp() {
       }));
     }
   };
-
 
   return (
     <div
@@ -272,16 +275,29 @@ function DoctorSignUp() {
                 <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                   Password
                 </label>
-                <input
-                  value={password}
-                  onChange={(e) => handleInputChange('password', e.target.value, SetPassword)}
-                  type="password"
-                  name="password"
-                  id="password"
-                  placeholder="Enter password"
-                  className={`bg-gray-50 border text-gray-900 text-sm sm:text-base rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:bg-gray-700 dark:border-gray-600 dark:placeholder-black dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ${errors.password ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
-                    }`}
-                />
+                <div className="relative">
+                  <input
+                    value={password}
+                    onChange={(e) => handleInputChange('password', e.target.value, SetPassword)}
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    id="password"
+                    placeholder="Enter password"
+                    className={`bg-gray-50 border text-gray-900 text-sm sm:text-base rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 pr-10 placeholder-black dark:bg-gray-700 dark:border-gray-600 dark:placeholder-black dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ${errors.password ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
+                      }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none"
+                  >
+                    {showPassword ? (
+                      <FiEyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
+                    ) : (
+                      <FiEye className="h-4 w-4 sm:h-5 sm:w-5" />
+                    )}
+                  </button>
+                </div>
                 {errors.password && (
                   <div className="text-red-500 text-sm mt-1">{errors.password}</div>
                 )}
@@ -309,4 +325,5 @@ function DoctorSignUp() {
     </div>
   )
 }
+
 export default DoctorSignUp

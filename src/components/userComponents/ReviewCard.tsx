@@ -6,6 +6,7 @@ interface ReviewCardProps {
 }
 
 const ReviewCard = ({ review }: ReviewCardProps) => {
+  
   const renderRatingStars = (rating: number) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
@@ -32,11 +33,12 @@ const ReviewCard = ({ review }: ReviewCardProps) => {
     <div className="flex w-full p-4 max-w-lg flex-col rounded-lg bg-white shadow-sm border border-slate-200 my-6">
       <div className="flex items-center gap-4 text-slate-800">
         <img
-          src={review.userImage || img}
-          alt="User"
-          loading="lazy"
-          className="relative inline-block h-[58px] w-[58px] !rounded-full object-cover object-center"
-        />
+            src={(typeof review.userId === "string" ? img : review.userId.profileImage) || img}
+            alt="User"
+            loading="lazy"
+            className="relative inline-block h-[58px] w-[58px] !rounded-full object-cover object-center"
+          />
+
         <div className="flex w-full flex-col">
           <div className="flex items-center justify-between">
             <h5 className="text-xl font-semibold text-slate-800">

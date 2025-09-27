@@ -373,7 +373,7 @@ const DoctorPrescription: React.FC = () => {
                   Total medicines prescribed: <span className="font-medium">{selectedPrescription.prescriptions.length}</span>
                 </p>
                 <p className="text-gray-700">
-                  Prescription ID: <span className="font-medium font-mono text-sm">{selectedPrescription._id}</span>
+                  Prescription ID: <span className="font-medium font-mono text-sm">{Math.floor(Math.random() * 1000000)}</span>
                 </p>
               </div>
             </div>

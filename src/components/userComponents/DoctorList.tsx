@@ -3,9 +3,6 @@ import { Doctor } from "../../types/doctor";
 import { useNavigate, useLocation } from "react-router-dom";
 import { fetchdoctors } from "../../service/userService";
 
-
-
-
 function DoctorsList() {
   const [doctorsData, setDoctorsData] = useState<Doctor[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -15,12 +12,24 @@ function DoctorsList() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Helper function to check if doctor's experience matches the selected range
+  const matchesExperienceRange = (doctorExperience: string, selectedRange: string): boolean => {
+    if (!selectedRange) return true;
+    
+    const experience = parseInt(doctorExperience || "0");
+    
+    if (selectedRange === "15+") {
+      return experience >= 15;
+    }
+    
+    const [min, max] = selectedRange.split('-').map(Number);
+    return experience >= min && experience <= max;
+  };
+
   useEffect(() => {
     async function fetchDoctors() {
       try {
-        const response = await fetchdoctors()
-        console.log("oo", response);
-
+        const response = await fetchdoctors();
         const doctors = response.data;
 
         const params = new URLSearchParams(location.search);
@@ -36,6 +45,7 @@ function DoctorsList() {
           const matchesGender = selectedGender
             ? doctor.gender?.toLowerCase() === selectedGender
             : true;
+            
           const matchesLanguage = selectedLanguage
             ? Array.isArray(doctor.language)
               ? doctor.language?.some(
@@ -43,14 +53,18 @@ function DoctorsList() {
               )
               : doctor.language?.toLowerCase() === selectedLanguage
             : true;
+            
           const matchesSpecialization = selectedSpecialization
             ? doctor.specializations.some(
               (spec) => spec._id === selectedSpecialization
             )
             : true;
-          const matchesExperience = selectedExperience
-            ? parseInt(doctor.yearsOfExperience || "0") >= parseInt(selectedExperience)
-            : true;
+            
+          // Fixed experience filtering logic
+          const matchesExperience = matchesExperienceRange(
+            doctor.yearsOfExperience || "0", 
+            selectedExperience || ""
+          );
 
           return matchesGender && matchesLanguage && matchesSpecialization && matchesExperience;
         });
@@ -70,7 +84,6 @@ function DoctorsList() {
     fetchDoctors();
   }, [location.search]);
 
-  // New useEffect to handle sorting when sortOption changes
   useEffect(() => {
     if (doctorsData.length > 0) {
       let sortedDoctors = [...doctorsData];
@@ -103,8 +116,7 @@ function DoctorsList() {
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newSortOption = e.target.value;
     setSortOption(newSortOption);
-    
-    // Update URL params to reflect the sort change
+
     const params = new URLSearchParams(location.search);
     params.set("sort", newSortOption);
     navigate({ search: params.toString() }, { replace: true });
@@ -125,7 +137,6 @@ function DoctorsList() {
           className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         
-        {/* Sort dropdown */}
         <select
           value={sortOption}
           onChange={handleSortChange}

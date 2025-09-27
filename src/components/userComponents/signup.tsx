@@ -9,7 +9,7 @@ import { registerForm } from "../../action/userActions"
 import bgimage from "../../assets/doctor-nurses-special-equipment.jpg"
 import { User } from "../../features/userTyepes"
 // import image from "../../assets/health-still-life-with-copy-space.jpg"
-// import { FiEye, FiEyeOff } from "react-icons/fi"; 
+import { FiEye, FiEyeOff } from "react-icons/fi"; 
 
 interface Errors {
   name?: string;
@@ -22,12 +22,16 @@ const Signup: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [showPassword,] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [errors, setErrors] = useState<Errors>({});
 
 
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate()
+
+  const togglePasswordVisibility = () => {
+  setShowPassword(!showPassword);
+};
 
   const validate = (): Errors => {
     const newErrors: Errors = {};
@@ -89,12 +93,9 @@ const Signup: React.FC = () => {
       <Toaster />
       <div className='absolute -z-10 h-full overflow-hidden '>
         <div className='absolute bg-[#c8ebc51f] w-full h-full' ></div>
-        {/* <img src={image} alt="" className='w-screen object-contain' /> */}
       </div>
       <section className="flex flex-col items-center py-10  justify-center" >
-
-        <div
-          className="w-[400px] md:w-[500px] bg-white/30 backdrop-blur-[1px] rounded-lg shadow  md:mt-0 sm:max-w-md xl:p-0  ">
+        <div className="w-[400px] md:w-[500px] bg-white/30 backdrop-blur-[1px] rounded-lg shadow  md:mt-0 sm:max-w-md xl:p-0  ">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8 ">
             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
               Create an account
@@ -116,13 +117,11 @@ const Signup: React.FC = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Name"
-
                   className="h-[37px] bg-white/50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:border-gray-600 dark:placeholder-black dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
-
-
                 />
                 {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
               </div>
+              
               <div>
                 <label
                   htmlFor="email"
@@ -136,11 +135,10 @@ const Signup: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="h-[37px] bg-white/50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:border-gray-600 dark:placeholder-black dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
-
-
                 />
                 {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
               </div>
+              
               <div>
                 <label
                   htmlFor="phone"
@@ -153,12 +151,11 @@ const Signup: React.FC = () => {
                   placeholder="Phone"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-
                   className="h-[37px] bg-white/50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:border-gray-600 dark:placeholder-black dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
-
                 />
                 {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
               </div>
+              
               <div>
                 <label
                   htmlFor="password"
@@ -166,15 +163,26 @@ const Signup: React.FC = () => {
                 >
                   Password
                 </label>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="h-[37px] bg-white/50border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 placeholder-black dark:border-gray-600 dark:placeholder-black dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
-
-                />
-
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="h-[37px] bg-white/50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 pr-10 placeholder-black dark:border-gray-600 dark:placeholder-black dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 hover:text-gray-800 focus:outline-none"
+                  >
+                    {showPassword ? (
+                      <FiEyeOff className="h-4 w-4" />
+                    ) : (
+                      <FiEye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
                 {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
               </div>
 
@@ -197,7 +205,6 @@ const Signup: React.FC = () => {
           </div>
         </div>
       </section>
-
     </div>
 
 

@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Specialization } from "../../types/doctor";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -6,9 +5,9 @@ import { getspecializations } from "../../service/userService";
 
 function DoctorListFiterBar() {
   const [specializations, setSpecializations] = useState<Specialization[]>([]);
-  const [selectedSpecializations, setSelectedSpecializations] = useState<string[]>([]);
-  const [selectedGender, setSelectedGender] = useState<string[]>([]);
-  const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
+  const [selectedSpecialization, setSelectedSpecialization] = useState<string>("");
+  const [selectedGender, setSelectedGender] = useState<string>("");
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("");
   const [selectedExperience, setSelectedExperience] = useState<string>("");
   const [displayLimit, setDisplayLimit] = useState(4);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -17,16 +16,32 @@ function DoctorListFiterBar() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Experience ranges configuration - Fixed ranges
+  const experienceRanges = [
+    { value: "0-2", label: "0-2 Years" },
+    { value: "3-4", label: "3-4 Years" },    // Changed from "2-4" to "3-4"
+    { value: "5-8", label: "5-8 Years" },
+    { value: "9-15", label: "9-15 Years" },
+    { value: "15+", label: "15+ Years" }
+  ];
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const sort = params.get("sort");
     const experience = params.get("experience");
+    const specialization = params.get("specialization");
+    const gender = params.get("gender");
+    const language = params.get("language");
+    
     if (sort) setSortOption(sort);
     if (experience) setSelectedExperience(experience);
+    if (specialization) setSelectedSpecialization(specialization);
+    if (gender) setSelectedGender(gender);
+    if (language) setSelectedLanguage(language);
 
     const getSpecializations = async () => {
       try {
-        const response = await getspecializations()
+        const response = await getspecializations();
         setSpecializations(response.data);
       } catch (error) {
         console.log("Error fetching specializations:", error);
@@ -36,34 +51,40 @@ function DoctorListFiterBar() {
   }, [location.search]);
 
   const handleSelect = (type: string, value: string) => {
-    let updatedSelections: string[] = [];
     const params = new URLSearchParams(window.location.search);
 
     if (type === "specialization") {
-      updatedSelections = selectedSpecializations.includes(value)
-        ? selectedSpecializations.filter((id) => id !== value)
-        : [...selectedSpecializations, value];
-      setSelectedSpecializations(updatedSelections);
-      params.set(type, updatedSelections.join(","));
-      if (updatedSelections.length === 0) params.delete(type);
+      const newValue = selectedSpecialization === value ? "" : value;
+      setSelectedSpecialization(newValue);
+      if (newValue) {
+        params.set(type, newValue);
+      } else {
+        params.delete(type);
+      }
     } else if (type === "gender") {
-      updatedSelections = selectedGender.includes(value)
-        ? selectedGender.filter((gender) => gender !== value)
-        : [...selectedGender, value];
-      setSelectedGender(updatedSelections);
-      params.set(type, updatedSelections.join(","));
-      if (updatedSelections.length === 0) params.delete(type);
+      const newValue = selectedGender === value ? "" : value;
+      setSelectedGender(newValue);
+      if (newValue) {
+        params.set(type, newValue);
+      } else {
+        params.delete(type);
+      }
     } else if (type === "language") {
-      updatedSelections = selectedLanguages.includes(value)
-        ? selectedLanguages.filter((language) => language !== value)
-        : [...selectedLanguages, value];
-      setSelectedLanguages(updatedSelections);
-      params.set(type, updatedSelections.join(","));
-      if (updatedSelections.length === 0) params.delete(type);
+      const newValue = selectedLanguage === value ? "" : value;
+      setSelectedLanguage(newValue);
+      if (newValue) {
+        params.set(type, newValue);
+      } else {
+        params.delete(type);
+      }
     } else if (type === "experience") {
-      setSelectedExperience(value);
-      params.set("experience", value);
-      if (!value) params.delete("experience");
+      const newValue = selectedExperience === value ? "" : value;
+      setSelectedExperience(newValue);
+      if (newValue) {
+        params.set("experience", newValue);
+      } else {
+        params.delete("experience");
+      }
     }
 
     navigate(`/doctors?${params.toString()}`);
@@ -83,9 +104,9 @@ function DoctorListFiterBar() {
   };
 
   const handleResetFilters = () => {
-    setSelectedSpecializations([]);
-    setSelectedGender([]);
-    setSelectedLanguages([]);
+    setSelectedSpecialization("");
+    setSelectedGender("");
+    setSelectedLanguage("");
     setSelectedExperience("");
     setSortOption("a-z");
     navigate("/doctors");
@@ -115,9 +136,11 @@ function DoctorListFiterBar() {
           className="w-full p-2 bg-white border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="">All Experience Levels</option>
-          <option value="2">Above 2 Years</option>
-          <option value="5">Above 5 Years</option>
-          <option value="10">Above 10 Years</option>
+          {experienceRanges.map((range) => (
+            <option key={range.value} value={range.value}>
+              {range.label}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -131,12 +154,21 @@ function DoctorListFiterBar() {
                 type="checkbox"
                 id={spec._id}
                 name="specialization"
-                checked={selectedSpecializations.includes(spec._id)}
-                className="mr-2 w-4 h-4 border-2 border-gray-400 rounded-sm checked:bg-blue-500"
+                checked={selectedSpecialization === spec._id}
+                disabled={selectedSpecialization !== "" && selectedSpecialization !== spec._id}
+                className={`mr-2 w-4 h-4 border-2 border-gray-400 rounded-sm checked:bg-blue-500 ${
+                  selectedSpecialization !== "" && selectedSpecialization !== spec._id
+                    ? "opacity-50 cursor-not-allowed"
+                    : "cursor-pointer"
+                }`}
               />
               <label
                 htmlFor={spec._id}
-                className="cursor-pointer hover:bg-gray-200 p-2 rounded"
+                className={`p-2 rounded ${
+                  selectedSpecialization !== "" && selectedSpecialization !== spec._id
+                    ? "opacity-50 cursor-not-allowed text-gray-400"
+                    : "cursor-pointer hover:bg-gray-200"
+                }`}
               >
                 {spec.name}
               </label>
@@ -163,12 +195,21 @@ function DoctorListFiterBar() {
                 type="checkbox"
                 id={gender}
                 name="gender"
-                checked={selectedGender.includes(gender)}
-                className="mr-2 w-4 h-4 border-2 border-gray-400 rounded-sm checked:bg-blue-500"
+                checked={selectedGender === gender}
+                disabled={selectedGender !== "" && selectedGender !== gender}
+                className={`mr-2 w-4 h-4 border-2 border-gray-400 rounded-sm checked:bg-blue-500 ${
+                  selectedGender !== "" && selectedGender !== gender
+                    ? "opacity-50 cursor-not-allowed"
+                    : "cursor-pointer"
+                }`}
               />
               <label
                 htmlFor={gender}
-                className="cursor-pointer hover:bg-gray-200 p-2 rounded"
+                className={`p-2 rounded ${
+                  selectedGender !== "" && selectedGender !== gender
+                    ? "opacity-50 cursor-not-allowed text-gray-400"
+                    : "cursor-pointer hover:bg-gray-200"
+                }`}
               >
                 {gender}
               </label>
@@ -187,12 +228,21 @@ function DoctorListFiterBar() {
                 type="checkbox"
                 id={language}
                 name="language"
-                checked={selectedLanguages.includes(language)}
-                className="mr-2 w-4 h-4 border-2 border-gray-400 rounded-sm checked:bg-blue-500"
+                checked={selectedLanguage === language}
+                disabled={selectedLanguage !== "" && selectedLanguage !== language}
+                className={`mr-2 w-4 h-4 border-2 border-gray-400 rounded-sm checked:bg-blue-500 ${
+                  selectedLanguage !== "" && selectedLanguage !== language
+                    ? "opacity-50 cursor-not-allowed"
+                    : "cursor-pointer"
+                }`}
               />
               <label
                 htmlFor={language}
-                className="cursor-pointer hover:bg-gray-200 p-2 rounded"
+                className={`p-2 rounded ${
+                  selectedLanguage !== "" && selectedLanguage !== language
+                    ? "opacity-50 cursor-not-allowed text-gray-400"
+                    : "cursor-pointer hover:bg-gray-200"
+                }`}
               >
                 {language}
               </label>
@@ -203,7 +253,7 @@ function DoctorListFiterBar() {
 
       <button
         onClick={handleResetFilters}
-        className="mt-4 bg-red-500 text-white py-2 px-4 rounded mx-4 mb-4"
+        className="mt-4 bg-red-500 text-white py-2 px-4 rounded mx-4 mb-4 hover:bg-red-600 transition-colors"
       >
         Reset Filters
       </button>

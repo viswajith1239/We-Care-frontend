@@ -301,7 +301,7 @@ function Report() {
                 {groupedReports.map((group, index) => (
                   <tr key={group.patientId || index} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">ID: {group.patientId}</div>
+                      <div className="text-sm text-gray-500">ID: {Math.floor(Math.random() * 1000000)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{group.patientName}</div>

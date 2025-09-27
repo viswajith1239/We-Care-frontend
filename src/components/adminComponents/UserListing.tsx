@@ -11,11 +11,24 @@ interface PaginationInfo {
   limit: number;
 }
 
+interface ConfirmationModal {
+  isOpen: boolean;
+  userId: string;
+  userName: string;
+  currentStatus: boolean;
+}
+
 function UserListing() {
   const [users, setUsers] = useState<User[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState<boolean>(true);
+  const [confirmationModal, setConfirmationModal] = useState<ConfirmationModal>({
+    isOpen: false,
+    userId: '',
+    userName: '',
+    currentStatus: false
+  });
   const [paginationInfo, setPaginationInfo] = useState<PaginationInfo>({
     currentPage: 1,
     totalPages: 1,
@@ -26,7 +39,6 @@ function UserListing() {
   });
   const ITEMS_PER_PAGE = 5;
 
-  
   const debounce = (func: Function, delay: number) => {
     let timeoutId: NodeJS.Timeout;
     return (...args: any[]) => {
@@ -39,7 +51,6 @@ function UserListing() {
     try {
       setLoading(true);
       console.log("Search query:", search);
-      
       
       const response = await getUsers(page, ITEMS_PER_PAGE, search);
       console.log("kkk", response);
@@ -85,6 +96,24 @@ function UserListing() {
     fetchUsers(1, '');
   };
 
+  const openConfirmationModal = (userId: string, userName: string, currentStatus: boolean) => {
+    setConfirmationModal({
+      isOpen: true,
+      userId,
+      userName,
+      currentStatus
+    });
+  };
+
+  const closeConfirmationModal = () => {
+    setConfirmationModal({
+      isOpen: false,
+      userId: '',
+      userName: '',
+      currentStatus: false
+    });
+  };
+
   const handleBlockUnblock = async (userId: string, currentStatus: boolean) => {
     console.log("kkk", userId);
 
@@ -103,7 +132,13 @@ function UserListing() {
       }
     } catch (error) {
       console.error("Error in block-unblock:", error);
+    } finally {
+      closeConfirmationModal();
     }
+  };
+
+  const confirmBlockUnblock = () => {
+    handleBlockUnblock(confirmationModal.userId, confirmationModal.currentStatus);
   };
 
   const handlePageChange = (newPage: number) => {
@@ -123,7 +158,6 @@ function UserListing() {
       <div className="w-full max-w-5xl">
         <h2 className="text-2xl font-bold mb-6 text-center">User Management</h2>
 
-      
         <div className="mb-6 flex justify-center">
           <div className="relative w-full max-w-md">
             <input
@@ -171,7 +205,7 @@ function UserListing() {
                   <td className="px-6 py-4 text-center">{user.phone}</td>
                   <td className="px-6 py-4 text-center">
                     <button
-                      onClick={() => handleBlockUnblock(user?.id, user.isBlocked)}
+                      onClick={() => openConfirmationModal(user?.id, user.name, user.isBlocked)}
                       className={`px-4 py-2 text-white rounded font-medium transition ${user.isBlocked ? "bg-[#00897B] hover:bg-[#00766a]" : "bg-red-600 hover:bg-red-700"
                         }`}
                     >
@@ -184,7 +218,6 @@ function UserListing() {
           </table>
         )}
 
-        
         {users && users.length > 0 && (
           <div className="flex justify-center items-center mt-4">
             <div className="flex items-center space-x-2">
@@ -209,6 +242,39 @@ function UserListing() {
           </div>
         )}
       </div>
+
+      {/* Confirmation Modal */}
+      {confirmationModal.isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">
+              {confirmationModal.currentStatus ? "Unblock User" : "Block User"}
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to {confirmationModal.currentStatus ? "unblock" : "block"} 
+              <span className="font-medium"> {confirmationModal.userName}</span>?
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={closeConfirmationModal}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmBlockUnblock}
+                className={`px-4 py-2 text-white rounded transition ${
+                  confirmationModal.currentStatus 
+                    ? "bg-[#00897B] hover:bg-[#00766a]" 
+                    : "bg-red-600 hover:bg-red-700"
+                }`}
+              >
+                {confirmationModal.currentStatus ? "Unblock" : "Block"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

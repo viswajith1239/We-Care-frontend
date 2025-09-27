@@ -23,6 +23,12 @@ interface Doctor {
   profileImage: string;
 }
 
+interface DoctorWithLastMessage extends Doctor {
+  lastMessage?: string;
+  lastMessageTime?: string;
+  lastMessageCreatedAt?: Date;
+}
+
 interface DoctorChatProps {
   doctorId?: string;
 }
@@ -31,11 +37,10 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
   const { userInfo } = useSelector((state: RootState) => state.user);
   const { doctorInfo } = useSelector((state: RootState) => state.doctor);
 
-  
   const [searchParams] = useSearchParams();
 
   const [messages, setMessages] = useState<Message[]>([]);
-  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [doctors, setDoctors] = useState<DoctorWithLastMessage[]>([]);
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
@@ -52,6 +57,64 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
 
   let { socket, onlineUsers } = useSocketContext();
 
+  // Function to fetch last message for each doctor
+  const fetchLastMessagesForDoctors = async (doctorsList: Doctor[]): Promise<DoctorWithLastMessage[]> => {
+    if (!userInfo?.id) return doctorsList;
+
+    const doctorsWithMessages = await Promise.all(
+      doctorsList.map(async (doctor) => {
+        try {
+          const response = await axios.get(`${API_URL}/messages/${userInfo.id}/${doctor._id}?limit=1&sort=desc`);
+          const lastMessage = response.data?.[0];
+          
+          if (lastMessage) {
+            let messageText = "";
+            
+            if (lastMessage.message === "this message was deleted") {
+              messageText = "Message was deleted";
+            } else {
+              const baseMessage = lastMessage.message || (lastMessage.imageUrl ? "📷 Image" : "");
+              // Add "You: " prefix if the user sent the message
+              messageText = lastMessage.senderId === userInfo.id ? `You: ${baseMessage}` : baseMessage;
+            }
+            
+            return {
+              ...doctor,
+              lastMessage: messageText,
+              lastMessageTime: new Date(lastMessage.createdAt).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
+              lastMessageCreatedAt: new Date(lastMessage.createdAt)
+            };
+          }
+          
+          return {
+            ...doctor,
+            lastMessage: "No messages yet",
+            lastMessageTime: "",
+            lastMessageCreatedAt: new Date(0) // Very old date for sorting
+          };
+        } catch (error) {
+          console.error(`Error fetching last message for doctor ${doctor._id}:`, error);
+          return {
+            ...doctor,
+            lastMessage: "No messages yet",
+            lastMessageTime: "",
+            lastMessageCreatedAt: new Date(0)
+          };
+        }
+      })
+    );
+
+    // Sort by most recent message first
+    return doctorsWithMessages.sort((a, b) => {
+      const timeA = a.lastMessageCreatedAt?.getTime() || 0;
+      const timeB = b.lastMessageCreatedAt?.getTime() || 0;
+      return timeB - timeA;
+    });
+  };
+
   useEffect(() => {
     const fetchDoctors = async () => {
       if (!userInfo?.id) return;
@@ -60,10 +123,14 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
         const response = await axios.get(`${API_URL}/user/fetchdoctors/${userInfo?.id}`, {
           withCredentials: true,
         });
-        setDoctors(response.data);
+        
+        // Fetch last messages and sort doctors
+        const doctorsWithLastMessages = await fetchLastMessagesForDoctors(response.data);
+        setDoctors(doctorsWithLastMessages);
+        
         const targetDoctorId = searchParams.get('doctorId') || doctorId;
         if (targetDoctorId) {
-          const doctor = response.data.find((d: Doctor) => d._id === targetDoctorId);
+          const doctor = doctorsWithLastMessages.find((d: Doctor) => d._id === targetDoctorId);
           if (doctor) setSelectedDoctor(doctor);
         }
       } catch (error) {
@@ -97,18 +164,70 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
     fetchMessages();
   }, [selectedDoctor, userInfo]);
 
+  // Function to update doctor's last message in the list
+  const updateDoctorLastMessage = (newMessage: Message) => {
+    setDoctors(prev => {
+      const updatedDoctors = prev.map(doctor => {
+        // Check if this doctor is involved in the message (either as sender or receiver)
+        const isDoctorInvolved = 
+          (doctor._id === newMessage.senderId) || 
+          (doctor._id === newMessage.receiverId && newMessage.senderId === userInfo?.id) ||
+          (doctor._id === newMessage.receiverId && newMessage.senderId !== userInfo?.id);
+          
+        if (isDoctorInvolved) {
+          let messageText = "";
+          
+          if (newMessage.message === "this message was deleted") {
+            messageText = "Message was deleted";
+          } else {
+            const baseMessage = newMessage.message || (newMessage.imageUrl ? "📷 Image" : "");
+            // Add "You: " prefix if the user sent the message
+            messageText = newMessage.senderId === userInfo?.id ? `You: ${baseMessage}` : baseMessage;
+          }
+          
+          return {
+            ...doctor,
+            lastMessage: messageText,
+            lastMessageTime: new Date(newMessage.createdAt).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            lastMessageCreatedAt: new Date(newMessage.createdAt)
+          };
+        }
+        return doctor;
+      });
+
+      // Re-sort after updating
+      return updatedDoctors.sort((a, b) => {
+        const timeA = a.lastMessageCreatedAt?.getTime() || 0;
+        const timeB = b.lastMessageCreatedAt?.getTime() || 0;
+        return timeB - timeA;
+      });
+    });
+  };
+
   useEffect(() => {
     if (!socket) return;
 
     socket.emit("join", doctorInfo?.id || userInfo?.id);
 
     const handleSocketMessage = (newMessage: Message) => {
-      const isRelevantConversation =
+      // Always update the doctor's last message in sidebar for any conversation
+      const isUserInvolved = newMessage.senderId === userInfo?.id || newMessage.receiverId === userInfo?.id;
+      
+      if (isUserInvolved) {
+        // Update the doctor's last message in the sidebar
+        updateDoctorLastMessage(newMessage);
+      }
+
+      // Only add to messages if it's the currently selected conversation
+      const isCurrentConversation =
         selectedDoctor &&
         ((newMessage.senderId === selectedDoctor._id && newMessage.receiverId === userInfo?.id) ||
           (newMessage.senderId === userInfo?.id && newMessage.receiverId === selectedDoctor._id));
 
-      if (!isRelevantConversation) return;
+      if (!isCurrentConversation) return;
 
       if (newMessage._id && processedMessages.current.has(newMessage._id)) return;
 
@@ -133,6 +252,13 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
             : msg
         )
       );
+
+      // Update the doctor's last message if the deleted message was the most recent
+      const deletedMessage = messages.find(msg => msg._id === messageId);
+      if (deletedMessage && selectedDoctor) {
+        const updatedMessage = { ...deletedMessage, message: "Message was deleted" };
+        updateDoctorLastMessage(updatedMessage);
+      }
     };
 
     socket.on("messageUpdate", handleSocketMessage);
@@ -144,8 +270,7 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
       socket.off("messageRead", handleMessageRead);
       socket.off("messageDeleted", handleMessageDeleted);
     };
-  }, [socket, doctorInfo?.id, userInfo?.id, selectedDoctor]);
-
+  }, [socket, doctorInfo?.id, userInfo?.id, selectedDoctor, messages]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -170,6 +295,9 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
     if (newMessage._id) processedMessages.current.add(newMessage._id);
 
     setMessages((prev) => [...prev, newMessage]);
+    
+    // Update the doctor's last message in the sidebar
+    updateDoctorLastMessage(newMessage);
   };
 
   const handleDeleteMessage = async (messageId: string) => {
@@ -179,7 +307,6 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
       });
 
       if (response.status === 200) {
-
         setMessages((prev) =>
           prev.map((msg) =>
             msg._id === messageId
@@ -189,6 +316,12 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
         );
         setSelectedMessage(null);
 
+        // Update the doctor's last message
+        const deletedMessage = messages.find(msg => msg._id === messageId);
+        if (deletedMessage && selectedDoctor) {
+          const updatedMessage = { ...deletedMessage, message: "Message was deleted" };
+          updateDoctorLastMessage(updatedMessage);
+        }
 
         if (socket && selectedDoctor) {
           socket.emit("messageDeleted", {
@@ -204,7 +337,6 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
   };
 
   const handleMessageDoubleClick = (messageId: string, isUserMessage: boolean) => {
-
     if (isUserMessage) {
       setSelectedMessage(selectedMessage === messageId ? null : messageId);
     }
@@ -237,14 +369,14 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
                 <div
                   key={doctor._id}
                   onClick={() => handleSelectDoctor(doctor)}
-                  className={`flex items-center p-2 rounded-lg cursor-pointer ${selectedDoctor?._id === doctor._id ? "bg-[#00897B] text-white" : "hover:bg-gray-200"
+                  className={`flex items-center p-3 rounded-lg cursor-pointer transition-colors ${selectedDoctor?._id === doctor._id ? "bg-[#00897B] text-white" : "hover:bg-gray-200"
                     }`}
                 >
-                  <div className="relative mr-3">
+                  <div className="relative mr-3 flex-shrink-0">
                     <img
                       src={imgSrc}
                       alt={`Dr. ${doctor.name}`}
-                      className="w-10 h-10 rounded-full object-cover"
+                      className="w-12 h-12 rounded-full object-cover"
                       onError={() => handleImageError(doctor._id)}
                     />
                     <span
@@ -252,7 +384,27 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
                         } border-2 border-white rounded-full`}
                     ></span>
                   </div>
-                  <span>{doctor.name}</span>
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium truncate">{doctor.name}</span>
+                      {doctor.lastMessageTime && (
+                        <span className={`text-xs ${selectedDoctor?._id === doctor._id ? "text-gray-200" : "text-gray-500"
+                          }`}>
+                          {doctor.lastMessageTime}
+                        </span>
+                      )}
+                    </div>
+                    
+                    {doctor.lastMessage && (
+                      <p className={`text-sm truncate mt-1 flex justify-start ${selectedDoctor?._id === doctor._id 
+                          ? "text-gray-200" 
+                          : "text-gray-600"
+                        }`}>
+                        {doctor.lastMessage}
+                      </p>
+                    )}
+                  </div>
                 </div>
               );
             })
@@ -270,7 +422,6 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
             />
             <span className="flex-1">Chat with DR. {selectedDoctor.name}</span>
           </div>
-
         ) : (
           <div className="p-4">
             <h2 className="text-1xl font-semibold text-black">
@@ -308,7 +459,7 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
                         }`}
                       onDoubleClick={() => handleMessageDoubleClick(msg._id, isUserMessage)}
                     >
-                      {msg.message && <p>{msg.message}</p>}
+                      {msg.message && <p className="break-words overflow-wrap-anywhere">{msg.message}</p>}
                       {msg.imageUrl && (
                         <img
                           src={msg.imageUrl}
@@ -318,7 +469,6 @@ const Chat: React.FC<DoctorChatProps> = ({ doctorId }) => {
                         />
                       )}
 
-                      {/* Delete button - only show when message is selected and it's user's message */}
                       {isSelected && isUserMessage && (
                         <button
                           onClick={(e) => {

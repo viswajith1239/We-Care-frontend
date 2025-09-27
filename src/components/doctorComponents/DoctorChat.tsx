@@ -37,6 +37,12 @@ interface User {
   appoinmentId: string;
 }
 
+interface UserWithLastMessage extends User {
+  lastMessage?: string;
+  lastMessageTime?: string;
+  lastMessageCreatedAt?: Date;
+}
+
 interface Doctor {
   _id: string;
   name: string;
@@ -61,7 +67,7 @@ const Chat: React.FC<DoctorChatProps> = ({ userId }) => {
   const { userInfo } = useSelector((state: RootState) => state.user);
   const { doctorInfo, showPrescription } = useSelector((state: RootState) => state.doctor);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<UserWithLastMessage[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [doctorData, setDoctorData] = useState<Doctor | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -92,6 +98,64 @@ const Chat: React.FC<DoctorChatProps> = ({ userId }) => {
     }
   }, [messages, selectedUser]);
 
+  // Function to fetch last message for each user
+  const fetchLastMessagesForUsers = async (usersList: User[]): Promise<UserWithLastMessage[]> => {
+    if (!doctorInfo?.id) return usersList;
+
+    const usersWithMessages = await Promise.all(
+      usersList.map(async (user) => {
+        try {
+          const response = await axios.get(`${API_URL}/messages/${doctorInfo.id}/${user._id}?limit=1&sort=desc`);
+          const lastMessage = response.data?.[0];
+          
+          if (lastMessage) {
+            let messageText = "";
+            
+            if (lastMessage.message === "this message was deleted") {
+              messageText = "Message was deleted";
+            } else {
+              const baseMessage = lastMessage.message || (lastMessage.imageUrl ? "📷 Image" : "");
+              // Add "You: " prefix if the doctor sent the message
+              messageText = lastMessage.senderId === doctorInfo.id ? `You: ${baseMessage}` : baseMessage;
+            }
+            
+            return {
+              ...user,
+              lastMessage: messageText,
+              lastMessageTime: new Date(lastMessage.createdAt).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
+              lastMessageCreatedAt: new Date(lastMessage.createdAt)
+            };
+          }
+          
+          return {
+            ...user,
+            lastMessage: "No messages yet",
+            lastMessageTime: "",
+            lastMessageCreatedAt: new Date(0) // Very old date for sorting
+          };
+        } catch (error) {
+          console.error(`Error fetching last message for user ${user._id}:`, error);
+          return {
+            ...user,
+            lastMessage: "No messages yet",
+            lastMessageTime: "",
+            lastMessageCreatedAt: new Date(0)
+          };
+        }
+      })
+    );
+
+    // Sort by most recent message first
+    return usersWithMessages.sort((a, b) => {
+      const timeA = a.lastMessageCreatedAt?.getTime() || 0;
+      const timeB = b.lastMessageCreatedAt?.getTime() || 0;
+      return timeB - timeA;
+    });
+  };
+
   useEffect(() => {
     const fetchUsers = async () => {
       if (!doctorInfo?.id) return;
@@ -101,7 +165,6 @@ const Chat: React.FC<DoctorChatProps> = ({ userId }) => {
           withCredentials: true,
         });
         console.log("rr",response);
-        
 
         const extractedUsers = response.data.map((item: any) => ({
           _id: item._id,
@@ -114,12 +177,14 @@ const Chat: React.FC<DoctorChatProps> = ({ userId }) => {
           profileImage: item.profileImage,
           bookingDate: item.bookingDate,
           startDate: item.startDate,
-         
         }));
 
-        setUsers(extractedUsers);
+        // Fetch last messages and sort users
+        const usersWithLastMessages = await fetchLastMessagesForUsers(extractedUsers);
+        setUsers(usersWithLastMessages);
+
         if (userId) {
-          const user = extractedUsers.find((u: User) => u._id === userId);
+          const user = usersWithLastMessages.find((u: User) => u._id === userId);
           if (user) setSelectedUser(user);
         }
       } catch (error) {
@@ -157,8 +222,6 @@ const Chat: React.FC<DoctorChatProps> = ({ userId }) => {
     const fetchDoctor = async () => {
       try {
         const response = await axios.get(`${API_URL}/doctor/${doctorInfo.id}`);
-       
-        
         setDoctorData(response.data.DoctorData);
       } catch (error) {
         console.error("Error fetching doctor data:", error);
@@ -168,8 +231,51 @@ const Chat: React.FC<DoctorChatProps> = ({ userId }) => {
   }, [doctorInfo?.id]);
 
   useEffect(() => {
-  console.log("doctorInfo:", doctorInfo); // 👈 Add this to debug
-}, [doctorInfo]);
+    console.log("doctorInfo:", doctorInfo);
+  }, [doctorInfo]);
+
+  // Function to update user's last message in the list
+  const updateUserLastMessage = (newMessage: Message) => {
+    setUsers(prev => {
+      const updatedUsers = prev.map(user => {
+        // Check if this user is involved in the message (either as sender or receiver)
+        const isUserInvolved = 
+          (user._id === newMessage.senderId) || 
+          (user._id === newMessage.receiverId && newMessage.senderId === doctorInfo?.id) ||
+          (user._id === newMessage.receiverId && newMessage.senderId !== doctorInfo?.id);
+          
+        if (isUserInvolved) {
+          let messageText = "";
+          
+          if (newMessage.message === "this message was deleted") {
+            messageText = "Message was deleted";
+          } else {
+            const baseMessage = newMessage.message || (newMessage.imageUrl ? "📷 Image" : "");
+            // Add "You: " prefix if the doctor sent the message
+            messageText = newMessage.senderId === doctorInfo?.id ? `You: ${baseMessage}` : baseMessage;
+          }
+          
+          return {
+            ...user,
+            lastMessage: messageText,
+            lastMessageTime: new Date(newMessage.createdAt).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            lastMessageCreatedAt: new Date(newMessage.createdAt)
+          };
+        }
+        return user;
+      });
+
+      // Re-sort after updating
+      return updatedUsers.sort((a, b) => {
+        const timeA = a.lastMessageCreatedAt?.getTime() || 0;
+        const timeB = b.lastMessageCreatedAt?.getTime() || 0;
+        return timeB - timeA;
+      });
+    });
+  };
 
   // Socket listener for messages and deletions
   useEffect(() => {
@@ -178,12 +284,21 @@ const Chat: React.FC<DoctorChatProps> = ({ userId }) => {
     socket.emit("join", doctorInfo?.id || userInfo?.id);
 
     const handleSocketMessage = (newMessage: Message) => {
-      const isRelevantConversation =
+      // Always update the user's last message in sidebar for any conversation
+      const isDoctorInvolved = newMessage.senderId === doctorInfo?.id || newMessage.receiverId === doctorInfo?.id;
+      
+      if (isDoctorInvolved) {
+        // Update the user's last message in the sidebar
+        updateUserLastMessage(newMessage);
+      }
+
+      // Only add to messages if it's the currently selected conversation
+      const isCurrentConversation =
         selectedUser &&
         ((newMessage.senderId === selectedUser._id && newMessage.receiverId === doctorInfo?.id) ||
          (newMessage.senderId === doctorInfo?.id && newMessage.receiverId === selectedUser._id));
 
-      if (!isRelevantConversation) return;
+      if (!isCurrentConversation) return;
 
       if (newMessage._id && processedMessages.current.has(newMessage._id)) return;
 
@@ -202,6 +317,13 @@ const Chat: React.FC<DoctorChatProps> = ({ userId }) => {
         )
       );
       setSelectedMessage(null);
+
+      // Update the user's last message if the deleted message was the most recent
+      const deletedMessage = messages.find(msg => msg._id === messageId);
+      if (deletedMessage && selectedUser) {
+        const updatedMessage = { ...deletedMessage, message: "Message was deleted" };
+        updateUserLastMessage(updatedMessage);
+      }
     };
 
     socket.on("messageUpdate", handleSocketMessage);
@@ -211,7 +333,7 @@ const Chat: React.FC<DoctorChatProps> = ({ userId }) => {
       socket.off("messageUpdate", handleSocketMessage);
       socket.off("messageDeleted", handleMessageDeleted);
     };
-  }, [socket, doctorInfo?.id, userInfo?.id, selectedUser]);
+  }, [socket, doctorInfo?.id, userInfo?.id, selectedUser, messages]);
 
   // Handle click outside to deselect message
   useEffect(() => {
@@ -236,6 +358,9 @@ const Chat: React.FC<DoctorChatProps> = ({ userId }) => {
     if (newMessage._id) processedMessages.current.add(newMessage._id);
 
     setMessages((prev) => [...prev, newMessage]);
+    
+    // Update the user's last message in the sidebar
+    updateUserLastMessage(newMessage);
   };
 
   const handleDeleteMessage = async (messageId: string) => {
@@ -244,8 +369,6 @@ const Chat: React.FC<DoctorChatProps> = ({ userId }) => {
       const response = await axios.delete(`${API_URL}/messages/${messageId}`, {
         withCredentials: true,
       });
-      console.log("");
-      
 
       if (response.status === 200) {
         if (socket && selectedUser) {
@@ -264,6 +387,13 @@ const Chat: React.FC<DoctorChatProps> = ({ userId }) => {
           )
         );
         setSelectedMessage(null);
+
+        // Update the user's last message
+        const deletedMessage = messages.find(msg => msg._id === messageId);
+        if (deletedMessage && selectedUser) {
+          const updatedMessage = { ...deletedMessage, message: "Message was deleted" };
+          updateUserLastMessage(updatedMessage);
+        }
       }
     } catch (error) {
       console.error("Failed to delete message:", error);
@@ -276,8 +406,9 @@ const Chat: React.FC<DoctorChatProps> = ({ userId }) => {
       setSelectedMessage(selectedMessage === messageId ? null : messageId);
     }
   };
+
   console.log("selectedUser:", selectedUser);
-console.log("doctorData:", doctorData);
+  console.log("doctorData:", doctorData);
 
   const navigateVideoChat = () => {
     dispatch(
@@ -333,7 +464,6 @@ console.log("doctorData:", doctorData);
           amount: selectedUser.amount,
           bookingDate: selectedUser.bookingDate,
           startDate: selectedUser.startDate,
-          
         },
         doctorDetails: {
           doctorId: doctorInfo.id,
@@ -377,13 +507,13 @@ console.log("doctorData:", doctorData);
                 <div
                   key={user._id}
                   onClick={() => handleSelectDoctor(user)}
-                  className={`flex items-center p-2 rounded-lg cursor-pointer ${
+                  className={`flex items-center p-3 rounded-lg cursor-pointer transition-colors ${
                     selectedUser?._id === user._id ? "bg-[#00897B] text-white" : "hover:bg-gray-200"
                   }`}
                 >
-                  <div className="relative mr-3">
+                  <div className="relative mr-3 flex-shrink-0">
                     <img
-                      className="h-10 w-10 rounded-full object-top"
+                      className="h-12 w-12 rounded-full object-cover"
                       src={user.profileImage || profileicon}
                       alt={user.name}
                     />
@@ -393,7 +523,29 @@ console.log("doctorData:", doctorData);
                       }`}
                     ></span>
                   </div>
-                  <span>{user.name}</span>
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium truncate">{user.name}</span>
+                      {user.lastMessageTime && (
+                        <span className={`text-xs ${selectedUser?._id === user._id ? "text-gray-200" : "text-gray-500"
+                          }`}>
+                          {user.lastMessageTime}
+                        </span>
+                      )}
+                    </div>
+                    
+                    {user.lastMessage && (
+                      <div className="flex items-center mt-1">
+                        <p className={`text-sm truncate flex justify-start ${selectedUser?._id === user._id 
+                            ? "text-gray-200" 
+                            : "text-gray-600"
+                          }`}>
+                          {user.lastMessage}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               );
             })
@@ -451,7 +603,7 @@ console.log("doctorData:", doctorData);
                     <img
                       src={selectedUser?.profileImage || profileicon}
                       alt="User"
-                      className="w-8 h-8 rounded-full mr-2"
+                      className="w-8 h-8 rounded-full mr-2 object-cover"
                     />
                   )}
                   <div className="flex flex-col">
@@ -462,7 +614,7 @@ console.log("doctorData:", doctorData);
                         isDoctorMessage ? "cursor-pointer" : ""
                       }`}
                     >
-                      {msg.message && <p className="mb-2">{msg.message}</p>}
+                      {msg.message && <p className="break-words overflow-wrap-anywhere">{msg.message}</p>}
                       {msg.imageUrl && (
                         <img
                           src={msg.imageUrl}

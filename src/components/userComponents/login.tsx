@@ -1,27 +1,26 @@
 import { Link, useNavigate } from "react-router-dom"
-import React, {  useState } from "react";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Toaster, toast } from "react-hot-toast";
 import { AppDispatch, } from "../../app/store"
 import { loginUser, GoogleLogins } from "../../action/userActions"
 import { GoogleLogin, CredentialResponse } from "@react-oauth/google"
 import bgimage from "../../assets/doctor-nurses-special-equipment.jpg"
-
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 interface Errors {
   email?: string;
   password?: string;
 }
+
 function login() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [showPassword,] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [errors, setErrors] = useState<Errors>({});
-
 
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-
 
   const validate = (): Errors => {
     const newErrors: Errors = {};
@@ -48,7 +47,9 @@ function login() {
     }, 3000);
   };
 
-
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -69,8 +70,6 @@ function login() {
     };
 
     dispatch(loginUser(userData))
- 
-    
       .unwrap()
       .then(() => {
         toast.success("Login successful!");
@@ -82,7 +81,6 @@ function login() {
       .catch((error: any) => {
         console.error("Login error:", error);
 
-
         const errorMessage = error?.message || "Login failed. Please check your credentials.";
 
         if (errorMessage === "Your account is blocked.") {
@@ -93,12 +91,7 @@ function login() {
           toast.error(errorMessage);
         }
       });
-
   };
-
-  // const { userInfo } = useSelector((state: RootState) => state.user);
-
-
 
   const handleGoogleResponse = async (response: CredentialResponse) => {
     const token = response.credential;
@@ -114,8 +107,6 @@ function login() {
   const handleGoogleError = () => {
     console.error("Google login failed");
   };
-
-
 
   return (
     <div
@@ -164,13 +155,26 @@ function login() {
                 >
                   Password
                 </label>
-                <input
-                  value={password}
-                  type={showPassword ? "text" : "password"}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  className="w-full h-[40px] sm:h-[45px] md:h-[50px] p-2 sm:p-3 text-black bg-white/50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00897B] placeholder:text-black text-sm sm:text-base"
-                />
+                <div className="relative">
+                  <input
+                    value={password}
+                    type={showPassword ? "text" : "password"}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    className="w-full h-[40px] sm:h-[45px] md:h-[50px] p-2 sm:p-3 pr-10 text-black bg-white/50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00897B] placeholder:text-black text-sm sm:text-base"
+                  />
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 hover:text-gray-800 focus:outline-none"
+                  >
+                    {showPassword ? (
+                      <FiEyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
+                    ) : (
+                      <FiEye className="h-4 w-4 sm:h-5 sm:w-5" />
+                    )}
+                  </button>
+                </div>
                 {errors.password && (
                   <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.password}</p>
                 )}
@@ -214,4 +218,5 @@ function login() {
     </div>
   )
 }
+
 export default login

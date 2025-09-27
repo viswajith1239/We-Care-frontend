@@ -83,9 +83,23 @@ const deleteSpecialization= async (id: string) => {
 }
 
 
-  export const getAdminDashboardData=()=>{
-      return adminAxiosInstance.get( `${API_URL}/admin/dashboardData` )
-    }
+ // Update the getAdminDashboardData function
+export const getAdminDashboardData = async (startDate?: string, endDate?: string) => {
+  try {
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    
+    const queryString = params.toString();
+    const url = queryString ? `/admin/dashboardData?${queryString}` : '/admin/dashboardData';
+    
+    const response = await adminAxiosInstance.get(url);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching admin dashboard data:', error);
+    throw error;
+  }
+};
 
   export const getContact=()=>{
       return adminAxiosInstance.get( `${API_URL}/admin/contact` )

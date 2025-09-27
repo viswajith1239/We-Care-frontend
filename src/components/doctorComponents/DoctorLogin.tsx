@@ -4,8 +4,8 @@ import { Toaster, toast } from "react-hot-toast";
 import { AppDispatch } from "../../app/store";
 import { useDispatch } from "react-redux";
 import { loginDoctor } from "../../action/doctorActions"
-// import {GoogleLogin,CredentialResponse} from "@react-oauth/google"
 import bgimage from "../../assets/young-handsome-physician-medical-robe-with-stethoscope.jpg"
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 interface Errors {
   email?: string;
@@ -15,6 +15,7 @@ interface Errors {
 function DoctorLogin() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [errors, setErrors] = useState<Errors>({});
 
   const dispatch = useDispatch<AppDispatch>();
@@ -46,13 +47,16 @@ function DoctorLogin() {
       setPassword(value);
     }
 
-
     if (errors[field as keyof Errors]) {
       setErrors(prev => ({
         ...prev,
         [field]: undefined
       }));
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -62,7 +66,6 @@ function DoctorLogin() {
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length > 0) {
-     
       setTimeout(() => {
         setErrors({});
       }, 3000);
@@ -86,43 +89,18 @@ function DoctorLogin() {
       if (error.response) {
         console.error("Error in login user data", error);
         toast.error("Something went wrong, try again later");
-         const errorMessage = error?.message || "Login failed. Please check your credentials.";
+        const errorMessage = error?.message || "Login failed. Please check your credentials.";
         
-                if (errorMessage === "Your account is blocked.") {
-                  toast.error("Your account is blocked.");
-                } else if (errorMessage === "Invalid email or password") {
-                  toast.error(" Invalid email or password.");
-                } else {
-                  toast.error(errorMessage);
-                }
+        if (errorMessage === "Your account is blocked.") {
+          toast.error("Your account is blocked.");
+        } else if (errorMessage === "Invalid email or password") {
+          toast.error(" Invalid email or password.");
+        } else {
+          toast.error(errorMessage);
+        }
       }
     }
   };
-
-  //  const handleGoogleResponse = async (response: CredentialResponse) => {
-  //     const token = response.credential;
-  //     if (token) {
-  //       dispatch(GoogleLogins(token)).then((response: any) => {
-  //         console.log("dd",response)
-  //         if (response.meta.requestStatus !== "rejected") {
-  //           const doctor = response.payload; // Assuming backend sends doctor data
-  //           console.log("uuu",doctor);
-
-
-  //           if (doctor?.pending) {
-  //             navigate("/doctor");  // Redirect to Doctor Dashboard
-  //           } else {
-  //             toast.error("Complete your KYC verification first.");
-  //             navigate("/doctor");  // Redirect to KYC page
-  //           }
-  //         }
-  //       });
-  //     }
-  //   };
-
-  // const handleGoogleError = () => {
-  //   console.error("Google login failed");
-  // };
 
   return (
     <div
@@ -169,17 +147,30 @@ function DoctorLogin() {
                 >
                   Password
                 </label>
-                <input
-                  value={password}
-                  onChange={(e) => handleInputChange('password', e.target.value)}
-                  type="password"
-                  name="password"
-                  id="password"
-                  placeholder="Enter password"
-                  className={`bg-gray-50 border text-gray-900 text-sm sm:text-base rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 sm:p-3 placeholder-black dark:bg-gray-700 dark:border-gray-600 dark:placeholder-black dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 transition-colors duration-200 ${
-                    errors.password ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                />
+                <div className="relative">
+                  <input
+                    value={password}
+                    onChange={(e) => handleInputChange('password', e.target.value)}
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    id="password"
+                    placeholder="Enter password"
+                    className={`bg-gray-50 border text-gray-900 text-sm sm:text-base rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 sm:p-3 pr-10 placeholder-black dark:bg-gray-700 dark:border-gray-600 dark:placeholder-black dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 transition-colors duration-200 ${
+                      errors.password ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none"
+                  >
+                    {showPassword ? (
+                      <FiEyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
+                    ) : (
+                      <FiEye className="h-4 w-4 sm:h-5 sm:w-5" />
+                    )}
+                  </button>
+                </div>
                 {errors.password && (
                   <div className="mt-1 text-red-500 text-xs sm:text-sm">{errors.password}</div>
                 )}
@@ -226,4 +217,5 @@ function DoctorLogin() {
     </div>
   )
 }
+
 export default DoctorLogin

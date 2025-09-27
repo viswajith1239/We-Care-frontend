@@ -11,11 +11,24 @@ interface PaginationInfo {
   limit: number;
 }
 
+interface ConfirmationModal {
+  isOpen: boolean;
+  doctorId: string;
+  doctorName: string;
+  currentStatus: boolean;
+}
+
 function DoctorListing() {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState<boolean>(true);
+  const [confirmationModal, setConfirmationModal] = useState<ConfirmationModal>({
+    isOpen: false,
+    doctorId: '',
+    doctorName: '',
+    currentStatus: false
+  });
   const [paginationInfo, setPaginationInfo] = useState<PaginationInfo>({
     currentPage: 1,
     totalPages: 1,
@@ -25,7 +38,6 @@ function DoctorListing() {
     limit: 5
   });
   const ITEMS_PER_PAGE = 5;
-
 
   const debounce = (func: Function, delay: number) => {
     let timeoutId: NodeJS.Timeout;
@@ -82,6 +94,24 @@ function DoctorListing() {
     fetchDoctors(1, '');
   };
 
+  const openConfirmationModal = (doctorId: string, doctorName: string, currentStatus: boolean) => {
+    setConfirmationModal({
+      isOpen: true,
+      doctorId,
+      doctorName,
+      currentStatus
+    });
+  };
+
+  const closeConfirmationModal = () => {
+    setConfirmationModal({
+      isOpen: false,
+      doctorId: '',
+      doctorName: '',
+      currentStatus: false
+    });
+  };
+
   const handleBlockUnblock = async (doctorId: string, currentStatus: boolean) => {
     console.log("kkk", doctorId);
 
@@ -100,7 +130,13 @@ function DoctorListing() {
       }
     } catch (error) {
       console.error("Error in block-unblock:", error);
+    } finally {
+      closeConfirmationModal();
     }
+  };
+
+  const confirmBlockUnblock = () => {
+    handleBlockUnblock(confirmationModal.doctorId, confirmationModal.currentStatus);
   };
 
   const handlePageChange = (newPage: number) => {
@@ -120,7 +156,6 @@ function DoctorListing() {
       <div className="w-full max-w-5xl">
         <h2 className="text-2xl font-bold mb-6 text-center">Doctor Management</h2>
 
-      
         <div className="mb-6 flex justify-center">
           <div className="relative w-full max-w-md">
             <input
@@ -168,7 +203,7 @@ function DoctorListing() {
                   <td className="px-6 py-4 text-center">{doctor.phone}</td>
                   <td className="px-6 py-4 text-center">
                     <button
-                      onClick={() => handleBlockUnblock(doctor?.id, doctor.isBlocked)}
+                      onClick={() => openConfirmationModal(doctor?.id, doctor.name, doctor.isBlocked)}
                       className={`px-4 py-2 text-white rounded font-medium transition ${doctor.isBlocked ? "bg-[#00897B] hover:bg-[#00766a]" : "bg-red-600 hover:bg-red-700"
                         }`}
                     >
@@ -181,7 +216,6 @@ function DoctorListing() {
           </table>
         )}
 
-   
         {doctors && doctors.length > 0 && (
           <div className="flex justify-center items-center mt-4">
             <div className="flex items-center space-x-2">
@@ -206,6 +240,39 @@ function DoctorListing() {
           </div>
         )}
       </div>
+
+      {/* Confirmation Modal */}
+      {confirmationModal.isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">
+              {confirmationModal.currentStatus ? "Unblock Doctor" : "Block Doctor"}
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to {confirmationModal.currentStatus ? "unblock" : "block"} 
+              <span className="font-medium"> {confirmationModal.doctorName}</span>?
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={closeConfirmationModal}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmBlockUnblock}
+                className={`px-4 py-2 text-white rounded transition ${
+                  confirmationModal.currentStatus 
+                    ? "bg-[#00897B] hover:bg-[#00766a]" 
+                    : "bg-red-600 hover:bg-red-700"
+                }`}
+              >
+                {confirmationModal.currentStatus ? "Unblock" : "Block"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

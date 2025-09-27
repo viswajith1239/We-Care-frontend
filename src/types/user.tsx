@@ -4,7 +4,7 @@ export interface User {
     status: string;
     id: string
     _id: string;
-    image: string
+    profileImage?: string
     name: string;
     email: string;
     phone: number;
@@ -13,13 +13,14 @@ export interface User {
   }
 
   export interface IReview {
+    profileImage: string;
     _id: Key | null | undefined;
     review_id: string
     comment: string
     rating: number
     userName: string
     userImage: string
-    userId: string | { _id: string; name: string };  
+    userId: string | User;  
   
   }
   export interface AvgRatingAndReviews {

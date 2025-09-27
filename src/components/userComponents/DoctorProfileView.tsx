@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css"
-import { FaCalendarAlt, FaStar } from "react-icons/fa";
+import { FaCalendarAlt, FaStar, FaWallet, FaCreditCard, FaTimes } from "react-icons/fa";
 
 import { RootState } from "../../app/store";
 import { loadStripe } from "@stripe/stripe-js";
@@ -45,6 +45,18 @@ interface TimeSlot {
   price: number;
 }
 
+// Add interface for user's existing review
+interface UserReview {
+  _id: string;
+  comment: string;
+  rating: number;
+}
+
+// Add interface for wallet balance
+interface WalletBalance {
+  balance: number;
+}
+
 function DoctorsProfileView() {
   const [availableDates, setAvailableDates] = useState<string[]>([]);
   const [availableTimeSlots, setAvailableTimeSlots] = useState<TimeSlot[]>([]);
@@ -57,16 +69,42 @@ function DoctorsProfileView() {
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [selectedRating, setSelectedRating] = useState<number>(0);
   const [hasUserReviewed, setHasUserReviewed] = useState<boolean>(false);
-  const [reviewComment, setReviewComment] = useState<string | null>(null);
+  const [reviewComment, setReviewComment] = useState<string>("");
   const [reviewId, setreviewId] = useState<string | null>(null);
   const [reload, setReload] = useState(false);
-  const [refreshSchedules, setRefreshSchedules] = useState(false); // Add this to trigger refresh
+  const [refreshSchedules, setRefreshSchedules] = useState(false);
+  const [userExistingReview, setUserExistingReview] = useState<UserReview | null>(null);
+  
+  // New states for wallet functionality
+  const [walletBalance, setWalletBalance] = useState<number>(0);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   const datePickerRef = useRef(null);
   const { doctorId } = useParams<{ doctorId: string }>();
   const { userInfo } = useSelector((state: RootState) => state.user);
   const userId = userInfo?.id;
   const navigate = useNavigate();
+
+  // Fetch wallet balance
+  useEffect(() => {
+    const fetchWalletBalance = async () => {
+      try {
+        if (userId) {
+          const response = await userAxiosInstance.get(`${API_URL}/user/wallet-data/${userId}`);
+          console.log("yyyyy",response);
+          
+          setWalletBalance(response.data.walletData.balance || 0);
+        }
+      } catch (error) {
+        console.error("Error fetching wallet balance:", error);
+        setWalletBalance(0);
+      }
+    };
+
+    fetchWalletBalance();
+  }, [userId, refreshSchedules]);
 
   useEffect(() => {
     const fetchDoctor = async () => {
@@ -85,7 +123,6 @@ function DoctorsProfileView() {
     fetchDoctor();
   }, [doctorId]);
 
-
   useEffect(() => {
     const fetchSessionSchedules = async () => {
       try {
@@ -95,7 +132,6 @@ function DoctorsProfileView() {
         console.log("Fetched Schedules:", schedules);
         setSessionSchedules(schedules);
 
-        // Ensure schedules is an array and filter properly
         const datesWithAvailableSlots = (schedules as ISessionSchedule[])
           .filter((schedule: ISessionSchedule) =>
             !schedule.isBooked && schedule.doctorId === doctorId
@@ -104,10 +140,8 @@ function DoctorsProfileView() {
             dayjs(schedule.selectedDate || schedule.startDate).format("YYYY-MM-DD")
           );
 
-        // Get unique dates as strings
         const uniqueDates: string[] = Array.from(new Set(datesWithAvailableSlots));
 
-        // Filter valid dates and ensure they remain as strings
         const validDates: string[] = uniqueDates.filter((date: string) => {
           const slotsForDate = (schedules as ISessionSchedule[]).filter((schedule: ISessionSchedule) =>
             dayjs(schedule.selectedDate || schedule.startDate).format("YYYY-MM-DD") === date &&
@@ -120,7 +154,6 @@ function DoctorsProfileView() {
         console.log("Available Dates:", validDates);
         setAvailableDates(validDates);
 
-        // Check if selected date is still valid
         if (selectedDate) {
           const selectedDateStr = dayjs(selectedDate).format("YYYY-MM-DD");
           if (!validDates.includes(selectedDateStr)) {
@@ -142,7 +175,6 @@ function DoctorsProfileView() {
     if (date) {
       const formattedDate = dayjs(date).format("YYYY-MM-DD");
 
-      // Generate time slots for selected date
       const slotsForDate: TimeSlot[] = sessionSchedules
         .filter(schedule =>
           dayjs(schedule.selectedDate || schedule.startDate).format("YYYY-MM-DD") === formattedDate &&
@@ -165,7 +197,20 @@ function DoctorsProfileView() {
     (datePickerRef.current as any)?.setOpen(true);
   };
 
-  const handlepayment = async (appointment: TimeSlot) => {
+  // Modified function to show payment modal instead of direct payment
+  const handleSlotSelection = (slot: TimeSlot) => {
+    if (!userId) {
+      navigate("/login");
+      return;
+    }
+    
+    setSelectedSlot(slot);
+    setShowPaymentModal(true);
+  };
+
+  // Stripe payment function
+  const handleStripePayment = async (appointment: TimeSlot) => {
+    setIsProcessingPayment(true);
     try {
       const response = await userAxiosInstance.post(
         `${API_URL}/user/payment/${appointment.id}`,
@@ -176,15 +221,59 @@ function DoctorsProfileView() {
       const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
       if (stripe) {
         await stripe.redirectToCheckout({ sessionId: response.data.id });
-
-        // Trigger refresh after payment
         setRefreshSchedules(prev => !prev);
+        setShowPaymentModal(false);
       } else {
         navigate("/login");
       }
     } catch (error) {
       console.log("Error in payment:", error);
       toast.error("Payment failed. Please try again.");
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
+
+  // New wallet payment function
+  const handleWalletPayment = async (appointment: TimeSlot) => {
+    if (walletBalance < appointment.price) {
+      toast.error(`Insufficient wallet balance. You need ₹${appointment.price - walletBalance} more.`);
+      return;
+    }
+
+    setIsProcessingPayment(true);
+    try {
+      const response = await userAxiosInstance.post(
+        `${API_URL}/user/wallet-payment/${appointment.id}`,
+        { 
+          userData: userInfo,
+          amount: appointment.price
+        }
+      );
+      console.log("resooo",response);
+      
+
+      if (response.data.success) {
+        toast.success("Booking confirmed! Payment deducted from wallet.");
+        setWalletBalance(prev => prev - appointment.price);
+        setRefreshSchedules(prev => !prev);
+        setShowPaymentModal(false);
+
+        if (response.data.redirectUrl) {
+        window.location.href = response.data.redirectUrl;
+      }
+      } else {
+        toast.error(response.data.message || "Wallet payment failed. Please try again.");
+      }
+    } catch (error: any) {
+      console.error("Error in wallet payment:", error);
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("Wallet payment failed. Please try again.");
+      }
+    } finally {
+      setIsProcessingPayment(false);
     }
   };
 
@@ -206,11 +295,9 @@ function DoctorsProfileView() {
     }
   }, [userId, doctorId]);
 
-  // Handle page visibility change to refresh schedules
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        // Refresh schedules when user comes back to the page
         setRefreshSchedules(prev => !prev);
       }
     };
@@ -222,10 +309,19 @@ function DoctorsProfileView() {
   }, []);
 
   const handleAddReview = () => {
+    // Reset form for new review
+    setSelectedRating(0);
+    setReviewComment("");
     setIsReviewModalOpen(true);
   };
 
   const handleEditReview = () => {
+    // Pre-fill form with existing review data
+    if (userExistingReview) {
+      setSelectedRating(userExistingReview.rating);
+      setReviewComment(userExistingReview.comment);
+      setreviewId(userExistingReview._id);
+    }
     setIsReviewModalOpen(true);
   };
 
@@ -234,6 +330,11 @@ function DoctorsProfileView() {
   };
 
   const handleReviewSubmit = async () => {
+    if (!reviewComment.trim() || selectedRating === 0) {
+      toast.error("Please provide both rating and comment");
+      return;
+    }
+
     const data = {
       reviewComment,
       selectedRating,
@@ -247,7 +348,7 @@ function DoctorsProfileView() {
 
       setreviewId(response.data.reviewId);
       setIsReviewModalOpen(false);
-      setReviewComment(null);
+      setReviewComment("");
       setSelectedRating(0);
       setHasUserReviewed(true);
       setReload((prev) => !prev);
@@ -262,6 +363,11 @@ function DoctorsProfileView() {
   };
 
   const handleReviewEdit = async () => {
+    if (!reviewComment.trim() || selectedRating === 0) {
+      toast.error("Please provide both rating and comment");
+      return;
+    }
+
     const data = {
       reviewComment,
       selectedRating,
@@ -276,7 +382,7 @@ function DoctorsProfileView() {
       console.log("Review updated:", response);
 
       setIsReviewModalOpen(false);
-      setReviewComment(null);
+      setReviewComment("");
       setSelectedRating(0);
       setReload((prev) => !prev);
 
@@ -287,6 +393,11 @@ function DoctorsProfileView() {
       console.error("Error updating review:", error);
       toast.error("Failed to update review. Please try again.");
     }
+  };
+
+  // Function to handle user review data from Review component
+  const handleUserReviewData = (reviewData: UserReview | null) => {
+    setUserExistingReview(reviewData);
   };
 
   useEffect(() => {
@@ -315,6 +426,16 @@ function DoctorsProfileView() {
 
         {/* Left Column - Doctor Profile & Booking */}
         <div className="max-w-3xl mx-auto px-4 py-6 space-y-6 -mt-6">
+          {/* Wallet Balance Display */}
+          {userId && (
+            <div className="bg-white shadow-md rounded-lg p-4 text-center">
+              <div className="flex items-center justify-center gap-2 text-[#00897B]">
+                <FaWallet className="text-lg" />
+                <span className="font-semibold text-lg">Wallet Balance: ₹{walletBalance}</span>
+              </div>
+            </div>
+          )}
+
           {/* Doctor Profile Card */}
           <div className="bg-white shadow-xl rounded-lg text-gray-900 overflow-hidden">
             {/* Header Background */}
@@ -405,7 +526,7 @@ function DoctorsProfileView() {
                     {availableTimeSlots.map((slot, index) => (
                       <button
                         key={index}
-                        onClick={() => handlepayment(slot)}
+                        onClick={() => handleSlotSelection(slot)}
                         className="px-4 py-2 bg-[#00897B] text-white font-semibold rounded-lg shadow hover:bg-[#00796B] transition transform hover:scale-105 text-sm"
                       >
                         {slot.time} - ₹{slot.price}
@@ -424,7 +545,6 @@ function DoctorsProfileView() {
             </div>
           )}
         </div>
-
 
         {/* Right Column - Reviews Section */}
         <div className="space-y-6 ">
@@ -462,10 +582,88 @@ function DoctorsProfileView() {
               reload={reload}
               currentUser={userInfo?.id}
               onReviewCheck={(hasReview) => setHasUserReviewed(hasReview)}
+              onUserReviewData={handleUserReviewData}
             />
           </div>
         </div>
       </div>
+
+      {/* Payment Method Selection Modal */}
+      {showPaymentModal && selectedSlot && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-gray-800">Choose Payment Method</h2>
+              <button
+                onClick={() => setShowPaymentModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <FaTimes />
+              </button>
+            </div>
+
+            {/* Slot Details */}
+            <div className="bg-gray-50 p-4 rounded-lg mb-6">
+              <p className="text-sm text-gray-600">Selected Slot:</p>
+              <p className="font-semibold">{selectedSlot.time}</p>
+              <p className="text-lg font-bold text-[#00897B]">₹{selectedSlot.price}</p>
+            </div>
+
+            {/* Wallet Balance Info */}
+            <div className="bg-blue-50 p-4 rounded-lg mb-6">
+              <div className="flex items-center gap-2 text-blue-700">
+                <FaWallet />
+                <span className="font-medium">Wallet Balance: ₹{walletBalance}</span>
+              </div>
+              {walletBalance < selectedSlot.price && (
+                <p className="text-red-600 text-sm mt-1">
+                  Insufficient balance (need ₹{selectedSlot.price - walletBalance} more)
+                </p>
+              )}
+            </div>
+
+            {/* Payment Options */}
+            <div className="space-y-3">
+              {/* Wallet Payment Button */}
+              <button
+                onClick={() => handleWalletPayment(selectedSlot)}
+                disabled={isProcessingPayment || walletBalance < selectedSlot.price}
+                className={`w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg font-semibold text-white transition ${
+                  walletBalance >= selectedSlot.price && !isProcessingPayment
+                    ? 'bg-blue-600 hover:bg-blue-700'
+                    : 'bg-gray-400 cursor-not-allowed'
+                }`}
+              >
+                <FaWallet />
+                {isProcessingPayment ? 'Processing...' : 'Pay with Wallet'}
+              </button>
+
+              {/* Stripe Payment Button */}
+              <button
+                onClick={() => handleStripePayment(selectedSlot)}
+                disabled={isProcessingPayment}
+                className={`w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg font-semibold text-white transition ${
+                  !isProcessingPayment
+                    ? 'bg-[#00897B] hover:bg-[#00796B]'
+                    : 'bg-gray-400 cursor-not-allowed'
+                }`}
+              >
+                <FaCreditCard />
+                {isProcessingPayment ? 'Processing...' : 'Pay with Card'}
+              </button>
+            </div>
+
+            {/* Cancel Button */}
+            <button
+              onClick={() => setShowPaymentModal(false)}
+              disabled={isProcessingPayment}
+              className="w-full mt-4 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Review Modal */}
       {isReviewModalOpen && (
@@ -502,7 +700,7 @@ function DoctorsProfileView() {
                   className="w-full border rounded-md p-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
                   placeholder="Write your review here..."
                   rows={6}
-                  value={reviewComment || ""}
+                  value={reviewComment}
                 />
               </div>
             </div>
@@ -511,7 +709,11 @@ function DoctorsProfileView() {
             <div className="flex justify-end gap-4 sm:gap-2 mt-4">
               <button
                 className="bg-red-500 px-3 py-2 rounded-md text-white sm:px-2 sm:py-1 sm:text-sm hover:bg-red-600 transition"
-                onClick={() => setIsReviewModalOpen(false)}
+                onClick={() => {
+                  setIsReviewModalOpen(false);
+                  setReviewComment("");
+                  setSelectedRating(0);
+                }}
               >
                 Close
               </button>

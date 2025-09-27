@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Toaster, toast } from "react-hot-toast";
 import { AppDispatch } from "../../app/store";
 import { adminLogin } from "../../action/AdminActions";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 interface Errors {
   email?: string;
@@ -13,6 +14,7 @@ interface Errors {
 function Login() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [errors, setErrors] = useState<Errors>({});
 
   const dispatch = useDispatch<AppDispatch>();
@@ -44,13 +46,16 @@ function Login() {
       setPassword(value);
     }
 
-
     if (errors[field as keyof Errors]) {
       setErrors(prev => ({
         ...prev,
         [field]: undefined
       }));
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -123,15 +128,28 @@ function Login() {
             >
               Password
             </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => handleInputChange('password', e.target.value)}
-              className={`shadow-sm rounded-md w-full px-3 py-2 border focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 ${errors.password ? 'border-red-500' : 'border-gray-300'
-                }`}
-              placeholder="Enter your password"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                value={password}
+                onChange={(e) => handleInputChange('password', e.target.value)}
+                className={`shadow-sm rounded-md w-full px-3 py-2 pr-10 border focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 ${errors.password ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                placeholder="Enter your password"
+              />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none"
+              >
+                {showPassword ? (
+                  <FiEyeOff className="h-4 w-4" />
+                ) : (
+                  <FiEye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
             {errors.password && (
               <div className="mt-1 text-red-500 text-sm">{errors.password}</div>
             )}

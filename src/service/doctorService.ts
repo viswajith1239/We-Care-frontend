@@ -3,6 +3,7 @@ import axios from "axios"
 import API_URL from "../axios/API_URL"
 import doctorAxiosInstance from "../axios/doctorAxiosInstance"
 import { Doctor } from "../types/doctor";
+import { AxiosError } from "axios";
 export interface IDoctor {
     doctorId?: string;
     name: string;
@@ -142,16 +143,23 @@ const registerDoctor = async (doctorData: IDoctor) => {
     }
   };
 
-  const forgotPassword=async(emailData:string)=>{
-    try {
-        console.log("email is",emailData)
-         const response=await doctorAxiosInstance.post(`${API_URL}/doctor/forgotpassword`,{emailData})
-         console.log("the response from forgotpswd",response)
-         return response.data
-    } catch (error) {
-        console.log("Forgot Password Error",error)
+ 
+
+const forgotPassword = async (emailData: string) => {
+  try {
+    const response = await doctorAxiosInstance.post(
+      `${API_URL}/doctor/forgotpassword`,
+      { emailData }
+    );
+    return response.data;
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      const msg = error.response?.data?.message || "Something went wrong";
+      throw new Error(msg); // always throw Error
     }
+    throw new Error("Unexpected error occurred");
   }
+};
 
     const verifyForgotOtp=async({ doctorData, otp,}:{doctorData:Doctor;otp:string})=>{
     

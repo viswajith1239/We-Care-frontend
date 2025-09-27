@@ -144,7 +144,7 @@ function DoctorDashboard() {
               {currentAppoinments.length > 0 ? (
                 currentAppoinments.map((appoinment) => (
                   <tr key={appoinment._id} className="border-t">
-                    <td className="py-2 px-4 text-center">{appoinment.userId._id}</td>
+                    <td className="py-2 px-4 text-center">ID: {Math.floor(Math.random() * 1000000)}</td>
                     <td className="py-2 px-4 text-center">{appoinment.userId.name}</td>
                     <td className="py-2 px-4 text-center">
                       {new Date(appoinment.startDate).toLocaleDateString("en-US")}

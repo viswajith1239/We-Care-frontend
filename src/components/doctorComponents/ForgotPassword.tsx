@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import doctorService from '../../service/doctorService';
-import { toast } from 'react-hot-toast'
+import { toast, Toaster } from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 
 function ForgotPassword() {
@@ -18,14 +18,17 @@ function ForgotPassword() {
         navigate("/doctor/doctor-forgot-passwordOtp", { state: emailData })
       }
 
-    } catch (error) {
-      console.log("error", error)
-      toast.error("Invalid Email Address!!")
+    } catch (error: unknown) {
+      if(error instanceof Error){
+      toast.error(error.message || "Something went wrong");
+      }
+      
     }
   }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Toaster/>
       <main id="content" role="main" className="w-full max-w-md mx-auto p-6">
         <div className="mt-7 bg-white rounded-xl shadow-lg dark:bg-gray-800 dark:border-gray-700 border-0 overflow-hidden">
 
@@ -56,7 +59,7 @@ function ForgotPassword() {
                   </div>
                   <button
                     type="submit"
-                    className="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md border border-transparent font-semibold bg-[#00897B] text-white bg-[#00897B] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm dark:focus:ring-offset-gray-800"
+                    className="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md border border-transparent font-semibold bg-[#00897B] text-white  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm dark:focus:ring-offset-gray-800"
                   >
                     Reset password
                   </button>

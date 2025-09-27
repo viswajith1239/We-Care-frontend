@@ -46,7 +46,13 @@ console.log('userInfos',loggedUser)
               transports: ["websocket"],
               reconnectionAttempts: 5,
             });
-        
+
+            // const newSocket = io("http://localhost:3000", {
+            // query: { userId: loggedUser },
+            // transports: ["websocket"],
+            // reconnectionAttempts: 5,
+            // });
+              
             newSocket.on("connect", () => {
               console.log("Socket connected:", newSocket.id);
               setSocket(newSocket);
