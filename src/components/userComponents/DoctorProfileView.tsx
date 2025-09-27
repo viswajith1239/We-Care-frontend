@@ -53,9 +53,9 @@ interface UserReview {
 }
 
 // Add interface for wallet balance
-interface WalletBalance {
-  balance: number;
-}
+// interface WalletBalance {
+//   balance: number;
+// }
 
 function DoctorsProfileView() {
   const [availableDates, setAvailableDates] = useState<string[]>([]);
